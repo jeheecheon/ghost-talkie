@@ -1,10 +1,11 @@
-import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useConnection, useConnect, useConnectors, useDisconnect } from "wagmi";
 import { Button } from "@/components/ui/button";
 
 function App() {
-  const { address, isConnected } = useAccount();
-  const { connect, connectors, isPending } = useConnect();
-  const { disconnect } = useDisconnect();
+  const { address, isConnected } = useConnection();
+  const connectMutation = useConnect();
+  const connectors = useConnectors();
+  const disconnectMutation = useDisconnect();
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-4">
@@ -15,16 +16,16 @@ function App() {
           <p className="text-muted-foreground text-sm">
             {address?.slice(0, 6)}...{address?.slice(-4)}
           </p>
-          <Button variant="outline" onClick={() => disconnect()}>
+          <Button variant="outline" onClick={() => disconnectMutation.mutate()}>
             Disconnect
           </Button>
         </>
       ) : (
         <Button
-          disabled={isPending}
-          onClick={() => connect({ connector: connectors[0] })}
+          disabled={connectMutation.isPending}
+          onClick={() => connectMutation.mutate({ connector: connectors[0] })}
         >
-          {isPending ? "Connecting..." : "Connect MetaMask"}
+          {connectMutation.isPending ? "Connecting..." : "Connect MetaMask"}
         </Button>
       )}
     </div>
