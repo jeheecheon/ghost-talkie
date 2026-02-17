@@ -3,12 +3,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
 import { Layout } from "@/layouts/RootLayout";
 import { HydrateFallback } from "@/components/HydrateFallback";
+import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
 import { config } from "@/wagmi";
 import "@/index.css";
 
-const queryClient = new QueryClient();
+export { Layout, HydrateFallback, GlobalErrorBoundary as ErrorBoundary };
 
-export { Layout, HydrateFallback };
+const queryClient = new QueryClient();
 
 function Root() {
   return (

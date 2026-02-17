@@ -1,9 +1,11 @@
+import type { Address } from "viem";
+
 export class AppUrlBuilder {
-  static WalletRoom(addressOrEns: string) {
-    return `/${addressOrEns}`;
+  static WalletRoom(address: Address) {
+    return `/${address}`;
   }
 
-  static Chat(addressOrEns: string) {
-    return `/${addressOrEns}/chat`;
+  static Chat(address: Address) {
+    return `/${address}/chat`;
   }
 }

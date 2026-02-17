@@ -4,11 +4,23 @@ import { Button } from "@/components/ui/button";
 import { useRequireWallet } from "@/hooks/useRequireWallet";
 import { useIdentity } from "@/hooks/useIdentity";
 import { AppUrlBuilder } from "@/utils/url";
-import type { Route } from "./+types/$addressOrEns";
 import { shortenAddress } from "@/utils/address";
+import type { Route } from "./+types/$address";
+import { isAddress } from "viem";
 
-function WalletRoom({ params }: Route.ComponentProps) {
-  const { addressOrEns } = params;
+export function clientLoader({ params }: Route.ClientLoaderArgs) {
+  if (!isAddress(params.address)) {
+    throw new Response(null, {
+      status: 400,
+      statusText: "Invalid Wallet Address",
+    });
+  }
+
+  return { address: params.address };
+}
+
+function WalletRoom({ loaderData }: Route.ComponentProps) {
+  const { address } = loaderData;
 
   const navigate = useNavigate();
   const {
@@ -17,19 +29,15 @@ function WalletRoom({ params }: Route.ComponentProps) {
     execute: executeWithWallet,
   } = useRequireWallet();
 
-  const { data: identity, isLoading } = useIdentity({
-    addressOrEns,
-  });
+  const { data: identity, isLoading } = useIdentity(address);
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-4 p-4">
       {isLoading ? (
         <p className="text-muted-foreground">Loading...</p>
-      ) : !identity ? (
-        <p className="text-destructive">Invalid address or ENS name</p>
       ) : (
         <div className="flex flex-col items-center gap-4">
-          {identity.avatar ? (
+          {identity?.avatar ? (
             <img
               src={identity.avatar}
               alt="ENS Avatar"
@@ -41,15 +49,13 @@ function WalletRoom({ params }: Route.ComponentProps) {
             </div>
           )}
 
-          {identity.ensName && (
+          {identity?.ensName && (
             <p className="text-lg font-semibold">{identity.ensName}</p>
           )}
 
-          {identity.address && (
-            <p className="text-muted-foreground text-sm">
-              {shortenAddress(identity.address)}
-            </p>
-          )}
+          <p className="text-muted-foreground text-sm">
+            {shortenAddress(address)}
+          </p>
 
           <Button disabled={isPending} onClick={handleStartChat}>
             {isPending
@@ -65,7 +71,7 @@ function WalletRoom({ params }: Route.ComponentProps) {
 
   function handleStartChat() {
     executeWithWallet(() => {
-      navigate(AppUrlBuilder.Chat(addressOrEns));
+      navigate(AppUrlBuilder.Chat(address));
     });
   }
 }

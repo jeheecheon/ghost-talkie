@@ -1,51 +1,31 @@
-import { isAddress } from "viem";
+import type { Nullable } from "@/types/misc";
+import type { Address } from "viem";
 import { normalize } from "viem/ens";
-import { useEnsAddress, useEnsName, useEnsAvatar } from "wagmi";
-import type { Optional } from "@/types/misc";
-import type { ResolvedIdentity } from "@/types/ens";
+import { useEnsName, useEnsAvatar } from "wagmi";
 
-interface UseResolveAddressOrEnsArgs {
-  addressOrEns: string;
-}
-
-interface UseResolveAddressOrEnsReturn {
-  data: Optional<ResolvedIdentity>;
+interface UseIdentityReturn {
   isLoading: boolean;
+  data: Nullable<{
+    ensName: Nullable<string>;
+    avatar: Nullable<string>;
+  }>;
 }
 
-export function useIdentity({
-  addressOrEns,
-}: UseResolveAddressOrEnsArgs): UseResolveAddressOrEnsReturn {
-  const isRawAddress = isAddress(addressOrEns);
-  const hasEnsFormat = addressOrEns.includes(".");
-
-  const { data: ensAddress, isLoading: isLoadingEnsAddress } = useEnsAddress({
-    name: hasEnsFormat ? normalize(addressOrEns) : undefined,
-    query: { enabled: hasEnsFormat },
-  });
-
-  const resolvedAddress = isRawAddress ? addressOrEns : ensAddress;
-
+export function useIdentity(address: Address): UseIdentityReturn {
   const { data: ensName, isLoading: isLoadingEnsName } = useEnsName({
-    address: resolvedAddress ?? undefined,
-    query: { enabled: !!resolvedAddress && isRawAddress },
+    address,
   });
-
-  const finalEnsName = hasEnsFormat ? addressOrEns : ensName;
 
   const { data: avatar, isLoading: isLoadingAvatar } = useEnsAvatar({
-    name: finalEnsName ? normalize(finalEnsName) : undefined,
-    query: { enabled: !!finalEnsName },
+    name: ensName ? normalize(ensName) : undefined,
+    query: { enabled: !!ensName },
   });
 
-  const isLoading = isLoadingEnsAddress || isLoadingEnsName || isLoadingAvatar;
-
   return {
+    isLoading: isLoadingEnsName || isLoadingAvatar,
     data: {
-      address: resolvedAddress ?? null,
-      ensName: finalEnsName ?? null,
+      ensName: ensName ?? null,
       avatar: avatar ?? null,
     },
-    isLoading,
   };
 }
