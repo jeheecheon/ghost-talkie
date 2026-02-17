@@ -10,7 +10,7 @@ const queryClient = new QueryClient();
 
 export { Layout, HydrateFallback };
 
-export default function Root() {
+function Root() {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
@@ -19,3 +19,5 @@ export default function Root() {
     </WagmiProvider>
   );
 }
+
+export default Root;

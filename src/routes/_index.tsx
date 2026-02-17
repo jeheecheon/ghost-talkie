@@ -1,7 +1,7 @@
 import { useConnection, useConnect, useConnectors, useDisconnect } from "wagmi";
 import { Button } from "@/components/ui/button";
 
-export default function Index() {
+function Index() {
   const { address, isConnected } = useConnection();
   const connectMutation = useConnect();
   const connectors = useConnectors();
@@ -31,3 +31,5 @@ export default function Index() {
     </div>
   );
 }
+
+export default Index;
