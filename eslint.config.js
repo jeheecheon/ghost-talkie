@@ -4,7 +4,7 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 import prettier from 'eslint-plugin-prettier/recommended'
-import noRelativeImportPaths from 'eslint-plugin-no-relative-import-paths'
+import { default as noRelativeImportPaths } from 'eslint-plugin-no-relative-import-paths'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
