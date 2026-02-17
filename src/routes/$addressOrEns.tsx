@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { isAddress } from "viem";
 import { normalize } from "viem/ens";
 import {
@@ -11,16 +11,13 @@ import {
 } from "wagmi";
 import { User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useTrysteroRoom } from "@/hooks/useTrysteroRoom";
-import { useState } from "react";
 
 function WalletRoom() {
   const { addressOrEns } = useParams<{ addressOrEns: string }>();
+  const navigate = useNavigate();
   const { isConnected } = useConnection();
   const connectMutation = useConnect();
   const connectors = useConnectors();
-  const [isChatting, setIsChatting] = useState(false);
-  const [messageInput, setMessageInput] = useState("");
 
   const isRawAddress = addressOrEns ? isAddress(addressOrEns) : false;
   const hasEnsFormat = addressOrEns?.includes(".");
@@ -44,40 +41,18 @@ function WalletRoom() {
     query: { enabled: !!finalEnsName },
   });
 
-  const roomId = resolvedAddress
-    ? `inbox-${resolvedAddress.toLowerCase()}`
-    : "";
-
-  const {
-    peers,
-    messages,
-    sendMessage,
-    selfId,
-    isConnected: hasPeer,
-  } = useTrysteroRoom({
-    roomId,
-    enabled: isChatting && !!resolvedAddress,
-  });
-
   const handleStartChat = () => {
     if (!isConnected) {
       connectMutation.mutate(
         { connector: connectors[0] },
         {
           onSuccess: () => {
-            setIsChatting(true);
+            navigate(`/${addressOrEns}/chat`);
           },
         },
       );
     } else {
-      setIsChatting(true);
-    }
-  };
-
-  const handleSendMessage = () => {
-    if (messageInput.trim()) {
-      sendMessage(messageInput);
-      setMessageInput("");
+      navigate(`/${addressOrEns}/chat`);
     }
   };
 
@@ -122,56 +97,14 @@ function WalletRoom() {
           {resolvedAddress.slice(0, 6)}...{resolvedAddress.slice(-4)}
         </p>
 
-        {!isChatting && (
-          <Button
-            onClick={handleStartChat}
-            disabled={connectMutation.isPending}
-          >
-            {connectMutation.isPending
-              ? "Connecting..."
-              : isConnected
-                ? "Start Chat"
-                : "Connect Wallet & Start Chat"}
-          </Button>
-        )}
+        <Button onClick={handleStartChat} disabled={connectMutation.isPending}>
+          {connectMutation.isPending
+            ? "Connecting..."
+            : isConnected
+              ? "Start Chat"
+              : "Connect Wallet & Start Chat"}
+        </Button>
       </div>
-
-      {isChatting && (
-        <div className="w-full max-w-2xl space-y-4">
-          <div className="rounded-lg border p-4">
-            <p className="text-muted-foreground mb-2 text-sm">
-              {hasPeer
-                ? `Connected to ${peers.length} peer${peers.length > 1 ? "s" : ""}`
-                : "Waiting for peer..."}
-            </p>
-
-            <div className="mb-4 max-h-96 space-y-2 overflow-y-auto">
-              {messages.map((msg) => (
-                <div key={msg.id} className="rounded bg-muted p-2">
-                  <p className="text-xs font-semibold">
-                    {msg.sender === selfId
-                      ? "You"
-                      : `${msg.sender.slice(0, 6)}...${msg.sender.slice(-4)}`}
-                  </p>
-                  <p className="text-sm">{msg.text}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={messageInput}
-                onChange={(e) => setMessageInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-                placeholder="Type a message..."
-                className="flex-1 rounded border bg-background px-3 py-2 text-sm"
-              />
-              <Button onClick={handleSendMessage}>Send</Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
