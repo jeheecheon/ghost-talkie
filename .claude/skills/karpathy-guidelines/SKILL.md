@@ -1,3 +1,9 @@
+---
+name: karpathy-guidelines
+description: karpathy-guidelines
+user-invocable: true
+---
+
 # Karpathy-inspired coding guidelines
 
 Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
