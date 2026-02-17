@@ -10,3 +10,15 @@ Format: `<type>: <content>`
 - Content: short, English only
 - NEVER add `Co-Authored-By`, `Co-authored-by`, or any AI/bot attribution
 - Author everything as if the user wrote it
+
+## Code Principles
+
+- Follow DRY and SOLID strictly
+- Before modifying/extending code, evaluate structural improvements; refactor if beneficial
+- Reuse existing abstractions; create new ones only when justified
+- Prefer incremental improvement over accumulating tech debt
+
+## CLAUDE.md Editing
+
+- Use precise technical terms; no filler
+- Keep entries minimal to reduce token/context waste
