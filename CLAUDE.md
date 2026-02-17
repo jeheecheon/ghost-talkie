@@ -27,6 +27,7 @@ Format: `<type>: <content>`
 - Wrap single-line code blocks in braces
 - Use `Nullable<T>`, `Optional<T>`, `Maybe<T>` from `@/types/misc` instead of inline `null | T`, `undefined | T`, `null | undefined | T`
 - Place `handle*` functions after `return` using `function` declaration hoisting; never use arrow function handlers above `return`
+- Use `export default ComponentName` as separate statement at file bottom; not inline `export default function`
 
 ## CLAUDE.md Editing
 

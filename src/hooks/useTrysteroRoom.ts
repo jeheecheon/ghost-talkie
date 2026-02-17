@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { joinRoom, selfId } from "trystero/nostr";
+import { type ActionSender, joinRoom, selfId, type Room } from "trystero/nostr";
+import type { Nullable } from "@/types/misc";
 
 interface ChatMessage {
   id: string;
@@ -8,7 +9,7 @@ interface ChatMessage {
   timestamp: number;
 }
 
-interface UseTrysteroRoomOptions {
+interface UseTrysteroRoomArgs {
   roomId: string;
   enabled: boolean;
 }
@@ -16,19 +17,19 @@ interface UseTrysteroRoomOptions {
 interface UseTrysteroRoomReturn {
   peers: string[];
   messages: ChatMessage[];
-  sendMessage: (text: string) => void;
   selfId: string;
   isConnected: boolean;
+  sendMessage: (text: string) => void;
 }
 
 export function useTrysteroRoom({
   roomId,
   enabled,
-}: UseTrysteroRoomOptions): UseTrysteroRoomReturn {
+}: UseTrysteroRoomArgs): UseTrysteroRoomReturn {
   const [peers, setPeers] = useState<string[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const roomRef = useRef<ReturnType<typeof joinRoom> | null>(null);
-  const sendChatRef = useRef<((data: { text: string }) => void) | null>(null);
+  const roomRef = useRef<Nullable<Room>>(null);
+  const sendChatRef = useRef<Nullable<ActionSender<{ text: string }>>>(null);
 
   useEffect(() => {
     if (!enabled || !roomId) {
@@ -75,7 +76,9 @@ export function useTrysteroRoom({
   }, [enabled, roomId]);
 
   const sendMessage = useCallback((text: string) => {
-    if (!sendChatRef.current || !text.trim()) return;
+    if (!sendChatRef.current || !text.trim()) {
+      return;
+    }
 
     sendChatRef.current({ text });
     setMessages((prev) => [
@@ -92,8 +95,8 @@ export function useTrysteroRoom({
   return {
     peers,
     messages,
-    sendMessage,
     selfId,
     isConnected: peers.length > 0,
+    sendMessage,
   };
 }

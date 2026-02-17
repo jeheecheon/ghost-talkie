@@ -1,25 +1,22 @@
 import { useNavigate } from "react-router";
 import { isAddress } from "viem";
 import { normalize } from "viem/ens";
-import {
-  useEnsAddress,
-  useEnsName,
-  useEnsAvatar,
-  useConnection,
-  useConnect,
-  useConnectors,
-} from "wagmi";
+import { useEnsAddress, useEnsName, useEnsAvatar } from "wagmi";
 import { User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { Route } from ".react-router/types/src/routes/+types/$addressOrEns";
+import { useRequireWallet } from "@/hooks/useRequireWallet";
+import { AppUrlBuilder } from "@/utils/url";
+import type { Route } from "./+types/$addressOrEns";
 
 function WalletRoom({ params }: Route.ComponentProps) {
   const { addressOrEns } = params;
 
   const navigate = useNavigate();
-  const { isConnected } = useConnection();
-  const connectMutation = useConnect();
-  const connectors = useConnectors();
+  const {
+    isConnected,
+    isPending,
+    execute: executeWithWallet,
+  } = useRequireWallet();
 
   const isRawAddress = addressOrEns ? isAddress(addressOrEns) : false;
   const hasEnsFormat = addressOrEns?.includes(".");
@@ -73,11 +70,8 @@ function WalletRoom({ params }: Route.ComponentProps) {
             {resolvedAddress.slice(0, 6)}...{resolvedAddress.slice(-4)}
           </p>
 
-          <Button
-            onClick={handleStartChat}
-            disabled={connectMutation.isPending}
-          >
-            {connectMutation.isPending
+          <Button onClick={handleStartChat} disabled={isPending}>
+            {isPending
               ? "Connecting..."
               : isConnected
                 ? "Start Chat"
@@ -89,19 +83,9 @@ function WalletRoom({ params }: Route.ComponentProps) {
   );
 
   function handleStartChat() {
-    if (!isConnected) {
-      connectMutation.mutate(
-        { connector: connectors[0] },
-        {
-          onSuccess: () => {
-            navigate(`/${addressOrEns}/chat`);
-          },
-        },
-      );
-      return;
-    }
-
-    navigate(`/${addressOrEns}/chat`);
+    executeWithWallet(() => {
+      navigate(AppUrlBuilder.Chat(addressOrEns));
+    });
   }
 }
 

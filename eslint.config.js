@@ -33,4 +33,10 @@ export default defineConfig([
       ],
     },
   },
+  {
+    files: ["src/routes/**"],
+    rules: {
+      "no-relative-import-paths/no-relative-import-paths": "off",
+    },
+  },
 ])
