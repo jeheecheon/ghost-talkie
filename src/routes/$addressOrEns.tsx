@@ -58,53 +58,46 @@ function WalletRoom() {
 
   const isLoading = isLoadingEnsAddress || isLoadingEnsName || isLoadingAvatar;
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-svh flex-col items-center justify-center gap-4">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    );
-  }
-
-  if (!resolvedAddress) {
-    return (
-      <div className="flex min-h-svh flex-col items-center justify-center gap-4">
-        <p className="text-destructive">Invalid address or ENS name</p>
-      </div>
-    );
-  }
-
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-4 p-4">
-      <div className="flex flex-col items-center gap-4">
-        {avatar ? (
-          <img
-            src={avatar}
-            alt="ENS Avatar"
-            className="h-24 w-24 rounded-full"
-          />
-        ) : (
-          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted">
-            <User className="h-12 w-12 text-muted-foreground" />
-          </div>
-        )}
+      {isLoading ? (
+        <p className="text-muted-foreground">Loading...</p>
+      ) : !resolvedAddress ? (
+        <p className="text-destructive">Invalid address or ENS name</p>
+      ) : (
+        <div className="flex flex-col items-center gap-4">
+          {avatar ? (
+            <img
+              src={avatar}
+              alt="ENS Avatar"
+              className="h-24 w-24 rounded-full"
+            />
+          ) : (
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted">
+              <User className="h-12 w-12 text-muted-foreground" />
+            </div>
+          )}
 
-        {finalEnsName && (
-          <p className="text-lg font-semibold">{finalEnsName}</p>
-        )}
+          {finalEnsName && (
+            <p className="text-lg font-semibold">{finalEnsName}</p>
+          )}
 
-        <p className="text-muted-foreground text-sm">
-          {resolvedAddress.slice(0, 6)}...{resolvedAddress.slice(-4)}
-        </p>
+          <p className="text-muted-foreground text-sm">
+            {resolvedAddress.slice(0, 6)}...{resolvedAddress.slice(-4)}
+          </p>
 
-        <Button onClick={handleStartChat} disabled={connectMutation.isPending}>
-          {connectMutation.isPending
-            ? "Connecting..."
-            : isConnected
-              ? "Start Chat"
-              : "Connect Wallet & Start Chat"}
-        </Button>
-      </div>
+          <Button
+            onClick={handleStartChat}
+            disabled={connectMutation.isPending}
+          >
+            {connectMutation.isPending
+              ? "Connecting..."
+              : isConnected
+                ? "Start Chat"
+                : "Connect Wallet & Start Chat"}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
