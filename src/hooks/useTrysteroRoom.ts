@@ -1,61 +1,52 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { type ActionSender, joinRoom, selfId, type Room } from "trystero/nostr";
+import { useEffect, useRef, useState } from "react";
+import { type ActionSender, joinRoom } from "trystero/nostr";
 import type { Nullable } from "@/types/misc";
-
-interface ChatMessage {
-  id: string;
-  text: string;
-  sender: string;
-  timestamp: number;
-}
+import type { ChatMessage, ChatPayload } from "@/types/chat";
 
 interface UseTrysteroRoomArgs {
   roomId: string;
-  enabled: boolean;
+  sender: string;
+  enabled?: boolean;
 }
 
 interface UseTrysteroRoomReturn {
   peers: string[];
   messages: ChatMessage[];
-  selfId: string;
-  isConnected: boolean;
   sendMessage: (text: string) => void;
 }
 
 export function useTrysteroRoom({
   roomId,
+  sender,
   enabled,
 }: UseTrysteroRoomArgs): UseTrysteroRoomReturn {
   const [peers, setPeers] = useState<string[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const roomRef = useRef<Nullable<Room>>(null);
-  const sendChatRef = useRef<Nullable<ActionSender<{ text: string }>>>(null);
+  const sendChatRef = useRef<Nullable<ActionSender<ChatPayload>>>(null);
 
   useEffect(() => {
     if (!enabled || !roomId) {
-      if (roomRef.current) {
-        roomRef.current.leave();
-        roomRef.current = null;
-        sendChatRef.current = null;
-      }
       return;
     }
 
-    const room = joinRoom({ appId: "ghosttalkie" }, roomId);
-    roomRef.current = room;
+    return initRoom();
+  }, [enabled, roomId]);
 
-    const [sendChat, getChat] = room.makeAction<{ text: string }>("chat");
+  return {
+    peers,
+    messages,
+    sendMessage,
+  };
+
+  function initRoom() {
+    const room = joinRoom({ appId: "ghosttalkie" }, roomId);
+    const [sendChat, getChat] = room.makeAction<ChatPayload>("chat");
     sendChatRef.current = sendChat;
 
-    getChat((data, peerId) => {
+    getChat((data) => {
       setMessages((prev) => [
         ...prev,
-        {
-          id: crypto.randomUUID(),
-          text: data.text,
-          sender: peerId,
-          timestamp: Date.now(),
-        },
+        createChatMessage({ text: data.text, sender: data.sender }),
       ]);
     });
 
@@ -67,36 +58,34 @@ export function useTrysteroRoom({
       setPeers((prev) => prev.filter((id) => id !== peerId));
     });
 
-    return () => {
+    return function destroyRoom() {
       room.leave();
-      roomRef.current = null;
       sendChatRef.current = null;
       setPeers([]);
+      setMessages([]);
     };
-  }, [enabled, roomId]);
+  }
 
-  const sendMessage = useCallback((text: string) => {
+  function sendMessage(text: string) {
     if (!sendChatRef.current || !text.trim()) {
       return;
     }
 
-    sendChatRef.current({ text });
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
-        text,
-        sender: selfId,
-        timestamp: Date.now(),
-      },
-    ]);
-  }, []);
+    sendChatRef.current({ text, sender });
+    setMessages((prev) => [...prev, createChatMessage({ text, sender })]);
+  }
 
-  return {
-    peers,
-    messages,
-    selfId,
-    isConnected: peers.length > 0,
-    sendMessage,
-  };
+  function createChatMessage(args: {
+    text: string;
+    sender: string;
+  }): ChatMessage {
+    const { text, sender } = args;
+
+    return {
+      id: crypto.randomUUID(),
+      text,
+      sender,
+      timestamp: Date.now(),
+    };
+  }
 }
