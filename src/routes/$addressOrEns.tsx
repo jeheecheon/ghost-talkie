@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { isAddress } from "viem";
 import { normalize } from "viem/ens";
 import {
@@ -11,9 +11,11 @@ import {
 } from "wagmi";
 import { User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { Route } from ".react-router/types/src/routes/+types/$addressOrEns";
 
-function WalletRoom() {
-  const { addressOrEns } = useParams<{ addressOrEns: string }>();
+function WalletRoom({ params }: Route.ComponentProps) {
+  const { addressOrEns } = params;
+
   const navigate = useNavigate();
   const { isConnected } = useConnection();
   const connectMutation = useConnect();
@@ -40,21 +42,6 @@ function WalletRoom() {
     name: finalEnsName ? normalize(finalEnsName) : undefined,
     query: { enabled: !!finalEnsName },
   });
-
-  const handleStartChat = () => {
-    if (!isConnected) {
-      connectMutation.mutate(
-        { connector: connectors[0] },
-        {
-          onSuccess: () => {
-            navigate(`/${addressOrEns}/chat`);
-          },
-        },
-      );
-    } else {
-      navigate(`/${addressOrEns}/chat`);
-    }
-  };
 
   const isLoading = isLoadingEnsAddress || isLoadingEnsName || isLoadingAvatar;
 
@@ -100,6 +87,22 @@ function WalletRoom() {
       )}
     </div>
   );
+
+  function handleStartChat() {
+    if (!isConnected) {
+      connectMutation.mutate(
+        { connector: connectors[0] },
+        {
+          onSuccess: () => {
+            navigate(`/${addressOrEns}/chat`);
+          },
+        },
+      );
+      return;
+    }
+
+    navigate(`/${addressOrEns}/chat`);
+  }
 }
 
 export default WalletRoom;
