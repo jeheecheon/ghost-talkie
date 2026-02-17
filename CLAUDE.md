@@ -2,6 +2,8 @@
 
 ## Git
 
+- Do NOT commit unless the user explicitly requests it
+
 ### Commit Messages
 
 Format: `<type>: <content>`
@@ -18,6 +20,7 @@ Format: `<type>: <content>`
 - Reuse existing abstractions; create new ones only when justified
 - Prefer incremental improvement over accumulating tech debt
 - Use absolute imports (`@/`) for all internal imports; no relative paths
+- Components must have a single return statement; use JSX conditional rendering instead of early returns
 
 ## CLAUDE.md Editing
 
