@@ -27,8 +27,14 @@ Format: `<type>: <content>`
 - Wrap single-line code blocks in braces
 - Use `Nullable<T>`, `Optional<T>`, `Maybe<T>` from `@/types/misc` instead of inline `null | T`, `undefined | T`, `null | undefined | T`
 - Place `handle*` functions after `return` using `function` declaration hoisting; never use arrow function handlers above `return`
+- Define component Props with `type`, not `interface`
 - Use `export default ComponentName` as separate statement at file bottom; not inline `export default function`
 - Use `@heroicons/react` for icons; do not use `lucide-react`
+- Name functions as verbs; name types/constants as nouns
+- Use `assert()` for invariant checks and `ensure()` for unwrapping `Maybe<T>` values; both from `@/utils/assert`
+- Eliminate unnecessary `try/catch`; only use at system boundaries (external data, network, user input)
+- Review all code changes for clean code violations before presenting to user
+- After code modifications, verify `pnpm tsc --noEmit` and `pnpm eslint` pass
 
 ## Styling
 

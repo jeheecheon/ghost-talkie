@@ -127,20 +127,23 @@ Transition:
 
 ## Wallet Sign (One-Time Setup)
 
-Users manage only their Ethereum wallet. One MetaMask signature handles everything.
+Users manage only their Ethereum wallet. Two MetaMask signatures during first setup handle everything.
 
 ```
-User connects wallet (0xABC) and signs once:
-  Message: "GhostTalkie identity for {walletAddress}"
+User connects wallet (0xABC) and signs twice (one-time setup):
 
-From this single signature:
-  1. sha256(signature) → Nostr private key → Nostr public key (abc123)
-  2. The signature itself serves as wallet-sig
-     → proves "Nostr pubkey abc123 belongs to wallet 0xABC"
+  Signature 1 — Key derivation (never published):
+    Message: "GhostTalkie key for {walletAddress}"
+    → sha256(signature) → Nostr private key → Nostr public key (abc123)
+
+  Signature 2 — Proof of ownership (published on relay):
+    Message: "GhostTalkie: {walletAddress} owns Nostr {nostrPubkey}"
+    → proof-sig stored in event tags
 
 Result:
-  - Nostr keypair derived (for profile comments, auto-signing)
-  - wallet-sig created (for Owner badge verification)
+  - Nostr keypair derived from sig 1 (for profile comments, auto-signing)
+  - proof-sig from sig 2 (for Owner badge verification)
+  - Key derivation input (sig 1) is NEVER published — only proof-sig (sig 2) is public
   - Same wallet always produces same Nostr identity
   - User never sees or manages Nostr keys
 ```
@@ -199,20 +202,23 @@ Nostr Event structure:
   │ sig:        ██████ (signed by Nostr key)    │     "abc123 wrote this event"
   │                                             │
   │ tags:                                       │
-  │   wallet:     "0xABC"                       │  ← Layer 2: wallet-sig
-  │   wallet-sig: "██████"                      │     "abc123 belongs to 0xABC"
+  │   wallet:     "0xABC"                       │  ← Layer 2: proof-sig
+  │   wallet-sig: "██████"                      │     "0xABC owns abc123"
   └────────────────────────────────────────────┘
 
 Verification (client-side):
   1. Verify Nostr sig → confirms abc123 authored this event
-  2. Verify wallet-sig → confirms abc123 = wallet 0xABC
-  3. If wallet 0xABC === profile owner → Owner badge ✅
+  2. Verify proof-sig against "GhostTalkie: 0xABC owns Nostr abc123"
+     → confirms wallet 0xABC claimed ownership of abc123
+  3. If wallet 0xABC === profile owner → Owner badge
 
 Security:
-  - wallet-sig is public on relay, but safe:
-    → Attacker copies wallet-sig + creates event with their own Nostr key (xyz789)
-    → wallet-sig says "abc123 = 0xABC", but event pubkey is xyz789
-    → xyz789 ≠ abc123 → verification fails
+  - proof-sig is public on relay, but safe:
+    → proof-sig is a DIFFERENT signature from the key derivation signature
+    → Key derivation sig is never published → Nostr private key stays secret
+    → Attacker copies proof-sig + creates event with their own Nostr key (xyz789)
+    → proof-sig says "0xABC owns abc123", but event pubkey is xyz789
+    → Verifier reconstructs message with xyz789 → signature mismatch → fails
     → Attacker cannot forge abc123's Nostr signature without the Nostr private key
 ```
 
@@ -358,8 +364,8 @@ Threat: Room impersonation (P2P)
   → Cannot produce valid wallet-sig for 0xABC → verification fails
 
 Threat: Comment Owner badge forgery (Nostr)
-  → Attacker copies wallet-sig from relay
-  → Cannot sign Nostr event as abc123 (no Nostr private key)
+  → Attacker copies proof-sig from relay
+  → Cannot sign Nostr event as abc123 (key derivation sig is never published)
   → Event pubkey mismatch → verification fails
 
 Threat: Man-in-the-middle
