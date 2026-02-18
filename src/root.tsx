@@ -4,8 +4,8 @@ import { WagmiProvider } from "wagmi";
 import { Layout } from "@/layouts/RootLayout";
 import { HydrateFallback } from "@/components/HydrateFallback";
 import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
-import { config } from "@/wagmi";
-import "@/index.css";
+import { config } from "@/configs/wagmi";
+import "@/styles/globals.css";
 
 export { Layout, HydrateFallback, GlobalErrorBoundary as ErrorBoundary };
 

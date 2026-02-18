@@ -1,6 +1,7 @@
 import { Link, isRouteErrorResponse, useRouteError } from "react-router";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
+import { env } from "@/configs/env";
 
 function GlobalErrorBoundary() {
   const error = useRouteError();
@@ -16,7 +17,7 @@ function GlobalErrorBoundary() {
       <ExclamationTriangleIcon className="size-16 text-destructive" />
       <p className="text-4xl font-bold text-destructive">{title}</p>
       <p className="text-lg font-semibold text-muted-foreground">{message}</p>
-      {import.meta.env.DEV && error instanceof Error && (
+      {!env.isProduction && error instanceof Error && (
         <pre className="max-w-lg overflow-auto rounded bg-muted p-4 text-xs text-muted-foreground">
           {error.stack}
         </pre>
