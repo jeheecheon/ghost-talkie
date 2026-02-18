@@ -1,7 +1,7 @@
 import type { Address } from "viem";
 
 export class AppUrlBuilder {
-  static WalletRoom(address: Address) {
+  static WalletProfile(address: Address) {
     return `/${address}`;
   }
 

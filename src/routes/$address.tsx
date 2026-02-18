@@ -19,7 +19,7 @@ export function clientLoader({ params }: Route.ClientLoaderArgs) {
   return { address: params.address };
 }
 
-function WalletRoom({ loaderData }: Route.ComponentProps) {
+function WalletProfile({ loaderData }: Route.ComponentProps) {
   const { address } = loaderData;
 
   const navigate = useNavigate();
@@ -76,4 +76,4 @@ function WalletRoom({ loaderData }: Route.ComponentProps) {
   }
 }
 
-export default WalletRoom;
+export default WalletProfile;
