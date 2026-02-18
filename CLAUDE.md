@@ -30,6 +30,14 @@ Format: `<type>: <content>`
 - Use `export default ComponentName` as separate statement at file bottom; not inline `export default function`
 - Use `@heroicons/react` for icons; do not use `lucide-react`
 
+## Styling
+
+- Tailwind classes: keep concise; use shorthands (`size-10` over `w-10 h-10`)
+- Omit utilities that match browser/Tailwind defaults (e.g., `flex-row`, `bg-transparent`, `static`)
+- Respect natural document flow (block stacking, inline flow) before adding layout utilities
+- Maintain accessibility (semantic HTML, focus states, contrast, ARIA when needed)
+- Structure CSS/class lists for readability: layout → sizing → spacing → visual
+
 ## CLAUDE.md Editing
 
 - Use precise technical terms; no filler

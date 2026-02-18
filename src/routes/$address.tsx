@@ -41,11 +41,11 @@ function WalletProfile({ loaderData }: Route.ComponentProps) {
             <img
               src={identity.avatar}
               alt="ENS Avatar"
-              className="h-24 w-24 rounded-full"
+              className="size-24 rounded-full"
             />
           ) : (
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted">
-              <UserIcon className="h-12 w-12 text-muted-foreground" />
+            <div className="flex size-24 items-center justify-center rounded-full bg-muted">
+              <UserIcon className="size-12 text-muted-foreground" />
             </div>
           )}
 
