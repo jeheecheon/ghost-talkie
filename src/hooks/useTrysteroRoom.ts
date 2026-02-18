@@ -29,7 +29,11 @@ export function useTrysteroRoom({
       return;
     }
 
-    return initRoom();
+    const destroyRoom = initRoom();
+
+    return () => {
+      destroyRoom();
+    };
   }, [enabled, roomId]);
 
   return {
