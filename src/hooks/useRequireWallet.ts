@@ -7,7 +7,7 @@ export function useRequireWallet() {
 
   return {
     isConnected,
-    isPending: isConnecting || isReconnecting,
+    isLoading: isConnecting || isReconnecting,
     execute(action: () => void) {
       if (!isConnected) {
         connectMutation.mutate(
