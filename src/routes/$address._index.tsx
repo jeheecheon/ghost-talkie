@@ -6,7 +6,7 @@ import { useRequireWallet } from "@/hooks/useRequireWallet";
 import { useIdentity } from "@/hooks/useIdentity";
 import { AppUrlBuilder } from "@/utils/url";
 import { shortenAddress } from "@/utils/address";
-import type { Route } from "./+types/$address";
+import type { Route } from "./+types/$address._index";
 import { isAddress } from "viem";
 
 export function clientLoader({ params }: Route.ClientLoaderArgs) {
