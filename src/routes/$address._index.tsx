@@ -24,22 +24,22 @@ function WalletProfile({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
   const {
     isConnected,
-    isLoading,
+    isLoading: isWalletLoading,
     execute: executeWithWallet,
   } = useRequireWallet();
 
-  const { data: identity, isLoading } = useIdentity(address);
+  const { data: identity, isLoading: isIdentityLoading } = useIdentity(address);
 
   return (
     <div className="flex min-h-svh flex-col items-center gap-8 p-4 pt-20">
-      {isLoading ? (
+      {isIdentityLoading ? (
         <p className="text-muted-foreground">Loading...</p>
       ) : (
         <>
           <WalletProfileCard
             address={address}
             identity={identity}
-            isLoading={isLoading}
+            isLoading={isWalletLoading}
             isConnected={isConnected}
             onStartChat={handleStartChat}
           />
