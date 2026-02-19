@@ -22,3 +22,21 @@ export async function safelyGetAsync<T>(
     return undefined;
   }
 }
+
+export function safelyRun(callback: () => void): void {
+  try {
+    callback();
+  } catch {
+    return;
+  }
+}
+
+export async function safelyRunAsync(
+  callback: () => Promise<void>,
+): Promise<void> {
+  try {
+    await callback();
+  } catch {
+    return;
+  }
+}

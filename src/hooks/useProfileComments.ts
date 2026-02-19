@@ -1,7 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SimplePool } from "nostr-tools/pool";
-
 import type { Address } from "viem";
 import type { ProfileComment } from "@/types/comment";
 import type { NostrIdentity } from "@/types/identity";

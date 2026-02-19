@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Address } from "viem";
+import { isAddressEqual, type Address } from "viem";
 import { useConnection } from "wagmi";
 import { Button } from "@/components/ui/button";
 import { useRequireWallet } from "@/hooks/useRequireWallet";
@@ -7,6 +7,7 @@ import { useNostrIdentity } from "@/hooks/useNostrIdentity";
 import { useProfileComments } from "@/hooks/useProfileComments";
 import { shortenAddress } from "@/utils/address";
 import { formatRelativeTime } from "@/utils/time";
+import { safelyRunAsync } from "@/utils/misc";
 
 type CommentSectionProps = {
   profileAddress: Address;
@@ -55,36 +56,42 @@ function CommentSection({ profileAddress }: CommentSectionProps) {
         <p className="text-sm text-muted-foreground">No comments yet</p>
       ) : (
         <div className="flex flex-col gap-3">
-          {comments.map((comment) => (
-            <div key={comment.id} className="rounded-lg bg-muted p-3">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">
-                  {shortenAddress(comment.walletAddress)}
-                </span>
-                {comment.isVerified &&
-                  comment.walletAddress.toLowerCase() ===
-                    profileAddress.toLowerCase() && (
+          {comments.map((comment) => {
+            const isOwner =
+              isAddressEqual(comment.walletAddress, profileAddress) &&
+              comment.isVerified;
+
+            return (
+              <div key={comment.id} className="rounded-lg bg-muted p-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">
+                    {shortenAddress(comment.walletAddress)}
+                  </span>
+                  {isOwner && (
                     <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
                       Owner
                     </span>
                   )}
-                <span className="text-xs text-muted-foreground">
-                  {formatRelativeTime(comment.createdAt)}
-                </span>
+                  <span className="text-xs text-muted-foreground">
+                    {formatRelativeTime(comment.createdAt)}
+                  </span>
+                </div>
+                <p className="mt-1 text-sm">{comment.content}</p>
               </div>
-              <p className="mt-1 text-sm">{comment.content}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </section>
   );
 
   function handleTextareaFocus() {
-    executeWithWallet(() => {
-      if (address) {
-        void requestIdentity(address).catch(() => {});
-      }
+    if (!address) {
+      return;
+    }
+
+    executeWithWallet(async () => {
+      await safelyRunAsync(() => requestIdentity(address));
     });
   }
 

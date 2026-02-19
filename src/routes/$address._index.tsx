@@ -43,7 +43,6 @@ function WalletProfile({ loaderData }: Route.ComponentProps) {
             isConnected={isConnected}
             onStartChat={handleStartChat}
           />
-
           <CommentSection profileAddress={address} />
         </>
       )}
