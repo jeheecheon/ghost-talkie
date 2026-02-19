@@ -1,5 +1,5 @@
 import { type Address, verifyMessage } from "viem";
-import type { ProfileComment } from "@/types/comment";
+import type { Comment } from "@/types/comment";
 
 export function buildKeyMessage(address: Address): string {
   return [
@@ -27,9 +27,7 @@ export function buildProofMessage(
   ].join("\n");
 }
 
-export async function verifyWalletProof(
-  comment: ProfileComment,
-): Promise<boolean> {
+export async function verifyWalletProof(comment: Comment): Promise<boolean> {
   const message = buildProofMessage(comment.walletAddress, comment.nostrPubkey);
 
   // TODO: standalone verifyMessage only handles EOA wallets.

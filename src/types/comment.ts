@@ -1,6 +1,6 @@
 import type { Address, Hex } from "viem";
 
-export type ProfileComment = {
+export type Comment = {
   id: string;
   content: string;
   nostrPubkey: string;

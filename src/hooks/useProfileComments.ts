@@ -2,16 +2,16 @@ import { useCallback, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SimplePool } from "nostr-tools/pool";
 import type { Address } from "viem";
-import type { ProfileComment } from "@/types/comment";
+import type { Comment } from "@/types/comment";
 import type { NostrIdentity } from "@/types/identity";
 import {
   buildCommentEvent,
   buildCommentFilter,
-  buildTopicTag,
+  buildCommentTopicTag,
   mergeComments,
-  parseProfileComment,
+  parseComment,
   resolveComment,
-} from "@/utils/nostr";
+} from "@/utils/comment";
 import { env } from "@/configs/env";
 import { assert, ensure } from "@/utils/assert";
 import { safelyGetAsync } from "@/utils/misc";
@@ -19,12 +19,12 @@ import { safelyGetAsync } from "@/utils/misc";
 const pool = new SimplePool();
 
 function buildQueryKey(profileAddress: Address) {
-  return ["profile:comments", buildTopicTag(profileAddress)];
+  return ["profile:comments", buildCommentTopicTag(profileAddress)];
 }
 
 export function useProfileComments(profileAddress: Address) {
   const queryClient = useQueryClient();
-  const topicTag = buildTopicTag(profileAddress);
+  const topicTag = buildCommentTopicTag(profileAddress);
 
   const { data: comments = [], isLoading } = useQuery({
     queryKey: buildQueryKey(profileAddress),
@@ -38,7 +38,7 @@ export function useProfileComments(profileAddress: Address) {
         await Promise.all(
           events.map((e) => safelyGetAsync(() => resolveComment(e))),
         )
-      ).filter((c): c is ProfileComment => !!c);
+      ).filter((c): c is Comment => !!c);
 
       return comments;
     },
@@ -55,7 +55,7 @@ export function useProfileComments(profileAddress: Address) {
             return;
           }
 
-          queryClient.setQueryData<ProfileComment[]>(
+          queryClient.setQueryData<Comment[]>(
             buildQueryKey(profileAddress),
             (prev) => mergeComments(prev ?? [], [comment]),
           );
@@ -72,7 +72,7 @@ export function useProfileComments(profileAddress: Address) {
     async (content: string, identity: NostrIdentity): Promise<void> => {
       const event = buildCommentEvent(content, profileAddress, identity);
       const optimistic = {
-        ...ensure(parseProfileComment(event)),
+        ...ensure(parseComment(event)),
         isVerified: true,
       };
 
@@ -83,7 +83,7 @@ export function useProfileComments(profileAddress: Address) {
       const published = results.some((r) => r.status === "fulfilled");
       assert(published, "Failed to publish comment to any relay");
 
-      queryClient.setQueryData<ProfileComment[]>(
+      queryClient.setQueryData<Comment[]>(
         buildQueryKey(profileAddress),
         (prev) => mergeComments(prev ?? [], [optimistic]),
       );

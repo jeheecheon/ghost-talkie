@@ -2,8 +2,8 @@ import { useCallback } from "react";
 import { useSignMessage } from "wagmi";
 import type { Address } from "viem";
 import { useIdentityStore } from "@/stores/identityStore";
-import { deriveIdentity } from "@/utils/nostr";
 import { buildKeyMessage, buildProofMessage } from "@/utils/wallet";
+import { deriveNostrIdentity } from "@/utils/nostr";
 
 export function useNostrIdentity() {
   const { mutateAsync: signMessage } = useSignMessage();
@@ -22,12 +22,12 @@ export function useNostrIdentity() {
     setIsPending(true);
     try {
       const keySig = await signMessage({ message: buildKeyMessage(addr) });
-      const derived = deriveIdentity(addr, keySig);
+      const nostrIdentity = deriveNostrIdentity(addr, keySig);
       const proofSig = await signMessage({
-        message: buildProofMessage(addr, derived.publicKey),
+        message: buildProofMessage(addr, nostrIdentity.publicKey),
       });
 
-      setIdentity({ ...derived, proofSig });
+      setIdentity({ ...nostrIdentity, proofSig });
     } finally {
       setIsPending(false);
     }
