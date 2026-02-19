@@ -19,108 +19,94 @@ GhostTalkie is a fully serverless, P2P communication app that uses Web3 wallet a
 
 ## Two Modes
 
-### 1. Public Room (No Wallet Required)
+### 1. Global Chat (No Wallet Required)
 
-Open chat rooms anyone can join without authentication. Zero friction entry point.
+Single open chat room at `/chat`. Zero friction — enter and start chatting immediately.
 
-- User picks a nickname (or gets a random one)
-- Joins a topic-based room via Trystero
-- Chat with whoever is online
-- Close tab = everything gone
+- Wallet connected → chat as wallet address
+- No wallet → chat as auto-generated random name
+- Messages published to Nostr relays (persistent, not ephemeral)
+- New users see recent message history on entry
 
-**Predefined rooms:**
+### 2. Private Chat via Wallet Profile (Wallet Required)
 
-| Room             | Topic           |
-| ---------------- | --------------- |
-| `public-general` | General chat    |
-| `public-defi`    | DeFi discussion |
-| `public-nft`     | NFT talk        |
-| `public-dev`     | Developer chat  |
+1-on-1 private communication initiated from the WalletProfile page (`/{walletAddress}`).
 
-**Scaling**: WebRTC mesh supports ~30-50 peers per room. Topic-based sharding keeps each room within this limit.
-
-### 2. Wallet Room (Wallet Required)
-
-Private 1-on-1 communication with verified identity and crypto transfer capability.
-
-- User connects wallet to open their room
-- Share room URL: `ghosttalkie.com/{walletAddress}` or `ghosttalkie.com/{ENS}`
-- Others visit the URL or enter the wallet address to connect
-- Both parties verify each other via wallet signatures
-- Room owner approves/rejects visitors
+- Both parties must have wallets connected
+- Profile owner must be online with room open (Trystero WebRTC)
+- Visitor clicks "Chat" button on owner's profile page to initiate connection
+- WebRTC direct connection: text, voice, video
+- Messages are ephemeral — never stored, direct P2P only
+- Owner offline → visitor can only leave profile comments (Nostr)
 - Crypto transfers possible within the chat
 
 ---
 
 ## User Flow
 
-### Public Room Flow
+### Global Chat Flow
 
 ```
-Landing Page
-  → Select a topic room (general, defi, nft, dev)
-  → Enter nickname
-  → Join room (Trystero P2P)
-  → Chat with peers
-  → Close tab = done
+Landing Page or direct URL /chat
+  → Enter chat immediately
+  → Wallet connected → display wallet address
+  → No wallet → auto-generated name
+  → Messages sent/received via Nostr relays
+  → Recent history loaded on entry
 ```
 
-### Wallet Room Flow — Owner
+### Private Chat Flow — Profile Owner
 
 ```
-Landing Page
-  → Click "Open My Room"
-  → Connect wallet (MetaMask / RainbowKit)
+Connect wallet → navigate to own profile (/{walletAddress})
   → Sign session message (one MetaMask popup)
     → Ethereum identity established
     → Nostr identity auto-derived from wallet signature
-  → Room opens: "inbox-{walletAddress}"
-  → Share URL: ghosttalkie.com/{walletAddress}
-  → Check profile comments (from Nostr relay)
-  → Wait for visitors
-  → Visitor arrives → see their verified wallet address + on-chain profile
+  → Room opens: "inbox-{walletAddress}" (Trystero WebRTC)
+  → Status: Online — accepting visitors
+  → Visitor arrives → see their verified wallet address
   → Accept or Reject
-  → Chat / Voice / Video / Send Crypto
+  → Chat (text / voice / video) / Send Crypto
 ```
 
-### Wallet Room Flow — Visitor
+### Private Chat Flow — Visitor
 
 ```
-Option A: Visit URL directly
-  → ghosttalkie.com/0xABC...1234
-
-Option B: Manual entry
-  → Landing Page → Enter target wallet address (0x...) or ENS (name.eth)
-
-Then:
+Visit profile: ghosttalkie.com/{walletAddress}
   → Connect own wallet
   → Sign identity message (one MetaMask popup)
-  → Join room: "inbox-{targetWalletAddress}"
-  → Owner online → real-time P2P chat (WebRTC)
+  → Click "Chat" button on profile page
+  → Owner online → join room "inbox-{ownerWalletAddress}" (WebRTC)
+    → Exchange wallet signature proofs (automatic verification)
+    → Chat (text / voice / video) / Send Crypto
   → Owner offline → leave a comment on profile (stored on Nostr relay)
-  → Auto-verify room owner's identity (signature check)
-  → Chat / Voice / Video / Send Crypto
 ```
 
 ---
 
-## Hybrid Communication: Nostr + WebRTC
+## Communication Channels
 
-Nostr relays serve dual purpose: Trystero signaling AND profile comment storage.
+### Global Chat — Nostr Relay
 
 ```
-Both online:
-  → Trystero P2P (WebRTC) for real-time chat, voice, video
+/chat page:
+  → All messages published as Nostr events to public relays
+  → Persistent — new users see recent history on entry
+  → No P2P connection needed
+```
+
+### Private Chat — Trystero WebRTC (via Wallet Profile)
+
+```
+Profile owner online:
+  → Visitor clicks "Chat" on /{walletAddress} profile
+  → Trystero P2P (WebRTC) for real-time text, voice, video
   → Messages are direct, never stored anywhere
 
-Owner offline:
-  → Visitor leaves a comment on owner's profile (Nostr event tagged with owner's wallet)
+Profile owner offline:
+  → Visitor leaves a comment on profile (Nostr event tagged with owner's wallet)
   → Nostr relay stores the comment (free, public infrastructure)
   → Owner sees comments on next visit
-
-Transition:
-  → Owner comes online → reads profile comments from relay
-  → Both online → real-time P2P chat (WebRTC)
 ```
 
 ---
@@ -320,17 +306,17 @@ const room = joinRoom({ appId: "ghosttalkie" }, roomId);
 
 ### Room Naming Convention
 
-| Type   | Room ID Pattern         | Example               |
-| ------ | ----------------------- | --------------------- |
-| Public | `public-{topic}`        | `public-general`      |
-| Wallet | `inbox-{walletAddress}` | `inbox-0xABCD...1234` |
+| Type        | Room ID Pattern         | Example               |
+| ----------- | ----------------------- | --------------------- |
+| Global Chat | Nostr channel tag       | `ghosttalkie-chat`    |
+| Wallet      | `inbox-{walletAddress}` | `inbox-0xABCD...1234` |
 
 ### URL Routing
 
 | URL Pattern                         | Action                     |
 | ----------------------------------- | -------------------------- |
 | `ghosttalkie.com/`                  | Landing page               |
-| `ghosttalkie.com/rooms`             | Public room list           |
+| `ghosttalkie.com/chat`              | Global chat                |
 | `ghosttalkie.com/{walletAddress}`   | Enter wallet room          |
 | `ghosttalkie.com/{ENS}`            | Resolve ENS → wallet room  |
 
@@ -338,7 +324,7 @@ const room = joinRoom({ appId: "ghosttalkie" }, roomId);
 
 | Action ID       | Purpose                              | Used In     |
 | --------------- | ------------------------------------ | ----------- |
-| `chat`          | Text messages                        | Both modes  |
+| `chat`          | Text messages                        | Wallet room |
 | `owner-proof`   | Owner sends wallet signature proof   | Wallet room |
 | `visitor-proof` | Visitor sends wallet signature proof | Wallet room |
 | `request`       | Visitor sends chat request           | Wallet room |
@@ -379,15 +365,16 @@ Threat: Wrong crypto transfer address
 
 ---
 
-## Peer Lifecycle (Wallet Room)
+## Peer Lifecycle (Private Chat)
 
 ```
-1. CONNECT     → Trystero connects peers in same room
-2. VERIFY      → Exchange wallet signature proofs (automatic)
-3. REQUEST     → Visitor sends chat request with message
-4. APPROVE     → Owner accepts or rejects
-5. CHAT        → Text, voice, video, file sharing, crypto transfer
-6. DISCONNECT  → Either peer closes tab → connection ends
+1. OPEN        → Profile owner opens room "inbox-{walletAddress}" (online status)
+2. CONNECT     → Visitor clicks "Chat" on profile → Trystero joins room
+3. VERIFY      → Exchange wallet signature proofs (automatic)
+4. REQUEST     → Visitor sends chat request
+5. APPROVE     → Owner accepts or rejects
+6. CHAT        → Text, voice, video, crypto transfer
+7. DISCONNECT  → Either peer closes tab → connection ends
 ```
 
 ---
@@ -413,9 +400,8 @@ Threat: Wrong crypto transfer address
 | --------------------------------- | --------------------------------------------------------------- |
 | Real-time chat needs both online  | Owner offline → profile comments only (no voice/video)          |
 | Comment persistence               | Depends on Nostr relay retention policy (days to months)        |
-| Public room ~30-50 peer limit     | WebRTC mesh topology constraint                                 |
 | TURN fallback needed ~15%         | Some networks block direct P2P connections                      |
-| Wallet required for private rooms | Non-crypto users limited to public rooms                        |
+| Wallet required for private rooms | Non-crypto users limited to global chat                         |
 | On-chain profile accuracy         | Only as good as public API data; no off-chain reputation        |
 
 ---
@@ -423,9 +409,7 @@ Threat: Wrong crypto transfer address
 ## Future Considerations
 
 - **ENS Support**: Resolve `.eth` names to wallet addresses for easier room access
-- **Token-gated Public Rooms**: Require specific token holdings to join certain rooms
 - **File Sharing**: P2P file transfer via WebRTC data channel
-- **Voice/Video**: WebRTC media streams for calls in wallet rooms
 - **Mobile Wallet Support**: WalletConnect for mobile wallet apps
 - **Optional TURN Server**: Self-hosted for reliability when P2P fails
 - **Browser Extension**: "Chat with this wallet" button on Etherscan, OpenSea, etc.
