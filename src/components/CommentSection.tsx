@@ -2,9 +2,9 @@ import { useState } from "react";
 import { isAddressEqual, type Address } from "viem";
 import { useConnection } from "wagmi";
 import { Button } from "@/components/ui/button";
-import { useRequireWallet } from "@/hooks/useRequireWallet";
-import { useNostrIdentity } from "@/hooks/useNostrIdentity";
-import { useProfileComments } from "@/hooks/useProfileComments";
+import useRequireWallet from "@/hooks/useRequireWallet";
+import useNostrIdentity from "@/hooks/useNostrIdentity";
+import useProfileComments from "@/hooks/useProfileComments";
 import { shortenAddress } from "@/utils/address";
 import { formatRelativeTime } from "@/utils/time";
 import { safelyRunAsync } from "@/utils/misc";
@@ -13,7 +13,9 @@ type CommentSectionProps = {
   profileAddress: Address;
 };
 
-function CommentSection({ profileAddress }: CommentSectionProps) {
+export default function CommentSection({
+  profileAddress,
+}: CommentSectionProps) {
   const [commentText, setCommentText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -24,12 +26,12 @@ function CommentSection({ profileAddress }: CommentSectionProps) {
     useProfileComments(profileAddress);
 
   return (
-    <section className="flex w-full max-w-md flex-col gap-4">
+    <section className="space-y-4">
       <h2 className="text-lg font-semibold">Comments</h2>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-y-2">
         <textarea
-          className="w-full min-h-20 resize-y rounded-lg border bg-background p-3 text-sm placeholder:text-muted-foreground focus:border-ring focus:outline-none"
+          className="bg-background placeholder:text-muted-foreground focus:border-ring min-h-20 w-full resize-y rounded-lg border p-3 text-sm focus:outline-none"
           placeholder="Leave a comment..."
           value={commentText}
           onChange={(e) => {
@@ -41,8 +43,8 @@ function CommentSection({ profileAddress }: CommentSectionProps) {
           aria-label="Comment"
         />
         <Button
-          size="sm"
           className="self-end"
+          size="sm"
           disabled={!commentText.trim() || !identity || isSubmitting}
           onClick={handleSubmit}
         >
@@ -51,36 +53,40 @@ function CommentSection({ profileAddress }: CommentSectionProps) {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading comments...</p>
+        // TODO: show loading skeleton
+        <p className="text-muted-foreground text-sm">Loading comments...</p>
       ) : comments.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No comments yet</p>
+        // TODO: show empty state instead of text
+        <p className="text-muted-foreground text-sm">No comments yet</p>
       ) : (
-        <div className="flex flex-col gap-3">
+        <ul className="space-y-3">
           {comments.map((comment) => {
             const isOwner =
               isAddressEqual(comment.walletAddress, profileAddress) &&
               comment.isVerified;
 
             return (
-              <div key={comment.id} className="rounded-lg bg-muted p-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">
-                    {shortenAddress(comment.walletAddress)}
-                  </span>
-                  {isOwner && (
-                    <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
-                      Owner
+              <li key={comment.id}>
+                <section className="bg-muted space-y-1 rounded-lg p-3">
+                  <div className="flex items-center gap-x-2">
+                    <span className="text-sm font-medium">
+                      {shortenAddress(comment.walletAddress)}
                     </span>
-                  )}
-                  <span className="text-xs text-muted-foreground">
-                    {formatRelativeTime(comment.createdAt)}
-                  </span>
-                </div>
-                <p className="mt-1 text-sm">{comment.content}</p>
-              </div>
+                    {isOwner && (
+                      <span className="bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
+                        Owner
+                      </span>
+                    )}
+                    <span className="text-muted-foreground text-xs">
+                      {formatRelativeTime(comment.createdAt)}
+                    </span>
+                  </div>
+                  <p className="text-sm">{comment.content}</p>
+                </section>
+              </li>
             );
           })}
-        </div>
+        </ul>
       )}
     </section>
   );
@@ -111,5 +117,3 @@ function CommentSection({ profileAddress }: CommentSectionProps) {
     }
   }
 }
-
-export default CommentSection;

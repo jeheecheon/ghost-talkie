@@ -1,11 +1,11 @@
 import { useCallback } from "react";
 import { useSignMessage } from "wagmi";
 import type { Address } from "viem";
-import { useIdentityStore } from "@/stores/identityStore";
+import { useIdentityStore } from "@/stores/identity";
 import { buildKeyMessage, buildProofMessage } from "@/utils/wallet";
 import { deriveNostrIdentity } from "@/utils/nostr";
 
-export function useNostrIdentity() {
+export default function useNostrIdentity() {
   const { mutateAsync: signMessage } = useSignMessage();
 
   const identity = useIdentityStore((s) => s.identity);

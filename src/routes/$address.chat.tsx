@@ -1,4 +1,4 @@
-import { useIdentity } from "@/hooks/useIdentity";
+import useIdentity from "@/hooks/useIdentity";
 import type { Route } from "./+types/$address.chat";
 import { isAddress } from "viem";
 import { shortenAddress } from "@/utils/address";
@@ -14,7 +14,7 @@ export function clientLoader({ params }: Route.ClientLoaderArgs) {
   return { address: params.address };
 }
 
-function Chat({ loaderData }: Route.ComponentProps) {
+export default function ChatRoute({ loaderData }: Route.ComponentProps) {
   const { address } = loaderData;
 
   const { isLoading } = useIdentity(address);
@@ -31,5 +31,3 @@ function Chat({ loaderData }: Route.ComponentProps) {
     </div>
   );
 }
-
-export default Chat;

@@ -20,6 +20,7 @@ Format: `<type>: <content>`
 - Reuse existing abstractions; create new ones only when justified
 - Prefer incremental improvement over accumulating tech debt
 - Use absolute imports (`@/`) for all internal imports; no relative paths
+- Route components: suffix default export name with `Route` (e.g., `HomeRoute`, `ChatRoute`)
 - Route components: accept `Route.ComponentProps` from generated `+types/` instead of `useParams` generics
 - `+types/` imports use relative paths (exception to `@/` rule; framework-generated types)
 - Components must have a single `return`; use JSX conditional rendering instead of early returns
@@ -31,7 +32,7 @@ Format: `<type>: <content>`
 - All component Props must include `className`; pass it to the outermost element via `cn()`
 - JSX attribute order: `className` first, event handlers (`on*`) last
 - Use `isLoading` (not `isPending`) for boolean loading-state props
-- Use `export default ComponentName` as separate statement at file bottom; not inline `export default function`
+- Use inline `export default function ComponentName` declaration; not separate `export default` at file bottom
 - Use `@heroicons/react` for icons; do not use `lucide-react`
 - Name functions as verbs; name types/constants as nouns
 - Use `assert()` for invariant checks and `ensure()` for unwrapping `Maybe<T>` values; both from `@/utils/assert`
@@ -43,7 +44,7 @@ Format: `<type>: <content>`
 
 - Tailwind classes: keep concise; use shorthands (`size-10` over `w-10 h-10`)
 - Omit utilities that match browser/Tailwind defaults (e.g., `flex-row`, `bg-transparent`, `static`)
-- Respect natural document flow (block stacking, inline flow) before adding layout utilities
+- Prefer block stacking (natural document flow) over `flex flex-col`; use flex only when alignment/distribution is needed
 - Maintain accessibility (semantic HTML, focus states, contrast, ARIA when needed)
 - Structure CSS/class lists for readability: layout → sizing → spacing → visual
 

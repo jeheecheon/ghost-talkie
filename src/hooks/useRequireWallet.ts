@@ -1,6 +1,6 @@
 import { useConnection, useConnect, useConnectors } from "wagmi";
 
-export function useRequireWallet() {
+export default function useRequireWallet() {
   const { isConnected, isConnecting, isReconnecting } = useConnection();
   const connectMutation = useConnect();
   const connectors = useConnectors();

@@ -2,48 +2,46 @@ import { UserIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 import { shortenAddress } from "@/utils/address";
 import { cn } from "@/utils/misc";
+import type { EnsIdentity } from "@/types/identity";
 import type { Nullable } from "@/types/misc";
 import type { Address } from "viem";
 
 type Props = {
   className?: string;
   address: Address;
-  identity: Nullable<{
-    ensName: Nullable<string>;
-    avatar: Nullable<string>;
-  }>;
+  ensIdentity: Nullable<EnsIdentity>;
   isLoading: boolean;
   isConnected: boolean;
   onStartChat: () => void;
 };
 
-function WalletProfileCard({
+export default function WalletProfileCard({
   className,
   address,
-  identity,
+  ensIdentity,
   isLoading,
   isConnected,
   onStartChat,
 }: Props) {
   return (
     <div className={cn("flex flex-col items-center gap-4", className)}>
-      {identity?.avatar ? (
+      {ensIdentity?.avatar ? (
         <img
           className="size-24 rounded-full"
-          src={identity.avatar}
+          src={ensIdentity.avatar}
           alt="ENS Avatar"
         />
       ) : (
-        <div className="flex size-24 items-center justify-center rounded-full bg-muted">
-          <UserIcon className="size-12 text-muted-foreground" />
+        <div className="bg-muted size-24 rounded-full p-6">
+          <UserIcon className="text-muted-foreground size-full" />
         </div>
       )}
 
-      {identity?.ensName && (
-        <p className="text-lg font-semibold">{identity.ensName}</p>
+      {ensIdentity?.ensName && (
+        <p className="text-lg font-semibold">{ensIdentity.ensName}</p>
       )}
 
-      <p className="text-sm text-muted-foreground">{shortenAddress(address)}</p>
+      <p className="text-muted-foreground text-sm">{shortenAddress(address)}</p>
 
       <Button disabled={isLoading} onClick={onStartChat}>
         {isLoading
@@ -55,5 +53,3 @@ function WalletProfileCard({
     </div>
   );
 }
-
-export default WalletProfileCard;

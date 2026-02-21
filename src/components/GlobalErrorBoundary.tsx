@@ -3,7 +3,7 @@ import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 import { env } from "@/configs/env";
 
-function GlobalErrorBoundary() {
+export default function GlobalErrorBoundary() {
   const error = useRouteError();
 
   const title = isRouteErrorResponse(error) ? `${error.status}` : "Error";
@@ -14,11 +14,11 @@ function GlobalErrorBoundary() {
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-4 p-4">
-      <ExclamationTriangleIcon className="size-16 text-destructive" />
-      <p className="text-4xl font-bold text-destructive">{title}</p>
-      <p className="text-lg font-semibold text-muted-foreground">{message}</p>
+      <ExclamationTriangleIcon className="text-destructive size-16" />
+      <p className="text-destructive text-4xl font-bold">{title}</p>
+      <p className="text-muted-foreground text-lg font-semibold">{message}</p>
       {!env.isProduction && error instanceof Error && (
-        <pre className="max-w-lg overflow-auto rounded bg-muted p-4 text-xs text-muted-foreground">
+        <pre className="bg-muted text-muted-foreground max-w-lg overflow-auto rounded p-4 text-xs">
           {error.stack}
         </pre>
       )}
@@ -28,5 +28,3 @@ function GlobalErrorBoundary() {
     </div>
   );
 }
-
-export default GlobalErrorBoundary;

@@ -1,17 +1,15 @@
+import type { EnsIdentity } from "@/types/identity";
 import type { Nullable } from "@/types/misc";
 import type { Address } from "viem";
 import { normalize } from "viem/ens";
 import { useEnsName, useEnsAvatar } from "wagmi";
 
-interface UseIdentityReturn {
+type UseIdentityReturn = {
   isLoading: boolean;
-  data: Nullable<{
-    ensName: Nullable<string>;
-    avatar: Nullable<string>;
-  }>;
-}
+  data: Nullable<EnsIdentity>;
+};
 
-export function useIdentity(address: Address): UseIdentityReturn {
+export default function useIdentity(address: Address): UseIdentityReturn {
   const { data: ensName, isLoading: isLoadingEnsName } = useEnsName({
     address,
   });
@@ -24,6 +22,7 @@ export function useIdentity(address: Address): UseIdentityReturn {
   return {
     isLoading: isLoadingEnsName || isLoadingAvatar,
     data: {
+      address,
       ensName: ensName ?? null,
       avatar: avatar ?? null,
     },
