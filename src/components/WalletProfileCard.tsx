@@ -6,7 +6,7 @@ import type { EnsIdentity } from "@/types/identity";
 import type { Nullable } from "@/types/misc";
 import type { Address } from "viem";
 
-type Props = {
+type WalletProfileCardProps = {
   className?: string;
   address: Address;
   ensIdentity: Nullable<EnsIdentity>;
@@ -22,7 +22,7 @@ export default function WalletProfileCard({
   isLoading,
   isConnected,
   onStartChat,
-}: Props) {
+}: WalletProfileCardProps) {
   return (
     <div className={cn("flex flex-col items-center gap-4", className)}>
       {ensIdentity?.avatar ? (

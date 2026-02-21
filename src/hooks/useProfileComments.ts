@@ -1,24 +1,20 @@
-import { useCallback, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { SimplePool } from "nostr-tools/pool";
 import type { Address } from "viem";
 import type { Comment } from "@/types/comment";
-import type { NostrIdentity } from "@/types/identity";
 import {
-  buildCommentEvent,
   buildCommentFilter,
   buildCommentTopicTag,
   mergeComments,
-  parseComment,
   resolveComment,
 } from "@/utils/comment";
 import { env } from "@/configs/env";
-import { assert, ensure } from "@/utils/assert";
 import { safelyGetAsync } from "@/utils/misc";
 
-const pool = new SimplePool();
+export const commentPool = new SimplePool();
 
-function buildQueryKey(profileAddress: Address) {
+export function buildCommentQueryKey(profileAddress: Address) {
   return ["profile:comments", buildCommentTopicTag(profileAddress)];
 }
 
@@ -26,10 +22,10 @@ export default function useProfileComments(profileAddress: Address) {
   const queryClient = useQueryClient();
   const topicTag = buildCommentTopicTag(profileAddress);
 
-  const { data: comments = [], isLoading } = useQuery({
-    queryKey: buildQueryKey(profileAddress),
+  const { data: comments } = useSuspenseQuery({
+    queryKey: buildCommentQueryKey(profileAddress),
     queryFn: async () => {
-      const events = await pool.querySync(
+      const events = await commentPool.querySync(
         env.nostrRelays,
         buildCommentFilter(topicTag),
       );
@@ -45,7 +41,7 @@ export default function useProfileComments(profileAddress: Address) {
   });
 
   useEffect(() => {
-    const sub = pool.subscribeMany(
+    const sub = commentPool.subscribeMany(
       env.nostrRelays,
       buildCommentFilter(topicTag),
       {
@@ -56,7 +52,7 @@ export default function useProfileComments(profileAddress: Address) {
           }
 
           queryClient.setQueryData<Comment[]>(
-            buildQueryKey(profileAddress),
+            buildCommentQueryKey(profileAddress),
             (prev) => mergeComments(prev ?? [], [comment]),
           );
         },
@@ -68,28 +64,5 @@ export default function useProfileComments(profileAddress: Address) {
     };
   }, [profileAddress, topicTag, queryClient]);
 
-  const publishComment = useCallback(
-    async (content: string, identity: NostrIdentity): Promise<void> => {
-      const event = buildCommentEvent(content, profileAddress, identity);
-      const optimistic = {
-        ...ensure(parseComment(event)),
-        isVerified: true,
-      };
-
-      const results = await Promise.allSettled(
-        pool.publish(env.nostrRelays, event),
-      );
-
-      const published = results.some((r) => r.status === "fulfilled");
-      assert(published, "Failed to publish comment to any relay");
-
-      queryClient.setQueryData<Comment[]>(
-        buildQueryKey(profileAddress),
-        (prev) => mergeComments(prev ?? [], [optimistic]),
-      );
-    },
-    [profileAddress, queryClient],
-  );
-
-  return { comments, isLoading, publishComment };
+  return { comments };
 }

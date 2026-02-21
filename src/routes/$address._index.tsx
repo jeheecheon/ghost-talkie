@@ -40,7 +40,7 @@ export default function WalletProfileRoute({
         // TODO: show loading skeleton
         <p className="text-muted-foreground">Loading...</p>
       ) : (
-        <div className="space-y-10 pt-20">
+        <div className="space-y-10 pt-20 pb-10">
           <WalletProfileCard
             address={address}
             ensIdentity={ensIdentity}

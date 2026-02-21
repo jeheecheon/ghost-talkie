@@ -28,8 +28,9 @@ Format: `<type>: <content>`
 - Wrap single-line code blocks in braces
 - Use `Nullable<T>`, `Optional<T>`, `Maybe<T>` from `@/types/misc` instead of inline `null | T`, `undefined | T`, `null | undefined | T`
 - Place `handle*` functions after `return` using `function` declaration hoisting; never use arrow function handlers above `return`
-- Define component Props with `type`, not `interface`
-- All component Props must include `className`; pass it to the outermost element via `cn()`
+- Define component Props as `type ComponentNameProps`; use `type`, not `interface`
+- Use `PropsWithChildren` for components that accept `children`; never define `children` directly
+- All component Props must include optional `className`; pass it to the outermost element via `cn()`
 - JSX attribute order: `className` first, event handlers (`on*`) last
 - Use `isLoading` (not `isPending`) for boolean loading-state props
 - Use inline `export default function ComponentName` declaration; not separate `export default` at file bottom
