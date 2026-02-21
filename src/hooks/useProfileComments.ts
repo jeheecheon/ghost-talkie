@@ -22,7 +22,7 @@ function buildQueryKey(profileAddress: Address) {
   return ["profile:comments", buildCommentTopicTag(profileAddress)];
 }
 
-export function useProfileComments(profileAddress: Address) {
+export default function useProfileComments(profileAddress: Address) {
   const queryClient = useQueryClient();
   const topicTag = buildCommentTopicTag(profileAddress);
 

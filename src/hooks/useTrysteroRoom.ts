@@ -15,7 +15,7 @@ interface UseTrysteroRoomReturn {
   sendMessage: (text: string) => void;
 }
 
-export function useTrysteroRoom({
+export default function useTrysteroRoom({
   roomId,
   sender,
   enabled,
