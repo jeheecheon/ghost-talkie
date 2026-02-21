@@ -412,5 +412,42 @@ Threat: Wrong crypto transfer address
 - **File Sharing**: P2P file transfer via WebRTC data channel
 - **Mobile Wallet Support**: WalletConnect for mobile wallet apps
 - **Optional TURN Server**: Self-hosted for reliability when P2P fails
-- **Browser Extension**: "Chat with this wallet" button on Etherscan, OpenSea, etc.
+- **Browser Extension**: See [Chrome Extension Plan](#chrome-extension-plan) below
 - **OTC Trade Room**: P2P negotiation with smart contract escrow
+
+---
+
+## Chrome Extension Plan
+
+### Purpose
+
+Inject a GhostTalkie button next to wallet addresses on NFT marketplaces (blur.io, OpenSea, etc.). Clicking the button opens the wallet's GhostTalkie profile page.
+
+### Architecture
+
+Requires content script — iframe-only approach is insufficient because the extension must read and modify third-party page DOM.
+
+| Component | Role |
+| --- | --- |
+| Content script | Scan page DOM for wallet addresses, inject GhostTalkie button next to each |
+| Background service worker | Message bridge between content script and extension UI |
+| Popup / Side panel | Display wallet profile UI (shared with web app) |
+
+### Monorepo Structure
+
+Web app and extension share most code (components, hooks, utils, types, styles). Use pnpm workspaces to manage both targets in a single repo.
+
+```
+ghosttalkie/
+├── packages/
+│   ├── shared/        # components, hooks, utils, types, styles
+│   ├── web/           # React Router app (current src/)
+│   └── extension/     # manifest.json, content script, background worker, popup
+├── pnpm-workspace.yaml
+├── package.json
+└── tsconfig.json
+```
+
+### Timing
+
+Build the web app first as a standalone project. Migrate to monorepo workspace structure when starting extension development.
