@@ -31,7 +31,7 @@ Format: `<type>: <content>`
 - All component Props must include `className`; pass it to the outermost element via `cn()`
 - JSX attribute order: `className` first, event handlers (`on*`) last
 - Use `isLoading` (not `isPending`) for boolean loading-state props
-- Use `export default ComponentName` as separate statement at file bottom; not inline `export default function`
+- Use inline `export default function ComponentName` declaration; not separate `export default` at file bottom
 - Use `@heroicons/react` for icons; do not use `lucide-react`
 - Name functions as verbs; name types/constants as nouns
 - Use `assert()` for invariant checks and `ensure()` for unwrapping `Maybe<T>` values; both from `@/utils/assert`
