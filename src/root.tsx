@@ -3,11 +3,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
 import { Layout } from "@/layouts/RootLayout";
 import HydrateFallback from "@/components/HydrateFallback";
-import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
+import RootErrorBoundary from "@/components/RootErrorBoundary";
 import { config } from "@/configs/wagmi";
 import "@/styles/globals.css";
 
-export { Layout, HydrateFallback, GlobalErrorBoundary as ErrorBoundary };
+export { Layout, HydrateFallback, RootErrorBoundary as ErrorBoundary };
 
 const queryClient = new QueryClient();
 
