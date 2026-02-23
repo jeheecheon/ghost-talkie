@@ -27,8 +27,8 @@ export default function WalletProfileRoute({
   const navigate = useNavigate();
   const {
     isConnected,
-    isLoading: isWalletLoading,
-    execute: executeWithWallet,
+    isPending: isWalletLoading,
+    mutate: executeWithWallet,
   } = useRequireWallet();
 
   const { data: ensIdentity, isLoading: isIdentityLoading } =
@@ -55,7 +55,7 @@ export default function WalletProfileRoute({
   );
 
   function handleStartChat() {
-    executeWithWallet(() => {
+    executeWithWallet(async () => {
       navigate(AppUrlBuilder.Chat(address));
     });
   }

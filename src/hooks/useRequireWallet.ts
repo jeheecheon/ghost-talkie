@@ -1,23 +1,33 @@
 import { useConnection, useConnect, useConnectors } from "wagmi";
+import type { Address } from "viem";
+import { useMutation } from "@tanstack/react-query";
 
 export default function useRequireWallet() {
-  const { isConnected, isConnecting, isReconnecting } = useConnection();
+  const { address, isConnected, isConnecting, isReconnecting } =
+    useConnection();
   const connectMutation = useConnect();
   const connectors = useConnectors();
 
-  return {
-    isConnected,
-    isLoading: isConnecting || isReconnecting,
-    execute(action: () => void) {
-      if (!isConnected) {
-        connectMutation.mutate(
-          { connector: connectors[0] },
-          { onSuccess: action },
-        );
+  const mutation = useMutation({
+    mutationFn: async (action: (address: Address) => Promise<void>) => {
+      if (!isConnected || !address) {
+        const accounts = await connectMutation.mutateAsync({
+          connector: connectors[0],
+        });
+        const address = accounts.accounts[0];
+        await action(address);
         return;
       }
 
-      action();
+      await action(address);
     },
+  });
+
+  return {
+    address,
+    isConnected,
+    isConnecting,
+    isReconnecting,
+    ...mutation,
   };
 }
