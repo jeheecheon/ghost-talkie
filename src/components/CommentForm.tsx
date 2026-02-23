@@ -1,12 +1,10 @@
-import { useRef } from "react";
+import { useState } from "react";
 import type { Address } from "viem";
-import { useConnection } from "wagmi";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import useRequireWallet from "@/hooks/useRequireWallet";
-import useNostrIdentity from "@/hooks/useNostrIdentity";
 import usePublishComment from "@/hooks/usePublishComment";
-import { cn, safelyRunAsync } from "@/utils/misc";
+import { cn } from "@/utils/misc";
+import useRequireNostrIdentity from "@/hooks/useRequireNostrIdentity";
 
 type CommentFormProps = {
   className?: string;
@@ -17,14 +15,10 @@ export default function CommentForm({
   className,
   profileAddress,
 }: CommentFormProps) {
-  const { address } = useConnection();
-  const { execute: executeWithWallet } = useRequireWallet();
-  const { identity, requestIdentity } = useNostrIdentity();
-  const { mutate: publishComment, isPending } =
-    usePublishComment(profileAddress);
+  const [content, setContent] = useState("");
 
-  const commentTextRef = useRef<HTMLTextAreaElement>(null);
-  const commentText = commentTextRef.current?.value ?? "";
+  const { isPending, mutate: requireNostrIdentity } = useRequireNostrIdentity();
+  const { mutateAsync: publishComment } = usePublishComment(profileAddress);
 
   return (
     <form
@@ -32,51 +26,34 @@ export default function CommentForm({
       onSubmit={handleSubmit}
     >
       <Textarea
-        ref={commentTextRef}
         placeholder="Leave a comment..."
         rows={3}
         maxLength={500}
         aria-label="Comment"
-        onFocus={handleTextareaFocus}
+        onChange={handleTextareaChange}
       />
-      <Button
-        className="self-end"
-        type="submit"
-        size="sm"
-        disabled={!commentText.trim() || !identity || isPending}
-      >
+      <Button className="self-end" type="submit" size="sm" disabled={isPending}>
         {isPending ? "Posting..." : "Post"}
       </Button>
     </form>
   );
 
-  function handleTextareaFocus() {
-    if (!address) {
-      return;
-    }
-
-    executeWithWallet(async () => {
-      await safelyRunAsync(() => requestIdentity(address));
-    });
+  function handleTextareaChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    setContent(e.target.value.trim());
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault();
 
-    if (!identity || !commentText.trim()) {
-      return;
-    }
-
-    publishComment(
-      { content: commentText.trim(), identity },
-      {
-        onSuccess: () => {
-          if (!commentTextRef.current) {
-            return;
-          }
-          commentTextRef.current.value = "";
-        },
-      },
-    );
+    requireNostrIdentity(async (identity) => {
+      try {
+        await publishComment({ content, identity });
+        setContent("");
+        // TODO: show success message with toast
+      } catch (error) {
+        // TODO: show error message with toast
+        console.error(error);
+      }
+    });
   }
 }
