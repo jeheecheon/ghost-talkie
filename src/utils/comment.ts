@@ -7,7 +7,7 @@ import type { Nullable } from "@/types/misc";
 import type { Comment } from "@/types/comment";
 import type { NostrIdentity } from "@/types/identity";
 import { env } from "@/configs/env";
-import { verifyWalletProof } from "@/utils/wallet";
+import { verifyIdentityProof } from "@/utils/identity-proof";
 
 export const NOSTR_KIND_TEXT_NOTE = 1;
 
@@ -92,5 +92,14 @@ export async function resolveComment(event: Event): Promise<Nullable<Comment>> {
     return null;
   }
 
-  return { ...comment, isVerified: await verifyWalletProof(comment) };
+  const isVerified = await verifyIdentityProof(
+    comment.walletAddress,
+    comment.nostrPubkey,
+    comment.proofSig,
+  );
+
+  return {
+    ...comment,
+    isVerified,
+  };
 }

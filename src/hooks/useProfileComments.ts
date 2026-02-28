@@ -22,7 +22,7 @@ export default function useProfileComments(profileAddress: Address) {
   const queryClient = useQueryClient();
   const topicTag = buildCommentTopicTag(profileAddress);
 
-  const { data: comments } = useSuspenseQuery({
+  const query = useSuspenseQuery({
     queryKey: buildCommentQueryKey(profileAddress),
     queryFn: async () => {
       const events = await commentPool.querySync(
@@ -64,5 +64,5 @@ export default function useProfileComments(profileAddress: Address) {
     };
   }, [profileAddress, topicTag, queryClient]);
 
-  return { comments };
+  return query;
 }

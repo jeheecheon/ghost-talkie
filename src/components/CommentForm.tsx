@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import usePublishComment from "@/hooks/usePublishComment";
 import { cn } from "@/utils/misc";
-import useRequireNostrIdentity from "@/hooks/useRequireNostrIdentity";
+import useWithNostrIdentity from "@/hooks/useWithNostrIdentity";
 
 type CommentFormProps = {
   className?: string;
@@ -17,7 +17,7 @@ export default function CommentForm({
 }: CommentFormProps) {
   const [content, setContent] = useState("");
 
-  const { isPending, mutate: requireNostrIdentity } = useRequireNostrIdentity();
+  const { isPending, withNostrIdentity } = useWithNostrIdentity();
   const { mutateAsync: publishComment } = usePublishComment(profileAddress);
 
   return (
@@ -30,9 +30,15 @@ export default function CommentForm({
         rows={3}
         maxLength={500}
         aria-label="Comment"
+        value={content}
         onChange={handleTextareaChange}
       />
-      <Button className="self-end" type="submit" size="sm" disabled={isPending}>
+      <Button
+        className="self-end"
+        type="submit"
+        size="sm"
+        disabled={isPending || !content.trim()}
+      >
         {isPending ? "Posting..." : "Post"}
       </Button>
     </form>
@@ -45,7 +51,7 @@ export default function CommentForm({
   function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault();
 
-    requireNostrIdentity(async (identity) => {
+    withNostrIdentity(async (identity) => {
       try {
         await publishComment({ content, identity });
         setContent("");

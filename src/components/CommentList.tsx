@@ -13,7 +13,7 @@ export default function CommentList({
   className,
   profileAddress,
 }: CommentListProps) {
-  const { comments } = useProfileComments(profileAddress);
+  const { data: comments } = useProfileComments(profileAddress);
 
   return (
     <ul className={cn("space-y-3", className)}>

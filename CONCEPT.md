@@ -115,24 +115,13 @@ Profile owner offline:
 
 Users manage only their Ethereum wallet. Two MetaMask signatures during first setup handle everything.
 
-```
-User connects wallet (0xABC) and signs twice (one-time setup):
+- **Signature 1** — Key derivation (never published): `sha256(signature)` → Nostr private key → Nostr public key
+- **Signature 2** — Proof of ownership (published on relay): stored in Nostr event tags
 
-  Signature 1 — Key derivation (never published):
-    Message: "GhostTalkie key for {walletAddress}"
-    → sha256(signature) → Nostr private key → Nostr public key (abc123)
-
-  Signature 2 — Proof of ownership (published on relay):
-    Message: "GhostTalkie: {walletAddress} owns Nostr {nostrPubkey}"
-    → proof-sig stored in event tags
-
-Result:
-  - Nostr keypair derived from sig 1 (for profile comments, auto-signing)
-  - proof-sig from sig 2 (for Owner badge verification)
-  - Key derivation input (sig 1) is NEVER published — only proof-sig (sig 2) is public
-  - Same wallet always produces same Nostr identity
-  - User never sees or manages Nostr keys
-```
+Key properties:
+- Same wallet always produces same Nostr identity
+- Key derivation signature is NEVER published — only proof-sig is public
+- User never sees or manages Nostr keys
 
 ---
 
@@ -161,52 +150,19 @@ Data is read-only, fetched from public blockchain APIs (Etherscan, Alchemy, etc.
 
 Both parties verify each other via wallet signatures exchanged over WebRTC.
 
-```
-Owner opens room:
-  1. Uses wallet-sig from initial sign (proves ownership of room address)
-  2. Sends proof to visitors automatically
-
-Visitor enters room:
-  1. Signs message: "I am {visitorWallet}, entering room {ownerWallet}, session: {timestamp}"
-  2. Receives owner's proof → verifies against room address
-  3. Sends own proof to owner → owner verifies
-
-Result:
-  - Both parties cryptographically verified
-  - Impersonation impossible (private key required)
-```
+- Each peer signs a proof message and sends it on connect
+- Recipient verifies the signature against the claimed wallet address
+- Both parties are cryptographically verified before chat begins
+- Impersonation is impossible (private key required to produce valid signature)
 
 ### Profile Comments (Async)
 
 Two-layer signing ensures comment authenticity and Owner badge.
 
-```
-Nostr Event structure:
-  ┌────────────────────────────────────────────┐
-  │ content:    "Welcome to my profile!"        │
-  │ pubkey:     abc123 (Nostr public key)       │  ← Layer 1: Nostr signature
-  │ sig:        ██████ (signed by Nostr key)    │     "abc123 wrote this event"
-  │                                             │
-  │ tags:                                       │
-  │   wallet:     "0xABC"                       │  ← Layer 2: proof-sig
-  │   wallet-sig: "██████"                      │     "0xABC owns abc123"
-  └────────────────────────────────────────────┘
-
-Verification (client-side):
-  1. Verify Nostr sig → confirms abc123 authored this event
-  2. Verify proof-sig against "GhostTalkie: 0xABC owns Nostr abc123"
-     → confirms wallet 0xABC claimed ownership of abc123
-  3. If wallet 0xABC === profile owner → Owner badge
-
-Security:
-  - proof-sig is public on relay, but safe:
-    → proof-sig is a DIFFERENT signature from the key derivation signature
-    → Key derivation sig is never published → Nostr private key stays secret
-    → Attacker copies proof-sig + creates event with their own Nostr key (xyz789)
-    → proof-sig says "0xABC owns abc123", but event pubkey is xyz789
-    → Verifier reconstructs message with xyz789 → signature mismatch → fails
-    → Attacker cannot forge abc123's Nostr signature without the Nostr private key
-```
+- **Layer 1**: Nostr signature — proves the Nostr key authored the event
+- **Layer 2**: Wallet proof-sig in tags — proves the wallet owns the Nostr key
+- If wallet matches profile owner → Owner badge
+- proof-sig is safe to publish (different from key derivation signature; Nostr private key stays secret)
 
 ---
 
@@ -296,13 +252,7 @@ User A clicks "Send Crypto"
 
 ### Signaling Strategy
 
-Using **Nostr** (default) — zero setup, 8KB bundle, uses public relays.
-
-```javascript
-import { joinRoom } from "trystero"; // Nostr by default
-
-const room = joinRoom({ appId: "ghosttalkie" }, roomId);
-```
+Using **Nostr** — zero setup, 8KB bundle, uses public relays. Import from `trystero/nostr`.
 
 ### Room Naming Convention
 
@@ -330,15 +280,6 @@ const room = joinRoom({ appId: "ghosttalkie" }, roomId);
 | `request`       | Visitor sends chat request           | Wallet room |
 | `response`      | Owner sends accept/reject            | Wallet room |
 | `tx-notify`     | Notify peer of crypto transaction    | Wallet room |
-
-### Media Streams
-
-```javascript
-room.addStream(localStream); // Send audio/video
-room.onPeerStream((stream, peerId) => {
-  /* receive */
-});
-```
 
 ---
 

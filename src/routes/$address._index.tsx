@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import CommentSection from "@/components/CommentSection";
 import WalletProfileCard from "@/components/WalletProfileCard";
-import useRequireWallet from "@/hooks/useRequireWallet";
+import useWithWalletConnection from "@/hooks/useWithWalletConnection";
 import useIdentity from "@/hooks/useIdentity";
 import { AppUrlBuilder } from "@/utils/url";
 import type { Route } from "./+types/$address._index";
@@ -26,11 +26,10 @@ export default function WalletProfileRoute({
 
   const navigate = useNavigate();
   const {
-    isConnected,
-    isPending: isWalletLoading,
-    mutate: executeWithWallet,
-  } = useRequireWallet();
-
+    address: connectedAddress,
+    isPending,
+    withWalletConnection,
+  } = useWithWalletConnection();
   const { data: ensIdentity, isLoading: isIdentityLoading } =
     useIdentity(address);
 
@@ -44,8 +43,8 @@ export default function WalletProfileRoute({
           <WalletProfileCard
             address={address}
             ensIdentity={ensIdentity}
-            isLoading={isWalletLoading}
-            isConnected={isConnected}
+            isLoading={isPending}
+            isConnected={!!connectedAddress}
             onStartChat={handleStartChat}
           />
           <CommentSection profileAddress={address} />
@@ -55,7 +54,7 @@ export default function WalletProfileRoute({
   );
 
   function handleStartChat() {
-    executeWithWallet(async () => {
+    withWalletConnection(async () => {
       navigate(AppUrlBuilder.Chat(address));
     });
   }

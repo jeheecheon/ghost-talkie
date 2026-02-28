@@ -1,7 +1,6 @@
-import { type Address, verifyMessage } from "viem";
-import type { Comment } from "@/types/comment";
+import { type Address, type Hex, verifyMessage } from "viem";
 
-export function buildKeyMessage(address: Address): string {
+export function buildIdentityKeyMessage(address: Address): string {
   return [
     "GhostTalkie — Step 1 of 2",
     "",
@@ -12,7 +11,7 @@ export function buildKeyMessage(address: Address): string {
   ].join("\n");
 }
 
-export function buildProofMessage(
+export function buildIdentityProofMessage(
   address: Address,
   nostrPubkey: string,
 ): string {
@@ -27,14 +26,14 @@ export function buildProofMessage(
   ].join("\n");
 }
 
-export async function verifyWalletProof(comment: Comment): Promise<boolean> {
-  const message = buildProofMessage(comment.walletAddress, comment.nostrPubkey);
+export async function verifyIdentityProof(
+  address: Address,
+  nostrPubkey: string,
+  signature: Hex,
+): Promise<boolean> {
+  const message = buildIdentityProofMessage(address, nostrPubkey);
 
   // TODO: standalone verifyMessage only handles EOA wallets.
   // Smart contract wallets (ERC-1271) require publicClient.verifyMessage().
-  return verifyMessage({
-    address: comment.walletAddress,
-    message,
-    signature: comment.proofSig,
-  });
+  return verifyMessage({ address, message, signature });
 }
