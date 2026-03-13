@@ -10,25 +10,14 @@ GhostTalkie is a fully serverless, P2P communication app that uses Web3 wallet a
 
 ## Core Principles
 
-- **Serverless**: Real-time chat via Trystero P2P, profile comments via public Nostr relays. No custom backend.
+- **Serverless**: Private chat via Trystero P2P, profile comments via public Nostr relays. No custom backend.
 - **Wallet = Identity**: Wallet address replaces email/password. Cryptographic signatures verify identity.
 - **Zero Cost at Any Scale**: Static site + P2P + public relays = no infrastructure cost regardless of user count
 - **Privacy First**: Real-time messages flow directly between peers. Profile comments are stored on public Nostr relays.
 
 ---
 
-## Two Modes
-
-### 1. Global Chat (No Wallet Required)
-
-Single open chat room at `/chat`. Zero friction — enter and start chatting immediately.
-
-- Wallet connected → chat as wallet address
-- No wallet → chat as auto-generated random name
-- Messages published to Nostr relays (persistent, not ephemeral)
-- New users see recent message history on entry
-
-### 2. Private Chat via Wallet Profile (Wallet Required)
+## Private Chat via Wallet Profile (Wallet Required)
 
 1-on-1 private communication initiated from the WalletProfile page (`/{walletAddress}`).
 
@@ -44,24 +33,15 @@ Single open chat room at `/chat`. Zero friction — enter and start chatting imm
 
 ## User Flow
 
-### Global Chat Flow
-
-```
-Landing Page or direct URL /chat
-  → Enter chat immediately
-  → Wallet connected → display wallet address
-  → No wallet → auto-generated name
-  → Messages sent/received via Nostr relays
-  → Recent history loaded on entry
-```
-
 ### Private Chat Flow — Profile Owner
 
 ```
 Connect wallet → navigate to own profile (/{walletAddress})
-  → Sign session message (one MetaMask popup)
+  → Sign Nostr identity messages (two MetaMask popups: key derivation + proof)
     → Ethereum identity established
     → Nostr identity auto-derived from wallet signature
+  → Navigate to /{walletAddress}/chat
+  → Sign chat proof message (one MetaMask popup)
   → Room opens: "inbox-{walletAddress}" (Trystero WebRTC)
   → Status: Online — accepting visitors
   → Visitor arrives → see their verified wallet address
@@ -74,10 +54,11 @@ Connect wallet → navigate to own profile (/{walletAddress})
 ```
 Visit profile: ghosttalkie.com/{walletAddress}
   → Connect own wallet
-  → Sign identity message (one MetaMask popup)
-  → Click "Chat" button on profile page
+  → Sign Nostr identity messages (two MetaMask popups: key derivation + proof)
+  → Click "Chat" button on profile page → navigate to /{walletAddress}/chat
+  → Sign chat proof message (one MetaMask popup)
   → Owner online → join room "inbox-{ownerWalletAddress}" (WebRTC)
-    → Exchange wallet signature proofs (automatic verification)
+    → Exchange chat proofs (automatic verification)
     → Chat (text / voice / video) / Send Crypto
   → Owner offline → leave a comment on profile (stored on Nostr relay)
 ```
@@ -86,20 +67,11 @@ Visit profile: ghosttalkie.com/{walletAddress}
 
 ## Communication Channels
 
-### Global Chat — Nostr Relay
-
-```
-/chat page:
-  → All messages published as Nostr events to public relays
-  → Persistent — new users see recent history on entry
-  → No P2P connection needed
-```
-
 ### Private Chat — Trystero WebRTC (via Wallet Profile)
 
 ```
 Profile owner online:
-  → Visitor clicks "Chat" on /{walletAddress} profile
+  → Visitor clicks "Chat" on /{walletAddress} profile → navigates to /{walletAddress}/chat
   → Trystero P2P (WebRTC) for real-time text, voice, video
   → Messages are direct, never stored anywhere
 
@@ -111,9 +83,13 @@ Profile owner offline:
 
 ---
 
-## Wallet Sign (One-Time Setup)
+## Wallet Signatures
 
-Users manage only their Ethereum wallet. Two MetaMask signatures during first setup handle everything.
+Users manage only their Ethereum wallet. Signatures are split by purpose.
+
+### Nostr Identity (for profile comments)
+
+Two MetaMask signatures to establish Nostr identity:
 
 - **Signature 1** — Key derivation (never published): `sha256(signature)` → Nostr private key → Nostr public key
 - **Signature 2** — Proof of ownership (published on relay): stored in Nostr event tags
@@ -122,6 +98,15 @@ Key properties:
 - Same wallet always produces same Nostr identity
 - Key derivation signature is NEVER published — only proof-sig is public
 - User never sees or manages Nostr keys
+
+### Chat Proof (for private chat)
+
+One MetaMask signature to enter a chat room. Separate from Nostr identity.
+
+- **Owner proof**: Signs message identifying as room owner with room address + session timestamp
+- **Visitor proof**: Signs message identifying as visitor with visitor address + room address + session timestamp
+- Proofs are exchanged over WebRTC on peer connect and verified via `verifyMessage()`
+- Proofs expire after 5 minutes for freshness
 
 ---
 
@@ -132,7 +117,6 @@ When a visitor enters a wallet room, the owner's on-chain data is displayed as a
 ```
 ┌─────────────────────────────┐
 │ 0xABC...1234                │
-│ ENS: alice.eth              │
 │ Wallet age: 2.3 years       │
 │ Tx count: 847               │
 │ Top tokens: ETH, USDC, ARB  │
@@ -148,11 +132,12 @@ Data is read-only, fetched from public blockchain APIs (Etherscan, Alchemy, etc.
 
 ### P2P Chat (Real-time)
 
-Both parties verify each other via wallet signatures exchanged over WebRTC.
+Both parties verify each other via chat proofs exchanged over WebRTC.
 
-- Each peer signs a proof message and sends it on connect
-- Recipient verifies the signature against the claimed wallet address
+- Each peer signs a role-specific chat proof message (owner or visitor) and sends it on connect
+- Recipient verifies the signature against the claimed wallet address via `verifyMessage()`
 - Both parties are cryptographically verified before chat begins
+- Proofs include session timestamp and expire after 5 minutes
 - Impersonation is impossible (private key required to produce valid signature)
 
 ### Profile Comments (Async)
@@ -192,7 +177,7 @@ User A clicks "Send Crypto"
 │               (Static Frontend)                       │
 │                                                       │
 │  ┌──────────┐  ┌──────────┐  ┌───────────────┐       │
-│  │ Trystero  │  │  wagmi   │  │  RainbowKit   │      │
+│  │ Trystero  │  │  wagmi   │  │  Reown        │      │
 │  │ (P2P)    │  │  + viem  │  │  (Wallet UI)  │      │
 │  └────┬─────┘  └────┬─────┘  └───────────────┘       │
 │       │              │                                │
@@ -242,7 +227,7 @@ User A clicks "Send Crypto"
 | P2P               | Trystero (Nostr strategy) | Serverless WebRTC signaling + P2P data        |
 | Profile Comments  | Nostr protocol (nostr-tools) | Publish/query comments on public relays    |
 | Wallet Connection | wagmi + viem              | Wallet connect, sign, verify, send tx         |
-| Wallet UI         | RainbowKit                | Wallet connect modal                          |
+| Wallet UI         | Reown (TBD)               | Wallet connect modal                          |
 | On-chain Data     | Etherscan / Alchemy API   | Wallet profile, trust signals                 |
 | Deploy            | Vercel / GitHub Pages     | Static hosting                                |
 
@@ -258,17 +243,15 @@ Using **Nostr** — zero setup, 8KB bundle, uses public relays. Import from `try
 
 | Type        | Room ID Pattern         | Example               |
 | ----------- | ----------------------- | --------------------- |
-| Global Chat | Nostr channel tag       | `ghosttalkie-chat`    |
 | Wallet      | `inbox-{walletAddress}` | `inbox-0xABCD...1234` |
 
 ### URL Routing
 
-| URL Pattern                         | Action                     |
-| ----------------------------------- | -------------------------- |
-| `ghosttalkie.com/`                  | Landing page               |
-| `ghosttalkie.com/chat`              | Global chat                |
-| `ghosttalkie.com/{walletAddress}`   | Enter wallet room          |
-| `ghosttalkie.com/{ENS}`            | Resolve ENS → wallet room  |
+| URL Pattern                              | Action                     |
+| ---------------------------------------- | -------------------------- |
+| `ghosttalkie.com/`                       | Landing page               |
+| `ghosttalkie.com/{walletAddress}`        | Wallet profile page        |
+| `ghosttalkie.com/{walletAddress}/chat`   | Private chat room          |
 
 ### Actions (Data Channels)
 
@@ -309,13 +292,14 @@ Threat: Wrong crypto transfer address
 ## Peer Lifecycle (Private Chat)
 
 ```
-1. OPEN        → Profile owner opens room "inbox-{walletAddress}" (online status)
-2. CONNECT     → Visitor clicks "Chat" on profile → Trystero joins room
-3. VERIFY      → Exchange wallet signature proofs (automatic)
-4. REQUEST     → Visitor sends chat request
-5. APPROVE     → Owner accepts or rejects
-6. CHAT        → Text, voice, video, crypto transfer
-7. DISCONNECT  → Either peer closes tab → connection ends
+1. SIGN        → User signs chat proof (owner or visitor role)
+2. OPEN        → Profile owner opens room "inbox-{walletAddress}" at /{walletAddress}/chat
+3. CONNECT     → Visitor navigates to /{walletAddress}/chat → Trystero joins room
+4. VERIFY      → Exchange chat proofs over WebRTC (automatic, 5-min expiry)
+5. REQUEST     → Visitor sends chat request
+6. APPROVE     → Owner accepts or rejects
+7. CHAT        → Text, voice, video, crypto transfer
+8. DISCONNECT  → Either peer closes tab → connection ends
 ```
 
 ---
@@ -342,14 +326,13 @@ Threat: Wrong crypto transfer address
 | Real-time chat needs both online  | Owner offline → profile comments only (no voice/video)          |
 | Comment persistence               | Depends on Nostr relay retention policy (days to months)        |
 | TURN fallback needed ~15%         | Some networks block direct P2P connections                      |
-| Wallet required for private rooms | Non-crypto users limited to global chat                         |
+| Wallet required for all features  | Non-crypto users cannot participate                             |
 | On-chain profile accuracy         | Only as good as public API data; no off-chain reputation        |
 
 ---
 
 ## Future Considerations
 
-- **ENS Support**: Resolve `.eth` names to wallet addresses for easier room access
 - **File Sharing**: P2P file transfer via WebRTC data channel
 - **Mobile Wallet Support**: WalletConnect for mobile wallet apps
 - **Optional TURN Server**: Self-hosted for reliability when P2P fails

@@ -1,0 +1,26 @@
+{
+  "name": "@workspace/domain",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@workspace/types": "workspace:*",
+    "@workspace/lib": "workspace:*",
+    "@noble/hashes": "^2.0.1",
+    "nostr-tools": "^2.23.1",
+    "trystero": "^0.22.0",
+    "viem": "^2.46.1"
+  },
+  "devDependencies": {
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/tsconfig": "workspace:*",
+    "eslint": "^9.39.1"
+  },
+  "exports": {
+    "./p2p/*": "./src/p2p/*.ts",
+    "./nostr/*": "./src/nostr/*.ts"
+  }
+}
