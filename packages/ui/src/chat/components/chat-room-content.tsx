@@ -44,9 +44,7 @@ export default function ChatRoomContent({
   );
 
   return (
-    <section className={cn("flex", className)}>
-      <GhostIcon className="absolute-center pointer-events-none -mt-10 size-24 opacity-50" />
-
+    <section className={cn("bg-accent flex", className)}>
       {layout === "desktop" && (
         <div className="relative z-10 w-12">
           <ChatMemberList
@@ -56,7 +54,9 @@ export default function ChatRoomContent({
         </div>
       )}
 
-      <div className="relative flex size-full min-h-0 flex-col">
+      <div className="relative flex min-w-0 flex-1 flex-col">
+        <GhostIcon className="absolute-center pointer-events-none -mt-10 size-24 opacity-50" />
+
         <ul>
           {isOwner &&
             requestingPeers.map((peer) => (
@@ -70,7 +70,7 @@ export default function ChatRoomContent({
             ))}
         </ul>
 
-        <ul className="min-h-0 flex-1 space-y-1.5 overflow-y-auto p-2">
+        <ul className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">
           {roomState.messages.map((msg) => (
             <li key={msg.id}>
               <ChatBubble

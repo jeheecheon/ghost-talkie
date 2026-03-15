@@ -25,7 +25,7 @@ export default function ChatComposer({
   return (
     <form
       ref={formRef}
-      className={cn("flex items-end border-t p-1.5", className)}
+      className={cn("bg-background flex items-end border-t p-2", className)}
       onSubmit={handleSubmit}
     >
       <Textarea
@@ -39,7 +39,7 @@ export default function ChatComposer({
         onCompositionEnd={handleCompositionStatus(false)}
       />
       <Button
-        className="mb-2 shrink-0 p-4.5"
+        className="mb-2 ml-1 shrink-0 p-4.5"
         variant="ghost"
         size="icon-xs"
         type="button"
