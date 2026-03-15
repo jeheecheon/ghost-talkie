@@ -39,26 +39,26 @@ export default function ChatComposer({
         onCompositionEnd={handleCompositionStatus(false)}
       />
       <Button
-        className="mb-2 ml-1 shrink-0 p-4.5"
+        className="mb-2.5 ml-1.5 shrink-0 p-4.5"
         variant="ghost"
         size="icon-xs"
         type="button"
         onClick={onToggleMic}
       >
         {isMicOn ? (
-          <Mic className="size-5 text-green-500" />
+          <Mic className="size-4.5 text-green-500" />
         ) : (
-          <MicOff className="size-5 text-red-300" />
+          <MicOff className="size-4.5 text-red-300" />
         )}
       </Button>
       <Button
-        className="mb-2 shrink-0 p-4.5"
+        className="mb-2.5 shrink-0 p-4.5"
         variant="ghost"
         size="icon-xs"
         type="submit"
         disabled={!content.trim().length}
       >
-        <SendHorizontal className="size-5" />
+        <SendHorizontal className="size-4.5" />
       </Button>
     </form>
   );
