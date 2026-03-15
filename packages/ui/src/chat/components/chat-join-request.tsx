@@ -20,7 +20,7 @@ export default function ChatJoinRequest({
   return (
     <div
       className={cn(
-        "bg-muted flex items-center justify-between rounded-lg p-3",
+        "bg-card flex items-center justify-between rounded-lg p-3",
         className,
       )}
     >
@@ -33,13 +33,13 @@ export default function ChatJoinRequest({
         <span className="text-muted-foreground"> wants to join</span>
       </p>
 
-      <div className="space-x-1">
+      <div className="flex gap-x-2.5">
         <Button variant="ghost" size="icon-xs" onClick={handleAccept}>
-          <Check className="size-4" />
+          <Check className="size-4.5 text-green-500" />
         </Button>
 
         <Button variant="ghost" size="icon-xs" onClick={handleReject}>
-          <X className="size-4" />
+          <X className="size-4.5" />
         </Button>
       </div>
     </div>

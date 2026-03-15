@@ -57,7 +57,7 @@ export default function ChatRoomContent({
       <div className="relative flex min-w-0 flex-1 flex-col">
         <GhostIcon className="absolute-center pointer-events-none -mt-10 size-24 opacity-50" />
 
-        <ul>
+        <ul className="relative space-y-2 px-3 pt-2">
           {isOwner &&
             requestingPeers.map((peer) => (
               <li key={peer.peerId}>
@@ -70,7 +70,7 @@ export default function ChatRoomContent({
             ))}
         </ul>
 
-        <ul className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">
+        <ul className="relative min-h-0 flex-1 space-y-2 overflow-y-auto p-3">
           {roomState.messages.map((msg) => (
             <li key={msg.id}>
               <ChatBubble
