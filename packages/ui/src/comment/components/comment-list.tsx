@@ -6,14 +6,11 @@ import useProfileComments from "@workspace/ui/comment/hooks/use-profile-comments
 
 type CommentListProps = {
   className?: string;
-  profileAddress: Address;
+  address: Address;
 };
 
-export default function CommentList({
-  className,
-  profileAddress,
-}: CommentListProps) {
-  const { data: comments } = useProfileComments(profileAddress);
+export default function CommentList({ className, address }: CommentListProps) {
+  const { data: comments } = useProfileComments(address);
 
   return (
     <ul className={cn("space-y-3", className)}>
@@ -23,7 +20,7 @@ export default function CommentList({
       ) : (
         comments.map((comment) => {
           const isOwner =
-            isAddressEqual(comment.walletAddress, profileAddress) &&
+            isAddressEqual(comment.walletAddress, address) &&
             comment.isVerified;
 
           return (

@@ -1,4 +1,8 @@
 @theme {
+  --color-*: initial;
+  --color-black: oklch(0 0 0);
+  --color-white: oklch(1 0 0);
+
   /* Gray (neutral) */
   --color-gray-50: oklch(0.985 0 0);
   --color-gray-100: oklch(0.97 0 0);

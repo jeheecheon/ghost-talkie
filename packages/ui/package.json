@@ -8,16 +8,20 @@
     "ui:add": "shadcn add"
   },
   "dependencies": {
-    "@heroicons/react": "^2.2.0",
+    "@headlessui/react": "^2.2.9",
+    "@metamask/jazzicon": "^2.0.0",
     "@tanstack/react-query": "^5.90.21",
     "@workspace/domain": "workspace:*",
     "@workspace/lib": "workspace:*",
     "@workspace/types": "workspace:*",
     "class-variance-authority": "^0.7.1",
+    "lucide-react": "^0.577.0",
     "nostr-tools": "^2.23.1",
     "radix-ui": "^1.4.3",
+    "react-use": "^17.6.0",
     "viem": "^2.46.1",
-    "wagmi": "^3.4.4"
+    "wagmi": "^3.4.4",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@types/react": "^19.2.0",
@@ -39,7 +43,12 @@
     "./comment/hooks/*": "./src/comment/hooks/*.ts",
     "./wallet/components/*": "./src/wallet/components/*.tsx",
     "./wallet/hooks/*": "./src/wallet/hooks/*.ts",
+    "./wallet/types": "./src/wallet/types.ts",
+    "./chat/store/*": "./src/chat/store/*.ts",
+    "./chat/components/*": "./src/chat/components/*.tsx",
     "./chat/hooks/*": "./src/chat/hooks/*.ts",
+    "./icons/*": "./src/icons/*.tsx",
+    "./hooks/*": "./src/hooks/*.ts",
     "./globals.css": "./src/styles/globals.css"
   }
 }

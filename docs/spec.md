@@ -257,12 +257,10 @@ Using **Nostr** — zero setup, 8KB bundle, uses public relays. Import from `try
 
 | Action ID       | Purpose                              | Used In     |
 | --------------- | ------------------------------------ | ----------- |
-| `chat`          | Text messages                        | Wallet room |
-| `owner-proof`   | Owner sends wallet signature proof   | Wallet room |
-| `visitor-proof` | Visitor sends wallet signature proof | Wallet room |
+| `message`       | Text messages                        | Wallet room |
+| `proof`         | Each peer sends wallet signature proof | Wallet room |
 | `request`       | Visitor sends chat request           | Wallet room |
 | `response`      | Owner sends accept/reject            | Wallet room |
-| `tx-notify`     | Notify peer of crypto transaction    | Wallet room |
 
 ---
 
@@ -314,7 +312,6 @@ Threat: Wrong crypto transfer address
 | P2P data transfer               | $0 (users' own bandwidth)          |
 | STUN servers (Google public)    | $0                                 |
 | On-chain data (Etherscan free)  | $0                                 |
-| TURN relay (if P2P fails, ~15%) | $0-10/mo (free tier on Metered.ca) |
 | **Total**                       | **$0**                             |
 
 ---
@@ -325,7 +322,6 @@ Threat: Wrong crypto transfer address
 | --------------------------------- | --------------------------------------------------------------- |
 | Real-time chat needs both online  | Owner offline → profile comments only (no voice/video)          |
 | Comment persistence               | Depends on Nostr relay retention policy (days to months)        |
-| TURN fallback needed ~15%         | Some networks block direct P2P connections                      |
 | Wallet required for all features  | Non-crypto users cannot participate                             |
 | On-chain profile accuracy         | Only as good as public API data; no off-chain reputation        |
 
@@ -335,7 +331,6 @@ Threat: Wrong crypto transfer address
 
 - **File Sharing**: P2P file transfer via WebRTC data channel
 - **Mobile Wallet Support**: WalletConnect for mobile wallet apps
-- **Optional TURN Server**: Self-hosted for reliability when P2P fails
 - **Browser Extension**: See [Chrome Extension Plan](#chrome-extension-plan) below
 - **OTC Trade Room**: P2P negotiation with smart contract escrow
 

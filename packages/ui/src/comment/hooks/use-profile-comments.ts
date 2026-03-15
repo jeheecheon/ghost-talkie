@@ -14,7 +14,7 @@ import { useNostrConfig } from "@workspace/ui/comment/context";
 
 export const commentPool = new SimplePool();
 
-export function buildCommentQueryKey(
+export function getCommentQueryKey(
   profileAddress: Address,
   topicPrefix: string,
 ) {
@@ -30,7 +30,7 @@ export default function useProfileComments(profileAddress: Address) {
   const topicTag = buildCommentTopicTag(profileAddress, topicPrefix);
 
   const query = useSuspenseQuery({
-    queryKey: buildCommentQueryKey(profileAddress, topicPrefix),
+    queryKey: getCommentQueryKey(profileAddress, topicPrefix),
     queryFn: async () => {
       const events = await commentPool.querySync(
         relays,
@@ -59,7 +59,7 @@ export default function useProfileComments(profileAddress: Address) {
           }
 
           queryClient.setQueryData<Comment[]>(
-            buildCommentQueryKey(profileAddress, topicPrefix),
+            getCommentQueryKey(profileAddress, topicPrefix),
             (prev) => mergeComments(prev ?? [], [comment]),
           );
         },

@@ -10,6 +10,7 @@ import type {
   LocalPeer,
   RemotePeer,
   PrivateChatRoomState,
+  VoiceStatePayload,
 } from "@workspace/domain/p2p/types";
 import {
   PeerRole,
@@ -21,7 +22,10 @@ import {
   verifyOwnerProof,
   verifyVisitorProof,
 } from "@workspace/domain/p2p/chat-proof";
-import { determineChatRole } from "@workspace/domain/p2p/chat";
+import {
+  determineChatRole,
+  filterPeersByStatus,
+} from "@workspace/domain/p2p/chat";
 
 type PrivateChatRoomJoinArgs = {
   roomAddress: Address;
@@ -32,6 +36,7 @@ type PrivateChatRoomJoinArgs = {
 export class PrivateChatRoom {
   private _messages: ChatMessage[] = [];
   private _remotePeers = new Map<string, RemotePeer>();
+  private _isMicEnabling = false;
   private _isDestroyed = false;
 
   private constructor(
@@ -39,6 +44,7 @@ export class PrivateChatRoom {
     private _localPeer: LocalPeer,
     private readonly _transmitResponse: ActionSender<ChatResponsePayload>,
     private readonly _transmitMessage: ActionSender<ChatMessagePayload>,
+    private readonly _transmitVoiceState: ActionSender<VoiceStatePayload>,
     private readonly _onStateChange: (state: PrivateChatRoomState) => void,
   ) {}
 
@@ -47,11 +53,17 @@ export class PrivateChatRoom {
     chatProof,
     onStateChange,
   }: PrivateChatRoomJoinArgs): PrivateChatRoom {
+    const role = determineChatRole(chatProof);
+    const status =
+      role === PeerRole.Owner ? PeerStatus.Chatting : PeerStatus.Verifying;
+
     const localPeer: LocalPeer = {
       peerId: selfId,
-      role: determineChatRole(chatProof),
-      status: PeerStatus.Verifying,
+      role,
+      status,
       chatProof,
+      isMicOn: false,
+      stream: null,
     };
 
     const room = joinRoom({ appId: "ghosttalkie" }, `inbox-${roomAddress}`);
@@ -67,12 +79,15 @@ export class PrivateChatRoom {
     const [transmitMessage, onMessage] = room.makeAction<ChatMessagePayload>(
       RoomAction.Message,
     );
+    const [transmitVoiceState, onVoiceState] =
+      room.makeAction<VoiceStatePayload>(RoomAction.VoiceState);
 
     const instance = new PrivateChatRoom(
       room,
       localPeer,
       transmitResponse,
       transmitMessage,
+      transmitVoiceState,
       onStateChange,
     );
 
@@ -84,6 +99,7 @@ export class PrivateChatRoom {
       transmitRequest,
     });
     instance._bindMessageEvent(onMessage);
+    instance._bindVoiceEvents(onVoiceState);
 
     instance._emitStateChange();
 
@@ -91,14 +107,21 @@ export class PrivateChatRoom {
   }
 
   public get status(): RoomStatus {
-    const isActive = [...this._remotePeers.values()].some(
-      (p) =>
-        p.status === PeerStatus.Verifying ||
-        p.status === PeerStatus.Requesting ||
-        p.status === PeerStatus.Pending ||
-        p.status === PeerStatus.Chatting,
-    );
-    return isActive ? RoomStatus.Active : RoomStatus.Waiting;
+    if (this._hasPeerWith(PeerStatus.Chatting)) {
+      return RoomStatus.Active;
+    }
+
+    if (
+      this._hasPeerWith(
+        PeerStatus.Verifying,
+        PeerStatus.Requesting,
+        PeerStatus.Pending,
+      )
+    ) {
+      return RoomStatus.Waiting;
+    }
+
+    return RoomStatus.Empty;
   }
 
   public get messages(): readonly ChatMessage[] {
@@ -171,12 +194,68 @@ export class PrivateChatRoom {
     });
   }
 
+  public async enableMic(): Promise<void> {
+    if (
+      this._isDestroyed ||
+      this._localPeer.stream ||
+      this._isMicEnabling ||
+      this._localPeer.status !== PeerStatus.Chatting
+    ) {
+      return;
+    }
+
+    this._isMicEnabling = true;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (this._isDestroyed) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
+      this._room.addStream(stream);
+      this.localPeer = { ...this.localPeer, isMicOn: true, stream };
+      await this._transmitVoiceState({ isMicOn: true });
+    } finally {
+      this._isMicEnabling = false;
+    }
+  }
+
+  public async disableMic(): Promise<void> {
+    const { stream } = this._localPeer;
+    if (this._isDestroyed || !stream) {
+      return;
+    }
+
+    this._room.removeStream(stream);
+    stream.getTracks().forEach((track) => track.stop());
+    this.localPeer = { ...this.localPeer, isMicOn: false, stream: null };
+
+    if (!this._isDestroyed) {
+      await this._transmitVoiceState({ isMicOn: false });
+    }
+  }
+
+  public async toggleMic(): Promise<void> {
+    if (this._localPeer.stream) {
+      await this.disableMic();
+    } else {
+      await this.enableMic();
+    }
+  }
+
   public destroy(): void {
     if (this._isDestroyed) {
       return;
     }
 
     this._isDestroyed = true;
+
+    const { stream } = this._localPeer;
+    if (stream) {
+      this._room.removeStream(stream);
+      stream.getTracks().forEach((track) => track.stop());
+    }
+
     this._room.leave();
     this._remotePeers.clear();
     this._messages = [];
@@ -203,7 +282,29 @@ export class PrivateChatRoom {
         return;
       }
 
-      this._upsertPeer(peerId, { status: PeerStatus.Disconnected });
+      this._upsertPeer(peerId, {
+        status: PeerStatus.Disconnected,
+        isMicOn: false,
+        stream: null,
+      });
+    });
+
+    room.onPeerStream((stream, peerId) => {
+      if (this._isDestroyed) {
+        return;
+      }
+
+      this._upsertPeer(peerId, { stream });
+
+      stream.addEventListener("removetrack", () => {
+        if (this._isDestroyed) {
+          return;
+        }
+
+        if (stream.getTracks().length === 0) {
+          this._upsertPeer(peerId, { stream: null });
+        }
+      });
     });
   }
 
@@ -269,6 +370,12 @@ export class PrivateChatRoom {
           return;
         }
 
+        this._upsertPeer(ownerPeer.peerId, {
+          status: response.accepted
+            ? PeerStatus.Chatting
+            : PeerStatus.Disconnected,
+        });
+
         if (this._remotePeers.has(response.targetPeerId)) {
           this._upsertPeer(response.targetPeerId, {
             status: response.accepted
@@ -287,6 +394,20 @@ export class PrivateChatRoom {
         }
       });
     }
+  }
+
+  private _bindVoiceEvents(
+    onVoiceState: (
+      cb: (payload: VoiceStatePayload, peerId: string) => void,
+    ) => void,
+  ): void {
+    onVoiceState((payload, peerId) => {
+      if (this._isDestroyed || !this._remotePeers.has(peerId)) {
+        return;
+      }
+
+      this._upsertPeer(peerId, { isMicOn: payload.isMicOn });
+    });
   }
 
   private _bindMessageEvent(
@@ -326,6 +447,8 @@ export class PrivateChatRoom {
       chatProof: updates.chatProof ?? existingPeer?.chatProof ?? null,
       status: updates.status ?? existingPeer?.status ?? PeerStatus.Verifying,
       role: updates.role ?? existingPeer?.role ?? PeerRole.Unknown,
+      isMicOn: updates.isMicOn ?? existingPeer?.isMicOn ?? false,
+      stream: updates.stream ?? existingPeer?.stream ?? null,
     };
 
     const peers = new Map(this._remotePeers);
@@ -333,9 +456,18 @@ export class PrivateChatRoom {
     this.remotePeers = peers;
   }
 
+  private _hasPeerWith(...statuses: PeerStatus[]): boolean {
+    const filtered = filterPeersByStatus(
+      [...this._remotePeers.values()],
+      ...statuses,
+    );
+    return !!filtered.length;
+  }
+
   private _getChattingPeers(): RemotePeer[] {
-    return [...this._remotePeers.values()].filter(
-      (p) => p.status === PeerStatus.Chatting,
+    return filterPeersByStatus(
+      [...this._remotePeers.values()],
+      PeerStatus.Chatting,
     );
   }
 

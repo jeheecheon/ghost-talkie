@@ -35,7 +35,7 @@ Format: `<type>: <content>`
 - JSX attribute order: `className` first, event handlers (`on*`) last
 - Use `isLoading` (not `isPending`) for boolean loading-state props
 - Use inline `export default function ComponentName` declaration; not separate `export default` at file bottom
-- Use `@heroicons/react` for icons; do not use `lucide-react`
+- Use `lucide-react` for icons
 - Name functions as verbs; name types/constants as nouns
 - Use `assert()` for invariant checks and `ensure()` for unwrapping `Maybe<T>` values; both from `@/utils/assert`
 - Prefix `private` methods with `_` (e.g., `private _bindEvents()`)

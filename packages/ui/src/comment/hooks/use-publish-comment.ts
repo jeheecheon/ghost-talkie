@@ -9,7 +9,7 @@ import {
 import { assert, ensure } from "@workspace/lib/assert";
 import {
   commentPool,
-  buildCommentQueryKey,
+  getCommentQueryKey,
 } from "@workspace/ui/comment/hooks/use-profile-comments";
 import { useNostrConfig } from "@workspace/ui/comment/context";
 
@@ -30,8 +30,10 @@ export default function usePublishComment(profileAddress: Address) {
         identity,
         topicPrefix,
       );
+
+      const comment = ensure(parseComment(event));
       const optimistic = {
-        ...ensure(parseComment(event)),
+        ...comment,
         isVerified: true,
       };
 
@@ -43,7 +45,7 @@ export default function usePublishComment(profileAddress: Address) {
       assert(published, "Failed to publish comment to any relay");
 
       queryClient.setQueryData<Comment[]>(
-        buildCommentQueryKey(profileAddress, topicPrefix),
+        getCommentQueryKey(profileAddress, topicPrefix),
         (prev) => mergeComments(prev ?? [], [optimistic]),
       );
     },

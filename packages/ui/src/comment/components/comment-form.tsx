@@ -8,17 +8,14 @@ import usePublishComment from "@workspace/ui/comment/hooks/use-publish-comment";
 
 type CommentFormProps = {
   className?: string;
-  profileAddress: Address;
+  address: Address;
 };
 
-export default function CommentForm({
-  className,
-  profileAddress,
-}: CommentFormProps) {
+export default function CommentForm({ className, address }: CommentFormProps) {
   const [content, setContent] = useState("");
 
   const { isPending, withNostrIdentity } = useWithNostrIdentity();
-  const { mutateAsync: publishComment } = usePublishComment(profileAddress);
+  const { mutateAsync: publishComment } = usePublishComment(address);
 
   return (
     <form

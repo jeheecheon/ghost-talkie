@@ -1,55 +1,73 @@
-import { UserIcon } from "@heroicons/react/24/outline";
 import { Button } from "@workspace/ui/primitives/button";
+import EnsAvatar from "@workspace/ui/wallet/components/address-avatar";
 import { shortenAddress } from "@workspace/lib/address";
 import { cn } from "@workspace/lib/cn";
-import type { EnsIdentity } from "@workspace/domain/nostr/types";
-import type { Nullable } from "@workspace/types/misc";
-import type { Address } from "viem";
+import { isAddressEqual, type Address } from "viem";
+import { useChatWidgetStore } from "@workspace/ui/chat/store/chat-widget";
+import useSignChatProof from "@workspace/ui/chat/hooks/use-sign-chat-proof";
+import useEnsProfile from "@workspace/ui/wallet/hooks/use-ens-profile";
+import useWithWalletConnection from "@workspace/ui/wallet/hooks/use-with-wallet-connection";
 
 type WalletProfileCardProps = {
   className?: string;
   address: Address;
-  ensIdentity: Nullable<EnsIdentity>;
-  isLoading: boolean;
-  isConnected: boolean;
-  onStartChat: () => void;
 };
 
 export default function WalletProfileCard({
   className,
-  address,
-  ensIdentity,
-  isLoading,
-  isConnected,
-  onStartChat,
+  address: profileAddress,
 }: WalletProfileCardProps) {
+  const roomAddress = useChatWidgetStore((s) => s.roomAddress);
+  const chatProof = useChatWidgetStore((s) => s.chatProof);
+  const requestRoom = useChatWidgetStore((s) => s.requestRoom);
+
+  const { signChatProof } = useSignChatProof();
+
+  const {
+    address: localAddress,
+    isPending,
+    withWalletConnection,
+  } = useWithWalletConnection();
+  const { data: ensProfile } = useEnsProfile({ address: profileAddress });
+
   return (
     <div className={cn("flex flex-col items-center gap-4", className)}>
-      {ensIdentity?.avatar ? (
-        <img
-          className="size-24 rounded-full"
-          src={ensIdentity.avatar}
-          alt="ENS Avatar"
-        />
-      ) : (
-        <div className="bg-muted size-24 rounded-full p-6">
-          <UserIcon className="text-muted-foreground size-full" />
-        </div>
+      <EnsAvatar className="size-24" address={profileAddress} />
+
+      {ensProfile?.ensName && (
+        <p className="text-lg font-semibold">{ensProfile.ensName}</p>
       )}
 
-      {ensIdentity?.ensName && (
-        <p className="text-lg font-semibold">{ensIdentity.ensName}</p>
-      )}
+      <p className="text-muted-foreground text-sm">
+        {shortenAddress(profileAddress)}
+      </p>
 
-      <p className="text-muted-foreground text-sm">{shortenAddress(address)}</p>
-
-      <Button disabled={isLoading} onClick={onStartChat}>
-        {isLoading
+      <Button disabled={isPending} onClick={handleStartChat}>
+        {isPending
           ? "Connecting..."
-          : isConnected
+          : localAddress
             ? "Start Chat"
             : "Connect Wallet & Start Chat"}
       </Button>
     </div>
   );
+
+  async function handleStartChat() {
+    withWalletConnection(async (localAddress) => {
+      const hasActiveRoom = roomAddress && chatProof;
+      const isRoomEqual =
+        roomAddress && isAddressEqual(profileAddress, roomAddress);
+
+      if (hasActiveRoom && isRoomEqual) {
+        requestRoom(roomAddress, chatProof);
+        return;
+      }
+
+      const proof = await signChatProof({
+        roomAddress: profileAddress,
+        signerAddress: localAddress,
+      });
+      requestRoom(profileAddress, proof);
+    });
+  }
 }

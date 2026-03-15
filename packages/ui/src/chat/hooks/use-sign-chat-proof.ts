@@ -9,24 +9,23 @@ import {
 import { determineChatRole } from "@workspace/domain/p2p/chat";
 
 type SignChatProofArgs = {
-  signerAddress: Address;
   roomAddress: Address;
+  signerAddress: Address;
 };
 
 export default function useSignChatProof() {
   const { mutateAsync: signMessage } = useSignMessage();
 
   const {
-    status,
     isError,
     isPending,
     isSuccess,
     data: chatProof,
-    mutate: signChatProof,
+    mutateAsync: signChatProof,
   } = useMutation({
     mutationFn: async ({
-      signerAddress,
       roomAddress,
+      signerAddress,
     }: SignChatProofArgs): Promise<ChatProof> => {
       const timestamp = Date.now();
       const role = determineChatRole({ signerAddress, roomAddress });
@@ -41,7 +40,6 @@ export default function useSignChatProof() {
   });
 
   return {
-    status,
     isError,
     isPending,
     isSuccess,

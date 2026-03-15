@@ -2,6 +2,7 @@ import type { Address, Hex } from "viem";
 import type { Nullable } from "@workspace/types/misc";
 
 export enum RoomStatus {
+  Empty = "empty",
   Waiting = "waiting",
   Active = "active",
 }
@@ -10,6 +11,7 @@ export enum RoomAction {
   Request = "request",
   Response = "response",
   Message = "message",
+  VoiceState = "voice-state",
 }
 
 export enum PeerStatus {
@@ -36,6 +38,9 @@ export type ChatResponsePayload = {
   accepted: boolean;
   targetPeerId: string;
 };
+export type VoiceStatePayload = {
+  isMicOn: boolean;
+};
 
 export type ChatMessage = {
   id: string;
@@ -55,6 +60,8 @@ export type LocalPeer = {
   role: PeerRole;
   status: PeerStatus;
   chatProof: ChatProof;
+  isMicOn: boolean;
+  stream: Nullable<MediaStream>;
 };
 
 export type RemotePeer = {
@@ -62,6 +69,8 @@ export type RemotePeer = {
   role: PeerRole;
   status: PeerStatus;
   chatProof: Nullable<ChatProof>;
+  isMicOn: boolean;
+  stream: Nullable<MediaStream>;
 };
 
 export type PrivateChatRoomState = {

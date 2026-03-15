@@ -1,33 +1,21 @@
-import { Outlet } from "react-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { WagmiProvider } from "wagmi";
-import { NostrConfigProvider } from "@workspace/ui/comment/context";
+import { Link, Outlet } from "react-router";
 import { Layout } from "@/layout";
-import HydrateFallback from "@/hydrate-fallback";
 import ErrorBoundary from "@/error-boundary";
-import { config } from "@/configs/wagmi";
-import { env } from "@/configs/env";
+import RootProviders from "@/providers/root-providers";
+import ChatWidget from "@workspace/ui/chat/components/chat-widget";
 import "@/globals.css";
 
-export { Layout, HydrateFallback, ErrorBoundary };
+export { Layout, ErrorBoundary };
 
-const queryClient = new QueryClient();
-
-const nostrConfig = {
-  relays: env.nostrRelays,
-  topicPrefix: env.nostrTopicPrefix,
-};
-
-function Root() {
+export default function Root() {
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <NostrConfigProvider value={nostrConfig}>
-          <Outlet />
-        </NostrConfigProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <RootProviders>
+      <section>
+        <Link to="/0xE7271a41640e91616674fcCB7F46Bd61d7815E30">Profile 1</Link>
+        <Link to="/0xd76bc6C88DBf1923343BCCb2E8ed730d27597EfF">Profile 2</Link>
+      </section>
+      <Outlet />
+      <ChatWidget />
+    </RootProviders>
   );
 }
-
-export default Root;

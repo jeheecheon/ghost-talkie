@@ -10,6 +10,8 @@ export default function LayoutContainer({
   children,
 }: LayoutContainerProps) {
   return (
-    <div className={cn("mx-auto max-w-150 px-4", className)}>{children}</div>
+    <div className={cn("bg-background mx-auto max-w-150 px-4", className)}>
+      {children}
+    </div>
   );
 }
