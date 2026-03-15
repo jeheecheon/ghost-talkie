@@ -33,7 +33,7 @@ export default function ChatRoomView({
   const leaveRoom = useChatWidgetStore((s) => s.leaveRoom);
 
   useKey("Escape", minimize);
-  useLockBodyScroll(layout === "mobile");
+  useLockBodyScroll(layout === "mobile" && isOpen);
 
   const viewportHeight = useVisualViewportHeight(layout === "mobile");
 
