@@ -8,27 +8,26 @@ import useViewStatus from "@workspace/ui/chat/hooks/use-view-status";
 import { useChatWidgetStore } from "@workspace/ui/chat/store/chat-widget";
 import { cn } from "@workspace/lib/cn";
 import { type ChatProof } from "@workspace/domain/p2p/types";
-import type { LayoutMode } from "@workspace/types/ui";
 import type { Address } from "viem";
 import LayoutContainer from "@workspace/ui/primitives/layout-container";
 import { Portal, Transition } from "@headlessui/react";
 import useKey from "react-use/lib/useKey";
 import useLockBodyScroll from "react-use/lib/useLockBodyScroll";
+import useLayoutMode from "@workspace/ui/hooks/use-layout-mode";
 import useVisualViewportHeight from "@workspace/ui/hooks/use-visual-viewport-height";
 
 type ChatRoomViewProps = {
   className?: string;
-  layout: LayoutMode;
   roomAddress: Address;
   chatProof: ChatProof;
 };
 
 export default function ChatRoomView({
   className,
-  layout,
   roomAddress,
   chatProof,
 }: ChatRoomViewProps) {
+  const layout = useLayoutMode();
   const isOpen = useChatWidgetStore((s) => s.isOpen);
   const minimize = useChatWidgetStore((s) => s.minimize);
   const leaveRoom = useChatWidgetStore((s) => s.leaveRoom);

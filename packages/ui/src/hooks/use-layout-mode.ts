@@ -1,3 +1,4 @@
+import type { LayoutMode } from "@workspace/types/ui";
 import { useSyncExternalStore } from "react";
 
 function subscribe(callback: () => void) {
@@ -15,6 +16,12 @@ function getServerSnapshot() {
   return false;
 }
 
-export default function useIsMobile() {
-  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+export default function useLayoutMode(): LayoutMode {
+  const isMobile = useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getServerSnapshot,
+  );
+
+  return isMobile ? "mobile" : "desktop";
 }
