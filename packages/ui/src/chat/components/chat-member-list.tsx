@@ -12,6 +12,11 @@ import {
 import { filterPeersByStatus } from "@workspace/domain/p2p/chat";
 import type { Nullable } from "@workspace/types/misc";
 import type { Address } from "viem";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@workspace/ui/primitives/tooltip";
 
 type ChatMemberListProps = {
   className?: string;
@@ -78,9 +83,14 @@ function ChatMemberRow({
         address={address}
       />
 
-      <span className="min-w-0 truncate text-xs font-medium">
-        {getDisplayName()}
-      </span>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="min-w-0 truncate text-xs font-medium">
+            {getDisplayName()}
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>{address}</TooltipContent>
+      </Tooltip>
 
       {role === PeerRole.Owner && (
         <Crown className="size-4 shrink-0 text-yellow-500" />

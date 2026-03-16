@@ -1,5 +1,11 @@
 import { Button } from "@workspace/ui/primitives/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@workspace/ui/primitives/tooltip";
 import EnsAvatar from "@workspace/ui/wallet/components/address-avatar";
+import ChainBalanceList from "@workspace/ui/wallet/components/chain-balance-list";
 import { shortenAddress } from "@workspace/lib/address";
 import { cn } from "@workspace/lib/cn";
 import { isAddressEqual, type Address } from "viem";
@@ -30,25 +36,37 @@ export default function WalletProfileCard({
   } = useWithWalletConnection();
   const { data: ensProfile } = useEnsProfile({ address: profileAddress });
 
+  const isOwnProfile =
+    !!localAddress && isAddressEqual(localAddress, profileAddress);
+
   return (
-    <div className={cn("flex flex-col items-center gap-4", className)}>
+    <div className={cn("flex flex-col items-center", className)}>
       <EnsAvatar className="size-24" address={profileAddress} />
-
-      {ensProfile?.ensName && (
-        <p className="text-lg font-semibold">{ensProfile.ensName}</p>
-      )}
-
-      <p className="text-muted-foreground text-sm">
-        {shortenAddress(profileAddress)}
-      </p>
-
-      <Button disabled={isPending} onClick={handleStartChat}>
+      <Button className="mt-3" disabled={isPending} onClick={handleStartChat}>
         {isPending
           ? "Connecting..."
           : localAddress
             ? "Start Chat"
             : "Connect Wallet & Start Chat"}
       </Button>
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <p className="text-muted-foreground mt-2.5 cursor-default text-sm">
+            {shortenAddress(profileAddress)}
+          </p>
+        </TooltipTrigger>
+        <TooltipContent sideOffset={0} side="bottom">
+          {profileAddress}
+        </TooltipContent>
+      </Tooltip>
+      <p className="h-7 text-lg font-semibold">{ensProfile?.ensName}</p>
+
+      <ChainBalanceList
+        className="w-full"
+        profileAddress={profileAddress}
+        isOwnProfile={isOwnProfile}
+      />
     </div>
   );
 

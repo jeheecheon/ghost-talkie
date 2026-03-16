@@ -18,7 +18,7 @@ type ConfirmModalProps = {
   confirmLabel?: string;
   cancelLabel?: string;
   onConfirm: () => void;
-  onCancel: () => void;
+  onClose: () => void;
 };
 
 export default function ConfirmModal({
@@ -29,7 +29,7 @@ export default function ConfirmModal({
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
   onConfirm,
-  onCancel,
+  onClose,
 }: ConfirmModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -44,7 +44,7 @@ export default function ConfirmModal({
         <DialogDescription>{description}</DialogDescription>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onCancel}>
+          <Button variant="outline" onClick={onClose}>
             {cancelLabel}
           </Button>
 
@@ -59,6 +59,6 @@ export default function ConfirmModal({
       return;
     }
 
-    onCancel();
+    onClose();
   }
 }

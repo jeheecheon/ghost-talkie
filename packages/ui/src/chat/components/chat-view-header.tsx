@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@workspace/ui/primitives/button";
-import ConfirmModal from "@workspace/ui/primitives/confirm-modal";
+import ResponsiveConfirmDialog from "@workspace/ui/primitives/responsive-confirm-dialog";
 import ChatMemberModal from "@workspace/ui/chat/components/chat-member-modal";
 import { Menu, Minus, X } from "lucide-react";
 import { shortenAddress } from "@workspace/lib/address";
@@ -83,13 +83,13 @@ export default function ChatViewHeader({
         </Button>
       </div>
 
-      <ConfirmModal
+      <ResponsiveConfirmDialog
         isOpen={isLeaveModalOpen}
         title="Leave Room?"
         description="Are you sure you want to leave this chat room?"
         confirmLabel="Leave"
         onConfirm={handleLeaveConfirm}
-        onCancel={handleLeaveCancel}
+        onClose={handleLeaveCancel}
       />
 
       {roomState && (

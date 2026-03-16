@@ -28,14 +28,27 @@ export default function ChatRoomOwnerWaiting({
   );
 
   return (
-    <div
-      className={cn(
-        "flex flex-col items-center justify-center gap-4 p-6",
-        className,
-      )}
-    >
+    <div className={cn("relative", className)}>
+      <div className="absolute-center flex flex-col items-center justify-center gap-y-4">
+        <GhostIcon className="size-16" />
+
+        <p className="text-muted-foreground text-center text-sm">
+          Waiting for a ghost to arrive...
+        </p>
+
+        <Button
+          className="gap-2"
+          variant="outline"
+          size="sm"
+          onClick={handleShare}
+        >
+          <Share2 className="size-4" />
+          {isCopied ? "Copied!" : "Share room link"}
+        </Button>
+      </div>
+
       {requestingPeers.length > 0 && (
-        <ul className="w-full space-y-2 px-3">
+        <ul className="relative w-full space-y-2 px-3 pt-2">
           {requestingPeers.map((peer) => (
             <li key={peer.peerId}>
               <ChatJoinRequest
@@ -47,22 +60,6 @@ export default function ChatRoomOwnerWaiting({
           ))}
         </ul>
       )}
-
-      <GhostIcon className="size-16" />
-
-      <p className="text-muted-foreground text-center text-sm">
-        Waiting for a ghost to arrive...
-      </p>
-
-      <Button
-        className="gap-2"
-        variant="outline"
-        size="sm"
-        onClick={handleShare}
-      >
-        <Share2 className="size-4" />
-        {isCopied ? "Copied!" : "Share room link"}
-      </Button>
     </div>
   );
 
