@@ -26,6 +26,7 @@ Format: `<type>: <content>`
 - Components must have a single `return`; use JSX conditional rendering instead of early returns
 - Non-component functions (handlers, utils): use early return to minimize nesting depth
 - Wrap single-line code blocks in braces
+- Add blank line after closing `}` of block statements (`if`, `for`, `switch`, `try`, etc.) before the next statement
 - Use `Nullable<T>`, `Optional<T>`, `Maybe<T>` from `@/types/misc` instead of inline `null | T`, `undefined | T`, `null | undefined | T`
 - Place `handle*` functions after `return` using `function` declaration hoisting; never use arrow function handlers above `return`
 - Define component Props as `type ComponentNameProps`; use `type`, not `interface`
@@ -34,9 +35,11 @@ Format: `<type>: <content>`
 - JSX attribute order: `className` first, event handlers (`on*`) last
 - Use `isLoading` (not `isPending`) for boolean loading-state props
 - Use inline `export default function ComponentName` declaration; not separate `export default` at file bottom
-- Use `@heroicons/react` for icons; do not use `lucide-react`
+- Use `lucide-react` for icons
 - Name functions as verbs; name types/constants as nouns
 - Use `assert()` for invariant checks and `ensure()` for unwrapping `Maybe<T>` values; both from `@/utils/assert`
+- Prefix `private` methods with `_` (e.g., `private _bindEvents()`)
+- Always write explicit access modifiers (`public`, `private`) on class members
 - Eliminate unnecessary `try/catch`; only use at system boundaries (external data, network, user input)
 - Review all code changes for clean code violations before presenting to user
 - After code modifications, verify `pnpm tsc --noEmit`, `pnpm eslint`, and `pnpm prettier --check .` pass

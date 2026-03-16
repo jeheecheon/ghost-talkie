@@ -1,0 +1,61 @@
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@workspace/ui/primitives/dialog";
+import { Button } from "@workspace/ui/primitives/button";
+import { cn } from "@workspace/lib/cn";
+import type { ReactNode } from "react";
+
+type ConfirmModalProps = {
+  className?: string;
+  isOpen: boolean;
+  title: string;
+  description: ReactNode;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+};
+
+export default function ConfirmModal({
+  className,
+  isOpen,
+  title,
+  description,
+  confirmLabel = "Confirm",
+  cancelLabel = "Cancel",
+  onConfirm,
+  onCancel,
+}: ConfirmModalProps) {
+  return (
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogContent className={cn("", className)}>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+
+        <DialogDescription>{description}</DialogDescription>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onCancel}>
+            {cancelLabel}
+          </Button>
+
+          <Button onClick={onConfirm}>{confirmLabel}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+
+  function handleOpenChange(open: boolean) {
+    if (open) {
+      return;
+    }
+
+    onCancel();
+  }
+}

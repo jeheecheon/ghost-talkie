@@ -1,0 +1,62 @@
+import { useState } from "react";
+import type { Address } from "viem";
+import { Textarea } from "@workspace/ui/primitives/textarea";
+import { Button } from "@workspace/ui/primitives/button";
+import { cn } from "@workspace/lib/cn";
+import useWithNostrIdentity from "@workspace/ui/wallet/hooks/use-with-nostr-identity";
+import usePublishComment from "@workspace/ui/comment/hooks/use-publish-comment";
+
+type CommentFormProps = {
+  className?: string;
+  address: Address;
+};
+
+export default function CommentForm({ className, address }: CommentFormProps) {
+  const [content, setContent] = useState("");
+
+  const { isPending, withNostrIdentity } = useWithNostrIdentity();
+  const { mutateAsync: publishComment } = usePublishComment(address);
+
+  return (
+    <form
+      className={cn("flex flex-col gap-y-2", className)}
+      onSubmit={handleSubmit}
+    >
+      <Textarea
+        placeholder="Leave a comment..."
+        rows={3}
+        maxLength={500}
+        aria-label="Comment"
+        value={content}
+        onChange={handleTextareaChange}
+      />
+      <Button
+        className="self-end"
+        type="submit"
+        size="sm"
+        disabled={isPending || !content.trim()}
+      >
+        {isPending ? "Posting..." : "Post"}
+      </Button>
+    </form>
+  );
+
+  function handleTextareaChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    setContent(e.target.value.trim());
+  }
+
+  function handleSubmit(e: React.SubmitEvent) {
+    e.preventDefault();
+
+    withNostrIdentity(async (identity) => {
+      try {
+        await publishComment({ content, identity });
+        setContent("");
+        // TODO: show success message with toast
+      } catch (error) {
+        // TODO: show error message with toast
+        console.error(error);
+      }
+    });
+  }
+}

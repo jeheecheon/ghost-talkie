@@ -1,0 +1,14 @@
+{
+  "extends": "@workspace/tsconfig/react.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/.react-router/*": ["./.react-router/types/src/*"]
+    },
+    "rootDirs": [".", "./.react-router/types"],
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "types": ["vite/client"]
+  },
+  "include": [".react-router/types/**/*", "src"]
+}
