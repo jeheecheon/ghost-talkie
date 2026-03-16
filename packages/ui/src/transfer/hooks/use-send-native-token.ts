@@ -3,7 +3,7 @@ import { parseEther, type Address } from "viem";
 import { useConnection, useSendTransaction, useSwitchChain } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { config } from "@workspace/ui/wallet/configs/wagmi";
-import type { Chain } from "viem";
+import type { Chain, Hash } from "viem";
 import { useState } from "react";
 
 type SendNativeTokenParams = {
@@ -13,7 +13,7 @@ type SendNativeTokenParams = {
 };
 
 type UseSendNativeTokenReturn = {
-  sendNativeToken: (params: SendNativeTokenParams) => Promise<void>;
+  sendNativeToken: (params: SendNativeTokenParams) => Promise<Hash>;
   isLoading: boolean;
 };
 
@@ -33,7 +33,7 @@ export default function useSendNativeToken(): UseSendNativeTokenReturn {
     to,
     amount,
     chain,
-  }: SendNativeTokenParams): Promise<void> {
+  }: SendNativeTokenParams): Promise<Hash> {
     setIsLoading(true);
 
     try {
@@ -41,7 +41,7 @@ export default function useSendNativeToken(): UseSendNativeTokenReturn {
         await toast
           .promise(switchChain({ chainId: chain.id }), {
             loading: "Switching chain...",
-            success: "Chain switched successfully",
+            success: "Chain switched",
             error: "Failed to switch chain",
           })
           .unwrap();
@@ -56,7 +56,7 @@ export default function useSendNativeToken(): UseSendNativeTokenReturn {
           }),
           {
             loading: "Sending transaction...",
-            success: "Transaction sent successfully",
+            success: "Transaction sent",
             error: "Failed to send transaction",
           },
         )
@@ -77,8 +77,8 @@ export default function useSendNativeToken(): UseSendNativeTokenReturn {
           onClick: () => window.open(href, "_blank", "noopener,noreferrer"),
         },
       });
-    } catch {
-      toast.error("Failed to send token...");
+
+      return hash;
     } finally {
       setIsLoading(false);
     }
