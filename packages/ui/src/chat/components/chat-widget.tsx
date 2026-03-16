@@ -1,7 +1,7 @@
 import { useChatWidgetStore } from "@workspace/ui/chat/store/chat-widget";
 import ChatRoomView from "@workspace/ui/chat/components/chat-room-view";
 import ChatFAB from "@workspace/ui/chat/components/chat-fab";
-import ConfirmModal from "@workspace/ui/primitives/confirm-modal";
+import ResponsiveConfirmDialog from "@workspace/ui/primitives/responsive-confirm-dialog";
 import { shortenAddress } from "@workspace/lib/address";
 import { cn } from "@workspace/lib/cn";
 
@@ -29,7 +29,7 @@ export default function ChatWidget({ className }: ChatWidgetProps) {
           <ChatFAB onClick={expand} />
 
           {pendingRoomAddress && (
-            <ConfirmModal
+            <ResponsiveConfirmDialog
               isOpen={!!pendingRoomAddress}
               title="Switch Chat?"
               description={
