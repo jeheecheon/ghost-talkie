@@ -1,4 +1,9 @@
 import { Button } from "@workspace/ui/primitives/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@workspace/ui/primitives/tooltip";
 import EnsAvatar from "@workspace/ui/wallet/components/address-avatar";
 import ChainBalanceList from "@workspace/ui/wallet/components/chain-balance-list";
 import { shortenAddress } from "@workspace/lib/address";
@@ -37,7 +42,7 @@ export default function WalletProfileCard({
   return (
     <div className={cn("flex flex-col items-center", className)}>
       <EnsAvatar className="size-24" address={profileAddress} />
-      <Button className="mt-2" disabled={isPending} onClick={handleStartChat}>
+      <Button className="mt-3" disabled={isPending} onClick={handleStartChat}>
         {isPending
           ? "Connecting..."
           : localAddress
@@ -45,9 +50,16 @@ export default function WalletProfileCard({
             : "Connect Wallet & Start Chat"}
       </Button>
 
-      <p className="text-muted-foreground mt-1.5 text-sm">
-        {shortenAddress(profileAddress)}
-      </p>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <p className="text-muted-foreground mt-2.5 cursor-default text-sm">
+            {shortenAddress(profileAddress)}
+          </p>
+        </TooltipTrigger>
+        <TooltipContent sideOffset={0} side="bottom">
+          {profileAddress}
+        </TooltipContent>
+      </Tooltip>
       <p className="h-7 text-lg font-semibold">{ensProfile?.ensName}</p>
 
       <ChainBalanceList
