@@ -31,7 +31,8 @@ export default function ChainBalanceList({
         <ChainBalanceRow
           key={balance.chain.id}
           chainId={balance.chain.id}
-          chainName={balance.chain.name}
+          currencyName={balance.chain.nativeCurrency.name}
+          currencySymbol={balance.chain.nativeCurrency.symbol}
           balance={balance.formatted}
           showTransfer={isOwnProfile}
           isLoading={balance.isLoading}

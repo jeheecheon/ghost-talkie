@@ -6,7 +6,8 @@ import { cn } from "@workspace/lib/cn";
 type ChainBalanceRowProps = {
   className?: string;
   chainId: number;
-  chainName: string;
+  currencyName: string;
+  currencySymbol: string;
   balance: number;
   isLoading: boolean;
   showTransfer: boolean;
@@ -16,7 +17,8 @@ type ChainBalanceRowProps = {
 export default function ChainBalanceRow({
   className,
   chainId,
-  chainName,
+  currencyName,
+  currencySymbol,
   balance,
   isLoading,
   showTransfer,
@@ -26,10 +28,10 @@ export default function ChainBalanceRow({
     <div className={cn("flex h-10 items-center gap-x-3", className)}>
       <ChainIcon chainId={chainId} />
 
-      <span className="flex-1 text-sm font-medium">{chainName}</span>
+      <span className="flex-1 text-sm font-medium">{currencyName}</span>
 
       <span className="text-muted-foreground text-sm">
-        {isLoading ? "—" : formatTokenBalance(balance)}
+        {isLoading ? "—" : `${formatTokenBalance(balance)} ${currencySymbol}`}
       </span>
 
       {showTransfer && (
