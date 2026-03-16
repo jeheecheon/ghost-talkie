@@ -3,6 +3,7 @@
 ## Git
 
 - Do NOT commit unless the user explicitly requests it
+- Branch naming: `feature/<description>`, `fix/<description>`, `chore/<description>`, `refactor/<description>`
 
 ### Commit Messages
 
