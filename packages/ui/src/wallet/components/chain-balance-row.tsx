@@ -7,7 +7,7 @@ type ChainBalanceRowProps = {
   className?: string;
   chainId: number;
   chainName: string;
-  balance: string;
+  balance: number;
   isLoading: boolean;
   showTransfer: boolean;
   onTransfer: () => void;

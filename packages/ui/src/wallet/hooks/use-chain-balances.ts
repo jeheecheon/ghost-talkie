@@ -18,7 +18,7 @@ const chainClients = SUPPORTED_CHAINS.map((chain) =>
 export type ChainBalance = {
   chain: Chain;
   raw: bigint;
-  formatted: string;
+  formatted: number;
   isLoading: boolean;
 };
 
@@ -42,7 +42,8 @@ export default function useChainBalances({
         const raw = await client.getBalance({
           address,
         });
-        const formatted = formatEther(raw);
+        const formatted = Number(formatEther(raw));
+        assert(Number.isFinite(formatted), "Invalid formatted balance");
 
         return {
           raw,
@@ -59,7 +60,7 @@ export default function useChainBalances({
           ...result,
           chain,
           raw: result.data?.raw ?? 0n,
-          formatted: result.data?.formatted ?? "0",
+          formatted: result.data?.formatted ?? 0,
         };
       });
     },
