@@ -1,8 +1,9 @@
 import ChatViewHeader from "@workspace/ui/chat/components/chat-view-header";
 import ChatRoomContent from "@workspace/ui/chat/components/chat-room-content";
-import ChatRoomWaiting from "@workspace/ui/chat/components/chat-room-waiting";
+import ChatRoomOwnerWaiting from "@workspace/ui/chat/components/chat-room-owner-waiting";
 import ChatRoomConnecting from "@workspace/ui/chat/components/chat-room-connecting";
-import ChatRoomPending from "@workspace/ui/chat/components/chat-room-pending";
+import ChatRoomVisitorRequesting from "@workspace/ui/chat/components/chat-room-visitor-requesting";
+import ChatRoomOwnerLeft from "@workspace/ui/chat/components/chat-room-owner-left";
 import usePrivateChatRoom from "@workspace/ui/chat/hooks/use-private-chat-room";
 import useViewStatus from "@workspace/ui/chat/hooks/use-view-status";
 import { useChatWidgetStore } from "@workspace/ui/chat/store/chat-widget";
@@ -66,15 +67,20 @@ export default function ChatRoomView({
             onLeave={leaveRoom}
           />
 
-          {!roomState ? (
+          {viewStatus === "connecting" || !roomState ? (
             <ChatRoomConnecting className="min-h-0 flex-1" />
           ) : viewStatus === "owner-waiting" ? (
-            <ChatRoomWaiting className="min-h-0 flex-1" />
-          ) : viewStatus === "visitor-pending" || viewStatus === "error" ? (
-            <ChatRoomPending
+            <ChatRoomOwnerWaiting className="min-h-0 flex-1" />
+          ) : viewStatus === "visitor-requesting" || viewStatus === "error" ? (
+            <ChatRoomVisitorRequesting
               className="min-h-0 flex-1"
               roomState={roomState}
               onLeave={leaveRoom}
+            />
+          ) : viewStatus === "owner-left" ? (
+            <ChatRoomOwnerLeft
+              className="min-h-0 flex-1"
+              roomState={roomState}
             />
           ) : (
             <ChatRoomContent
