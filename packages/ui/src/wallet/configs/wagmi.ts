@@ -1,31 +1,7 @@
-import {
-  mainnet,
-  arbitrum,
-  base,
-  optimism,
-  polygon,
-  sepolia,
-  arbitrumSepolia,
-  baseSepolia,
-  optimismSepolia,
-  polygonAmoy,
-} from "viem/chains";
-import { http, createConfig, type Transport } from "wagmi";
+import { http, type Transport } from "viem";
+import { createConfig } from "wagmi";
 import { metaMask } from "wagmi/connectors";
-import { ENV } from "@workspace/ui/configs/env";
-
-const MAINNET_CHAINS = [mainnet, arbitrum, base, optimism, polygon] as const;
-const TESTNET_CHAINS = [
-  sepolia,
-  arbitrumSepolia,
-  baseSepolia,
-  optimismSepolia,
-  polygonAmoy,
-] as const;
-
-export const SUPPORTED_CHAINS = ENV.ENABLED_FEATURES.includes("testnet")
-  ? TESTNET_CHAINS
-  : MAINNET_CHAINS;
+import { SUPPORTED_CHAINS } from "@workspace/ui/wallet/constants/chains";
 
 const transports = SUPPORTED_CHAINS.reduce<Record<number, Transport>>(
   (acc, chain) => {

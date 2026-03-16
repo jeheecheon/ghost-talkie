@@ -45,6 +45,7 @@
     "./comment/hooks/*": "./src/comment/hooks/*.ts",
     "./wallet/components/*": "./src/wallet/components/*.tsx",
     "./wallet/configs/*": "./src/wallet/configs/*.ts",
+    "./wallet/constants/*": "./src/wallet/constants/*.ts",
     "./wallet/hooks/*": "./src/wallet/hooks/*.ts",
     "./wallet/types": "./src/wallet/types.ts",
     "./chat/store/*": "./src/chat/store/*.ts",

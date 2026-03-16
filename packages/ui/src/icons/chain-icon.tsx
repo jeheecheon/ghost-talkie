@@ -17,6 +17,11 @@ import ArbitrumIcon from "@workspace/ui/icons/arbitrum-icon";
 import BaseIcon from "@workspace/ui/icons/base-icon";
 import OptimismIcon from "@workspace/ui/icons/optimism-icon";
 import PolygonIcon from "@workspace/ui/icons/polygon-icon";
+import CrossIcon from "@workspace/ui/icons/cross-icon";
+import {
+  crossMainnet,
+  crossTestnet,
+} from "@workspace/ui/wallet/constants/chains";
 
 type ChainIconProps = {
   className?: string;
@@ -53,6 +58,9 @@ export default function ChainIcon({ className, chainId }: ChainIconProps) {
       case polygon.id:
       case polygonAmoy.id:
         return PolygonIcon;
+      case crossMainnet.id:
+      case crossTestnet.id:
+        return CrossIcon;
       default:
         console.error(`Unknown chain id: ${chainId}`);
         return Circle;
