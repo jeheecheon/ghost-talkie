@@ -44,12 +44,16 @@
     "./comment/components/*": "./src/comment/components/*.tsx",
     "./comment/hooks/*": "./src/comment/hooks/*.ts",
     "./wallet/components/*": "./src/wallet/components/*.tsx",
+    "./wallet/configs/*": "./src/wallet/configs/*.ts",
     "./wallet/hooks/*": "./src/wallet/hooks/*.ts",
     "./wallet/types": "./src/wallet/types.ts",
     "./chat/store/*": "./src/chat/store/*.ts",
     "./chat/components/*": "./src/chat/components/*.tsx",
     "./chat/hooks/*": "./src/chat/hooks/*.ts",
     "./icons/*": "./src/icons/*.tsx",
+    "./configs/*": "./src/configs/*.ts",
+    "./transfer/components/*": "./src/transfer/components/*.tsx",
+    "./transfer/hooks/*": "./src/transfer/hooks/*.ts",
     "./hooks/*": "./src/hooks/*.ts",
     "./globals.css": "./src/styles/globals.css"
   }
