@@ -1,40 +1,40 @@
 import ChatViewHeader from "@workspace/ui/chat/components/chat-view-header";
 import ChatRoomContent from "@workspace/ui/chat/components/chat-room-content";
-import ChatRoomWaiting from "@workspace/ui/chat/components/chat-room-waiting";
+import ChatRoomOwnerWaiting from "@workspace/ui/chat/components/chat-room-owner-waiting";
 import ChatRoomConnecting from "@workspace/ui/chat/components/chat-room-connecting";
-import ChatRoomPending from "@workspace/ui/chat/components/chat-room-pending";
+import ChatRoomVisitorRequesting from "@workspace/ui/chat/components/chat-room-visitor-requesting";
+import ChatRoomOwnerLeft from "@workspace/ui/chat/components/chat-room-owner-left";
 import usePrivateChatRoom from "@workspace/ui/chat/hooks/use-private-chat-room";
 import useViewStatus from "@workspace/ui/chat/hooks/use-view-status";
 import { useChatWidgetStore } from "@workspace/ui/chat/store/chat-widget";
 import { cn } from "@workspace/lib/cn";
 import { type ChatProof } from "@workspace/domain/p2p/types";
-import type { LayoutMode } from "@workspace/types/ui";
 import type { Address } from "viem";
 import LayoutContainer from "@workspace/ui/primitives/layout-container";
 import { Portal, Transition } from "@headlessui/react";
 import useKey from "react-use/lib/useKey";
 import useLockBodyScroll from "react-use/lib/useLockBodyScroll";
+import useLayoutMode from "@workspace/ui/hooks/use-layout-mode";
 import useVisualViewportHeight from "@workspace/ui/hooks/use-visual-viewport-height";
 
 type ChatRoomViewProps = {
   className?: string;
-  layout: LayoutMode;
   roomAddress: Address;
   chatProof: ChatProof;
 };
 
 export default function ChatRoomView({
   className,
-  layout,
   roomAddress,
   chatProof,
 }: ChatRoomViewProps) {
+  const layout = useLayoutMode();
   const isOpen = useChatWidgetStore((s) => s.isOpen);
   const minimize = useChatWidgetStore((s) => s.minimize);
   const leaveRoom = useChatWidgetStore((s) => s.leaveRoom);
 
   useKey("Escape", minimize);
-  useLockBodyScroll(layout === "mobile");
+  useLockBodyScroll(layout === "mobile" && isOpen);
 
   const viewportHeight = useVisualViewportHeight(layout === "mobile");
 
@@ -67,15 +67,20 @@ export default function ChatRoomView({
             onLeave={leaveRoom}
           />
 
-          {!roomState ? (
+          {viewStatus === "connecting" || !roomState ? (
             <ChatRoomConnecting className="min-h-0 flex-1" />
           ) : viewStatus === "owner-waiting" ? (
-            <ChatRoomWaiting className="min-h-0 flex-1" />
-          ) : viewStatus === "visitor-pending" || viewStatus === "error" ? (
-            <ChatRoomPending
+            <ChatRoomOwnerWaiting className="min-h-0 flex-1" />
+          ) : viewStatus === "visitor-requesting" || viewStatus === "error" ? (
+            <ChatRoomVisitorRequesting
               className="min-h-0 flex-1"
               roomState={roomState}
               onLeave={leaveRoom}
+            />
+          ) : viewStatus === "owner-left" ? (
+            <ChatRoomOwnerLeft
+              className="min-h-0 flex-1"
+              roomState={roomState}
             />
           ) : (
             <ChatRoomContent

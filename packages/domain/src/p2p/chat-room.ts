@@ -107,6 +107,13 @@ export class PrivateChatRoom {
   }
 
   public get status(): RoomStatus {
+    const ownerLeft = [...this._remotePeers.values()].some(
+      (p) => p.role === PeerRole.Owner && p.status === PeerStatus.Disconnected,
+    );
+    if (ownerLeft) {
+      return RoomStatus.OwnerLeft;
+    }
+
     if (this._hasPeerWith(PeerStatus.Chatting)) {
       return RoomStatus.Active;
     }
@@ -342,6 +349,7 @@ export class PrivateChatRoom {
           role: senderRole,
           status: PeerStatus.Pending,
         });
+        this.localPeer = { ...this.localPeer, status: PeerStatus.Requesting };
         return;
       }
 

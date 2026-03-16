@@ -4,11 +4,13 @@ import { Button } from "@workspace/ui/primitives/button";
 import { cn } from "@workspace/lib/cn";
 import GhostIcon from "@workspace/ui/icons/ghost-icon";
 
-type ChatRoomWaitingProps = {
+type ChatRoomOwnerWaitingProps = {
   className?: string;
 };
 
-export default function ChatRoomWaiting({ className }: ChatRoomWaitingProps) {
+export default function ChatRoomOwnerWaiting({
+  className,
+}: ChatRoomOwnerWaitingProps) {
   const [isCopied, setIsCopied] = useState(false);
 
   return (

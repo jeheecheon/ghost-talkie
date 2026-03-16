@@ -27,7 +27,7 @@ export default function ChatBubble({
           "max-w-[75%] rounded-2xl px-3 py-2",
           isOwn
             ? "bg-primary text-primary-foreground rounded-br-sm"
-            : "bg-accent space-y-0.5 rounded-bl-sm",
+            : "bg-primary-foreground border-border space-y-0.5 rounded-bl-sm border",
         )}
       >
         {!isOwn && (

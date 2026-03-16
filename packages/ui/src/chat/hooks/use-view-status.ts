@@ -8,14 +8,16 @@ import {
 } from "@workspace/domain/p2p/types";
 
 export type ViewStatus =
+  | "connecting"
   | "owner-waiting"
-  | "visitor-pending"
+  | "owner-left"
+  | "visitor-requesting"
   | "error"
   | "chatting";
 
-const VISITOR_PENDING_STATUSES = new Set([
+const VISITOR_REQUESTING_STATUSES = new Set([
   PeerStatus.Verifying,
-  PeerStatus.Pending,
+  PeerStatus.Requesting,
   PeerStatus.Disconnected,
 ]);
 
@@ -33,11 +35,15 @@ export default function useViewStatus(
 
 function deriveViewStatus(state: Nullable<PrivateChatRoomState>): ViewStatus {
   if (!state) {
-    return "chatting";
+    return "connecting";
   }
 
   if (ERROR_PEER_STATUSES.has(state.localPeer.status)) {
     return "error";
+  }
+
+  if (state.status === RoomStatus.OwnerLeft) {
+    return "owner-left";
   }
 
   const isOwnerEmpty =
@@ -48,12 +54,12 @@ function deriveViewStatus(state: Nullable<PrivateChatRoomState>): ViewStatus {
     return "owner-waiting";
   }
 
-  const isVisitorPending =
+  const isVisitorRequesting =
     state.localPeer.role === PeerRole.Visitor &&
-    VISITOR_PENDING_STATUSES.has(state.localPeer.status);
+    VISITOR_REQUESTING_STATUSES.has(state.localPeer.status);
 
-  if (isVisitorPending) {
-    return "visitor-pending";
+  if (isVisitorRequesting) {
+    return "visitor-requesting";
   }
 
   return "chatting";

@@ -5,6 +5,7 @@ export enum RoomStatus {
   Empty = "empty",
   Waiting = "waiting",
   Active = "active",
+  OwnerLeft = "owner-left",
 }
 export enum RoomAction {
   Proof = "proof",

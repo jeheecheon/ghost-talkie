@@ -4,15 +4,12 @@ import ChatFAB from "@workspace/ui/chat/components/chat-fab";
 import ConfirmModal from "@workspace/ui/primitives/confirm-modal";
 import { shortenAddress } from "@workspace/lib/address";
 import { cn } from "@workspace/lib/cn";
-import useIsMobile from "@workspace/ui/hooks/use-is-mobile";
 
 type ChatWidgetProps = {
   className?: string;
 };
 
 export default function ChatWidget({ className }: ChatWidgetProps) {
-  const isMobile = useIsMobile();
-
   const {
     roomAddress,
     chatProof,
@@ -28,11 +25,7 @@ export default function ChatWidget({ className }: ChatWidgetProps) {
     <div className={cn("", className)}>
       {hasActiveRoom && (
         <>
-          <ChatRoomView
-            layout={isMobile ? "mobile" : "desktop"}
-            roomAddress={roomAddress}
-            chatProof={chatProof}
-          />
+          <ChatRoomView roomAddress={roomAddress} chatProof={chatProof} />
           <ChatFAB onClick={expand} />
 
           {pendingRoomAddress && (

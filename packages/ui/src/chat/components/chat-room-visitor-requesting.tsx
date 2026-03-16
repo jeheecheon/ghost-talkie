@@ -11,17 +11,17 @@ import {
 } from "@workspace/domain/p2p/types";
 import { A_SECOND } from "@workspace/lib/time";
 
-type ChatRoomPendingProps = {
+type ChatRoomVisitorRequestingProps = {
   className?: string;
   roomState: PrivateChatRoomState;
   onLeave: () => void;
 };
 
-export default function ChatRoomPending({
+export default function ChatRoomVisitorRequesting({
   className,
   roomState: { localPeer, remotePeers },
   onLeave,
-}: ChatRoomPendingProps) {
+}: ChatRoomVisitorRequestingProps) {
   const isWaiting = localPeer.status === PeerStatus.Verifying;
   const TIMEOUT_SECONDS = 120;
 
@@ -48,7 +48,10 @@ export default function ChatRoomPending({
     if (localPeer.status === PeerStatus.Failed) {
       return "Connection failed";
     }
-    if (localPeer.status === PeerStatus.Verifying) {
+    if (
+      localPeer.status === PeerStatus.Verifying ||
+      localPeer.status === PeerStatus.Requesting
+    ) {
       return "Waiting for the owner to let you in...";
     }
 
