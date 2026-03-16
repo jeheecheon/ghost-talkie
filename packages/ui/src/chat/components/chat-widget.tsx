@@ -47,7 +47,7 @@ export default function ChatWidget({ className }: ChatWidgetProps) {
               }
               confirmLabel="Switch"
               onConfirm={confirmRoomSwitch}
-              onCancel={cancelRoomSwitch}
+              onClose={cancelRoomSwitch}
             />
           )}
         </>

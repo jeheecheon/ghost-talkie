@@ -89,7 +89,7 @@ export default function ChatViewHeader({
         description="Are you sure you want to leave this chat room?"
         confirmLabel="Leave"
         onConfirm={handleLeaveConfirm}
-        onCancel={handleLeaveCancel}
+        onClose={handleLeaveCancel}
       />
 
       {roomState && (

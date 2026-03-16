@@ -11,7 +11,7 @@ type ResponsiveConfirmDialogProps = {
   confirmLabel?: string;
   cancelLabel?: string;
   onConfirm: () => void;
-  onCancel: () => void;
+  onClose: () => void;
 };
 
 export default function ResponsiveConfirmDialog(

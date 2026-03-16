@@ -18,7 +18,7 @@ type ConfirmDrawerProps = {
   confirmLabel?: string;
   cancelLabel?: string;
   onConfirm: () => void;
-  onCancel: () => void;
+  onClose: () => void;
 };
 
 export default function ConfirmDrawer({
@@ -29,7 +29,7 @@ export default function ConfirmDrawer({
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
   onConfirm,
-  onCancel,
+  onClose,
 }: ConfirmDrawerProps) {
   return (
     <Drawer open={isOpen} onOpenChange={handleOpenChange}>
@@ -43,7 +43,7 @@ export default function ConfirmDrawer({
         <DrawerFooter>
           <Button onClick={onConfirm}>{confirmLabel}</Button>
 
-          <Button variant="outline" onClick={onCancel}>
+          <Button variant="outline" onClick={onClose}>
             {cancelLabel}
           </Button>
         </DrawerFooter>
@@ -56,6 +56,6 @@ export default function ConfirmDrawer({
       return;
     }
 
-    onCancel();
+    onClose();
   }
 }

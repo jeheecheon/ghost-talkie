@@ -21,7 +21,7 @@ type ResponsiveDialogProps = PropsWithChildren<{
   isOpen: boolean;
   title: string;
   description?: string;
-  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
 }>;
 
 export default function ResponsiveDialog({
@@ -30,12 +30,12 @@ export default function ResponsiveDialog({
   title,
   description,
   children,
-  onOpenChange,
+  onClose,
 }: ResponsiveDialogProps) {
   const layoutMode = useLayoutMode();
 
   return layoutMode === "desktop" ? (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className={cn("", className)}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
@@ -46,7 +46,7 @@ export default function ResponsiveDialog({
       </DialogContent>
     </Dialog>
   ) : (
-    <Drawer open={isOpen} onOpenChange={onOpenChange}>
+    <Drawer open={isOpen} onOpenChange={handleOpenChange}>
       <DrawerContent className={cn("px-4 pb-6", className)}>
         <DrawerHeader>
           <DrawerTitle>{title}</DrawerTitle>
@@ -57,4 +57,12 @@ export default function ResponsiveDialog({
       </DrawerContent>
     </Drawer>
   );
+
+  function handleOpenChange(isOpen: boolean) {
+    if (isOpen) {
+      return;
+    }
+
+    onClose();
+  }
 }
