@@ -3,15 +3,29 @@ import { Share2 } from "lucide-react";
 import { Button } from "@workspace/ui/primitives/button";
 import { cn } from "@workspace/lib/cn";
 import GhostIcon from "@workspace/ui/icons/ghost-icon";
+import ChatJoinRequest from "@workspace/ui/chat/components/chat-join-request";
+import {
+  PeerStatus,
+  type PrivateChatRoomState,
+} from "@workspace/domain/p2p/types";
+import { filterPeersByStatus } from "@workspace/domain/p2p/chat";
 
 type ChatRoomOwnerWaitingProps = {
   className?: string;
+  roomState: PrivateChatRoomState;
+  onRespond: (peerId: string, accepted: boolean) => Promise<void>;
 };
 
 export default function ChatRoomOwnerWaiting({
   className,
+  roomState,
+  onRespond,
 }: ChatRoomOwnerWaitingProps) {
   const [isCopied, setIsCopied] = useState(false);
+  const requestingPeers = filterPeersByStatus(
+    roomState.remotePeers,
+    PeerStatus.Requesting,
+  );
 
   return (
     <div
@@ -20,6 +34,20 @@ export default function ChatRoomOwnerWaiting({
         className,
       )}
     >
+      {requestingPeers.length > 0 && (
+        <ul className="w-full space-y-2 px-3">
+          {requestingPeers.map((peer) => (
+            <li key={peer.peerId}>
+              <ChatJoinRequest
+                peer={peer}
+                onAccept={handleAccept}
+                onReject={handleReject}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+
       <GhostIcon className="size-16" />
 
       <p className="text-muted-foreground text-center text-sm">
@@ -37,6 +65,14 @@ export default function ChatRoomOwnerWaiting({
       </Button>
     </div>
   );
+
+  function handleAccept(peerId: string) {
+    onRespond(peerId, true);
+  }
+
+  function handleReject(peerId: string) {
+    onRespond(peerId, false);
+  }
 
   async function handleShare() {
     const url = window.location.href;
