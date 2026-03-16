@@ -70,7 +70,11 @@ export default function ChatRoomView({
           {viewStatus === "connecting" || !roomState ? (
             <ChatRoomConnecting className="min-h-0 flex-1" />
           ) : viewStatus === "owner-waiting" ? (
-            <ChatRoomOwnerWaiting className="min-h-0 flex-1" />
+            <ChatRoomOwnerWaiting
+              className="min-h-0 flex-1"
+              roomState={roomState}
+              onRespond={respond}
+            />
           ) : viewStatus === "visitor-requesting" || viewStatus === "error" ? (
             <ChatRoomVisitorRequesting
               className="min-h-0 flex-1"
