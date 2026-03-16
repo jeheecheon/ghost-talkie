@@ -12,7 +12,7 @@ export default function LayoutContainer({
   return (
     <div
       className={cn(
-        "bg-background border-x-border mx-auto min-h-dvh max-w-150 border-x px-8 not-dark:shadow-lg",
+        "bg-background border-x-border mx-auto min-h-dvh max-w-150 border-x px-8 not-dark:shadow-sm",
         className,
       )}
     >
