@@ -33,7 +33,10 @@ export default function ConfirmModal({
 }: ConfirmModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className={cn("", className)}>
+      <DialogContent
+        className={cn("", className)}
+        onEscapeKeyDown={(e) => e.stopPropagation()}
+      >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
