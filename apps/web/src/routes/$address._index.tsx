@@ -3,6 +3,7 @@ import CommentSection from "@workspace/ui/comment/components/comment-section";
 import WalletProfileCard from "@workspace/ui/wallet/components/wallet-profile-card";
 import LayoutContainer from "@workspace/ui/primitives/layout-container";
 import type { Route } from "@/.react-router/routes/+types/$address._index";
+import ChainBalanceList from "@workspace/ui/wallet/components/chain-balance-list";
 
 export function clientLoader({ params }: Route.ClientLoaderArgs) {
   if (!isAddress(params.address)) {
@@ -18,12 +19,18 @@ export function clientLoader({ params }: Route.ClientLoaderArgs) {
 export default function WalletProfileRoute({
   loaderData,
 }: Route.ComponentProps) {
-  const { address } = loaderData;
+  const { address: profileAddress } = loaderData;
 
   return (
     <LayoutContainer className="space-y-10 pt-20 pb-10">
-      <WalletProfileCard address={address} />
-      <CommentSection address={address} />
+      <WalletProfileCard address={profileAddress} />
+      <hr className="border-border w-full" />
+      <ChainBalanceList
+        className="mt-6 w-full"
+        profileAddress={profileAddress}
+      />
+      <hr className="border-border w-full" />
+      <CommentSection address={profileAddress} />
     </LayoutContainer>
   );
 }
