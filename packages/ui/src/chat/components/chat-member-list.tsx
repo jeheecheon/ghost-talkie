@@ -12,11 +12,6 @@ import {
 import { filterPeersByStatus } from "@workspace/domain/p2p/chat";
 import type { Nullable } from "@workspace/types/misc";
 import type { Address } from "viem";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@workspace/ui/primitives/tooltip";
 
 type ChatMemberListProps = {
   className?: string;
@@ -77,20 +72,15 @@ function ChatMemberRow({
   const { isSpeaking } = useVoiceActivity(stream);
 
   return (
-    <div className="flex items-center gap-x-2">
+    <div className="flex items-center gap-x-2" title={address ?? undefined}>
       <EnsAvatar
         className={cn("shrink-0", isSpeaking && "ring-2 ring-green-500")}
         address={address}
       />
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span className="min-w-0 truncate text-xs font-medium">
-            {getDisplayName()}
-          </span>
-        </TooltipTrigger>
-        <TooltipContent>{address}</TooltipContent>
-      </Tooltip>
+      <span className="min-w-0 truncate text-xs font-medium">
+        {getDisplayName()}
+      </span>
 
       {role === PeerRole.Owner && (
         <Crown className="size-4 shrink-0 text-yellow-500" />
