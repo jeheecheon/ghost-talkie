@@ -10,6 +10,8 @@ type ChatWidgetState = {
   chatProof: Nullable<ChatProof>;
   pendingRoomAddress: Nullable<Address>;
   pendingChatProof: Nullable<ChatProof>;
+  unreadCount: number;
+  requestingPeerCount: number;
 };
 
 type ChatWidgetActions = {
@@ -19,6 +21,8 @@ type ChatWidgetActions = {
   cancelRoomSwitch: () => void;
   minimize: () => void;
   leaveRoom: () => void;
+  incrementUnread: () => void;
+  setRequestingPeerCount: (count: number) => void;
 };
 
 type ChatWidgetStore = ChatWidgetState & ChatWidgetActions;
@@ -29,13 +33,15 @@ const initialState: ChatWidgetState = {
   chatProof: null,
   pendingRoomAddress: null,
   pendingChatProof: null,
+  unreadCount: 0,
+  requestingPeerCount: 0,
 };
 
 export const useChatWidgetStore = create<ChatWidgetStore>((set, get) => ({
   ...initialState,
 
   expand: () => {
-    set({ isOpen: true });
+    set({ isOpen: true, unreadCount: 0 });
   },
 
   requestRoom: (address, proof) => {
@@ -60,6 +66,8 @@ export const useChatWidgetStore = create<ChatWidgetStore>((set, get) => ({
       chatProof: pendingChatProof,
       pendingRoomAddress: null,
       pendingChatProof: null,
+      unreadCount: 0,
+      requestingPeerCount: 0,
     });
   },
 
@@ -73,5 +81,13 @@ export const useChatWidgetStore = create<ChatWidgetStore>((set, get) => ({
 
   leaveRoom: () => {
     set(initialState);
+  },
+
+  incrementUnread: () => {
+    set((state) => ({ unreadCount: state.unreadCount + 1 }));
+  },
+
+  setRequestingPeerCount: (count) => {
+    set({ requestingPeerCount: count });
   },
 }));
