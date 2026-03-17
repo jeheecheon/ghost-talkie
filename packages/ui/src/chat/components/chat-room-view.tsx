@@ -1,3 +1,4 @@
+import { useShallow } from "zustand/react/shallow";
 import ChatViewHeader from "@workspace/ui/chat/components/chat-view-header";
 import ChatRoomContent from "@workspace/ui/chat/components/chat-room-content";
 import ChatRoomOwnerWaiting from "@workspace/ui/chat/components/chat-room-owner-waiting";
@@ -8,7 +9,8 @@ import usePrivateChatRoom from "@workspace/ui/chat/hooks/use-private-chat-room";
 import useViewStatus from "@workspace/ui/chat/hooks/use-view-status";
 import { useChatWidgetStore } from "@workspace/ui/chat/store/chat-widget";
 import { cn } from "@workspace/lib/cn";
-import { type ChatProof } from "@workspace/domain/p2p/types";
+import { PeerStatus, type ChatProof } from "@workspace/domain/p2p/types";
+import { filterPeersByStatus } from "@workspace/domain/p2p/chat";
 import type { Address } from "viem";
 import LayoutContainer from "@workspace/ui/primitives/layout-container";
 import { Portal, Transition } from "@headlessui/react";
@@ -29,9 +31,21 @@ export default function ChatRoomView({
   chatProof,
 }: ChatRoomViewProps) {
   const layout = useLayoutMode();
-  const isOpen = useChatWidgetStore((s) => s.isOpen);
-  const minimize = useChatWidgetStore((s) => s.minimize);
-  const leaveRoom = useChatWidgetStore((s) => s.leaveRoom);
+  const {
+    isOpen,
+    minimize,
+    leaveRoom,
+    incrementUnread,
+    setRequestingPeerCount,
+  } = useChatWidgetStore(
+    useShallow((s) => ({
+      isOpen: s.isOpen,
+      minimize: s.minimize,
+      leaveRoom: s.leaveRoom,
+      incrementUnread: s.incrementUnread,
+      setRequestingPeerCount: s.setRequestingPeerCount,
+    })),
+  );
 
   useKey("Escape", minimize);
   useLockBodyScroll(layout === "mobile" && isOpen);
@@ -40,6 +54,24 @@ export default function ChatRoomView({
 
   const { roomState, respond, sendMessage, toggleMic } = usePrivateChatRoom({
     chatProof,
+    onMessage: () => {
+      if (isOpen) {
+        return;
+      }
+
+      incrementUnread();
+    },
+    onRemotePeersChange: (remotePeers, isOwner) => {
+      if (!isOwner) {
+        return;
+      }
+
+      const requestingPeers = filterPeersByStatus(
+        remotePeers,
+        PeerStatus.Requesting,
+      );
+      setRequestingPeerCount(requestingPeers.length);
+    },
   });
   const viewStatus = useViewStatus(roomState);
 

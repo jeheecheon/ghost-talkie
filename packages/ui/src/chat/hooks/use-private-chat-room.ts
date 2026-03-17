@@ -2,10 +2,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import usePrevious from "react-use/lib/usePrevious";
 import { PrivateChatRoom } from "@workspace/domain/p2p/chat-room";
 import useRemoteAudio from "@workspace/ui/chat/hooks/use-remote-audio";
-import type {
-  ChatMessage,
-  ChatProof,
-  PrivateChatRoomState,
+import {
+  PeerRole,
+  type ChatMessage,
+  type ChatProof,
+  type PrivateChatRoomState,
+  type RemotePeer,
 } from "@workspace/domain/p2p/types";
 import type { Maybe, Nullable } from "@workspace/types/misc";
 
@@ -13,6 +15,7 @@ type UsePrivateChatRoomArgs = {
   chatProof: Maybe<ChatProof>;
   enabled?: boolean;
   onMessage?: (message: ChatMessage) => void;
+  onRemotePeersChange?: (remotePeers: RemotePeer[], isOwner: boolean) => void;
 };
 
 type UsePrivateChatRoomResult = {
@@ -26,6 +29,7 @@ export default function usePrivateChatRoom({
   chatProof,
   enabled = true,
   onMessage,
+  onRemotePeersChange,
 }: UsePrivateChatRoomArgs): UsePrivateChatRoomResult {
   const [roomState, setRoomState] =
     useState<Nullable<PrivateChatRoomState>>(null);
@@ -80,6 +84,15 @@ export default function usePrivateChatRoom({
 
     onMessage?.(latest);
   }, [prevRoomState, roomState, onMessage]);
+
+  useEffect(() => {
+    if (!roomState || prevRoomState?.remotePeers === roomState.remotePeers) {
+      return;
+    }
+
+    const isOwner = roomState.localPeer.role === PeerRole.Owner;
+    onRemotePeersChange?.(roomState.remotePeers, isOwner);
+  }, [prevRoomState, roomState, onRemotePeersChange]);
 
   return { roomState, sendMessage, respond, toggleMic };
 }
