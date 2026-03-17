@@ -1,7 +1,8 @@
+import { useShallow } from "zustand/react/shallow";
 import { useChatWidgetStore } from "@workspace/ui/chat/store/chat-widget";
 import ChatRoomView from "@workspace/ui/chat/components/chat-room-view";
 import ChatFAB from "@workspace/ui/chat/components/chat-fab";
-import ConfirmModal from "@workspace/ui/primitives/confirm-modal";
+import ResponsiveConfirmDialog from "@workspace/ui/primitives/responsive-confirm-dialog";
 import { shortenAddress } from "@workspace/lib/address";
 import { cn } from "@workspace/lib/cn";
 
@@ -14,22 +15,29 @@ export default function ChatWidget({ className }: ChatWidgetProps) {
     roomAddress,
     chatProof,
     pendingRoomAddress,
-    expand,
     confirmRoomSwitch,
     cancelRoomSwitch,
-  } = useChatWidgetStore((state) => state);
+  } = useChatWidgetStore(
+    useShallow((s) => ({
+      roomAddress: s.roomAddress,
+      chatProof: s.chatProof,
+      pendingRoomAddress: s.pendingRoomAddress,
+      confirmRoomSwitch: s.confirmRoomSwitch,
+      cancelRoomSwitch: s.cancelRoomSwitch,
+    })),
+  );
 
   const hasActiveRoom = roomAddress && chatProof;
 
   return (
-    <div className={cn("", className)}>
+    <div className={cn(className)}>
       {hasActiveRoom && (
         <>
           <ChatRoomView roomAddress={roomAddress} chatProof={chatProof} />
-          <ChatFAB onClick={expand} />
+          <ChatFAB />
 
           {pendingRoomAddress && (
-            <ConfirmModal
+            <ResponsiveConfirmDialog
               isOpen={!!pendingRoomAddress}
               title="Switch Chat?"
               description={
@@ -47,7 +55,7 @@ export default function ChatWidget({ className }: ChatWidgetProps) {
               }
               confirmLabel="Switch"
               onConfirm={confirmRoomSwitch}
-              onCancel={cancelRoomSwitch}
+              onClose={cancelRoomSwitch}
             />
           )}
         </>

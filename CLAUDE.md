@@ -4,6 +4,10 @@
 
 - Do NOT commit unless the user explicitly requests it
 
+### Branch Names
+
+Format: `feature/<short-kebab-description>`
+
 ### Commit Messages
 
 Format: `<type>: <content>`

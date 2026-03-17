@@ -281,6 +281,35 @@ Threat: Man-in-the-middle
 
 ---
 
+## Multi-chain Support
+
+Native token balances are displayed per chain on the wallet profile page. Supported networks:
+
+| Network   | Mainnet  | Testnet          |
+| --------- | -------- | ---------------- |
+| Ethereum  | Mainnet  | Sepolia          |
+| Arbitrum  | Arbitrum | Arbitrum Sepolia |
+| Base      | Base     | Base Sepolia     |
+| Optimism  | Optimism | Optimism Sepolia |
+| Polygon   | Polygon  | Polygon Amoy     |
+
+Testnet chains are toggled via feature flag. Balances are fetched using public RPC endpoints configured per chain.
+
+---
+
+## Native Token Transfer
+
+Profile owners can send native tokens to any address directly from their wallet profile page.
+
+- Transfer dialog opens as a modal (desktop) or bottom sheet (mobile)
+- Two-step UI: input form → success confirmation
+- Chain switching handled automatically if the wallet is on a different network
+- Transaction receipt confirmation before showing success
+- Block explorer link provided on success (when available)
+- Toast notifications for each transaction stage (chain switch, send, receipt)
+
+---
+
 ## Cost Analysis
 
 | Component                       | Cost                               |
@@ -309,7 +338,6 @@ Threat: Man-in-the-middle
 
 ## Future Considerations
 
-- **Crypto Transfer**: P2P crypto transfer with verified recipient address within chat
 - **File Sharing**: P2P file transfer via WebRTC data channel
 - **Mobile Wallet Support**: WalletConnect for mobile wallet apps
 - **Browser Extension**: Inject GhostTalkie button next to wallet addresses on NFT marketplaces (blur.io, OpenSea, etc.)

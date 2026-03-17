@@ -33,7 +33,10 @@ export default function ChatMemberModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className={cn("max-w-xs", className)}>
+      <DialogContent
+        className={cn("max-w-xs", className)}
+        onEscapeKeyDown={(e) => e.stopPropagation()}
+      >
         <DialogHeader>
           <DialogTitle>Participants ({activePeers.length + 1})</DialogTitle>
         </DialogHeader>

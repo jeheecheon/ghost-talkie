@@ -5,6 +5,7 @@ import useEnsProfile from "@workspace/ui/wallet/hooks/use-ens-profile";
 import { cn } from "@workspace/lib/cn";
 import type { Maybe } from "@workspace/types/misc";
 import type { Address } from "viem";
+import Image from "@workspace/ui/primitives/image";
 
 type AddressAvatarProps = {
   className?: string;
@@ -17,7 +18,7 @@ export default function EnsAvatar({ className, address }: AddressAvatarProps) {
   return (
     <div className={cn("size-6 overflow-hidden rounded-full", className)}>
       {ensProfile?.avatar ? (
-        <img
+        <Image
           className="size-full object-cover"
           src={ensProfile.avatar}
           alt={`${address}'s ENS Avatar`}

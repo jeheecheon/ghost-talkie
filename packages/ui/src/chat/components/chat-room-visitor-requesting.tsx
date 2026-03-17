@@ -2,6 +2,7 @@ import { Loader2, LogOut } from "lucide-react";
 import { Button } from "@workspace/ui/primitives/button";
 import { cn } from "@workspace/lib/cn";
 import GhostIcon from "@workspace/ui/icons/ghost-icon";
+import ShareButton from "@workspace/ui/chat/components/share-button";
 import useCounter from "react-use/lib/useCounter";
 import useInterval from "react-use/lib/useInterval";
 import {
@@ -60,6 +61,10 @@ export default function ChatRoomVisitorRequesting({
 
   const showLeave = isTimedOut || isTerminal;
   const showRemaining = isWaiting && !isTimedOut;
+  const showShare =
+    !ownerPeer ||
+    localPeer.status === PeerStatus.Verifying ||
+    localPeer.status === PeerStatus.Requesting;
 
   return (
     <div
@@ -78,6 +83,8 @@ export default function ChatRoomVisitorRequesting({
           {formatTime(remaining)}
         </p>
       )}
+
+      {showShare && <ShareButton>Share room link</ShareButton>}
 
       {showLeave && (
         <Button className="gap-2" variant="outline" size="sm" onClick={onLeave}>

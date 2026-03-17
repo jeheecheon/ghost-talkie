@@ -46,11 +46,11 @@ function deriveViewStatus(state: Nullable<PrivateChatRoomState>): ViewStatus {
     return "owner-left";
   }
 
-  const isOwnerEmpty =
-    state.status === RoomStatus.Empty &&
+  const isOwnerWaiting =
+    state.status !== RoomStatus.Active &&
     state.localPeer.role === PeerRole.Owner;
 
-  if (isOwnerEmpty) {
+  if (isOwnerWaiting) {
     return "owner-waiting";
   }
 

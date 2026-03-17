@@ -72,7 +72,7 @@ function ChatMemberRow({
   const { isSpeaking } = useVoiceActivity(stream);
 
   return (
-    <div className="flex items-center gap-x-2">
+    <div className="flex items-center gap-x-2" title={address ?? undefined}>
       <EnsAvatar
         className={cn("shrink-0", isSpeaking && "ring-2 ring-green-500")}
         address={address}
