@@ -20,7 +20,7 @@ export default function ChatJoinRequest({
   return (
     <div
       className={cn(
-        "bg-card flex items-center justify-between rounded-lg p-3",
+        "bg-accent border-border flex items-center justify-between rounded-full border p-3",
         className,
       )}
     >

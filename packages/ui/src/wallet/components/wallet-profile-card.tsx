@@ -1,13 +1,9 @@
 import { Button } from "@workspace/ui/primitives/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@workspace/ui/primitives/tooltip";
 import EnsAvatar from "@workspace/ui/wallet/components/address-avatar";
 import ChainBalanceList from "@workspace/ui/wallet/components/chain-balance-list";
 import { shortenAddress } from "@workspace/lib/address";
 import { cn } from "@workspace/lib/cn";
+import CopyableText from "@workspace/ui/primitives/copyable-text";
 import { isAddressEqual, type Address } from "viem";
 import { useChatWidgetStore } from "@workspace/ui/chat/store/chat-widget";
 import useSignChatProof from "@workspace/ui/chat/hooks/use-sign-chat-proof";
@@ -50,16 +46,13 @@ export default function WalletProfileCard({
             : "Connect Wallet & Start Chat"}
       </Button>
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <p className="text-muted-foreground mt-2.5 cursor-default text-sm">
-            {shortenAddress(profileAddress)}
-          </p>
-        </TooltipTrigger>
-        <TooltipContent sideOffset={0} side="bottom">
-          {profileAddress}
-        </TooltipContent>
-      </Tooltip>
+      <CopyableText
+        className="text-muted-foreground mt-2.5 text-sm"
+        value={profileAddress}
+        toastMessage="Address copied"
+      >
+        {shortenAddress(profileAddress)}
+      </CopyableText>
       <p className="h-7 text-lg font-semibold">{ensProfile?.ensName}</p>
 
       <ChainBalanceList
