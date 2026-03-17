@@ -6,6 +6,7 @@ import CommentList, {
   CommentListFallback,
   CommentListSkeleton,
 } from "@workspace/ui/comment/components/comment-list";
+import { cn } from "@workspace/lib/cn";
 
 type CommentSectionProps = {
   className?: string;
@@ -17,14 +18,14 @@ export default function CommentSection({
   address,
 }: CommentSectionProps) {
   return (
-    <section className={className}>
+    <section className={cn("space-y-4", className)}>
       <h2 className="text-lg font-semibold">Comments</h2>
 
-      <CommentForm className="mt-4" address={address} />
+      <CommentForm address={address} />
 
       <ErrorBoundary fallback={<CommentListFallback />}>
         <Suspense fallback={<CommentListSkeleton />}>
-          <CommentList className="mt-4" address={address} />
+          <CommentList address={address} />
         </Suspense>
       </ErrorBoundary>
     </section>
