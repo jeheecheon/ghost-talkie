@@ -20,7 +20,6 @@ export function Layout({ children }: PropsWithChildren) {
           rel="apple-touch-icon"
           href={`${import.meta.env.BASE_URL}apple-touch-icon.png`}
         />
-        <script src={`${import.meta.env.BASE_URL}redirect.js`}></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>GhostTalkie</title>
         <Meta />
