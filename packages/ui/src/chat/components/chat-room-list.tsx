@@ -50,7 +50,7 @@ function ChatRoomItem({ room, onSelect }: ChatRoomItemProps) {
 
   return (
     <li
-      className="hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-3 transition-colors"
+      className="bg-muted hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-3 transition-colors"
       role="button"
       tabIndex={0}
       onClick={handleSelect}
@@ -71,7 +71,7 @@ function ChatRoomItem({ room, onSelect }: ChatRoomItemProps) {
       </div>
 
       {totalBadge > 0 && (
-        <span className="bg-destructive text-destructive-foreground flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-xs font-bold">
+        <span className="bg-destructive flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-xs font-bold text-white">
           {totalBadge > 99 ? "99+" : totalBadge}
         </span>
       )}
