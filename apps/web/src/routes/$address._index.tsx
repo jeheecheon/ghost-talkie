@@ -24,12 +24,12 @@ export default function WalletProfileRoute({
   return (
     <LayoutContainer className="space-y-10 pt-20 pb-10">
       <WalletProfileCard address={profileAddress} />
-      <hr className="border-border w-full" />
+      <hr />
       <ChainBalanceList
         className="mt-6 w-full"
         profileAddress={profileAddress}
       />
-      <hr className="border-border w-full" />
+      <hr />
       <CommentSection address={profileAddress} />
     </LayoutContainer>
   );
