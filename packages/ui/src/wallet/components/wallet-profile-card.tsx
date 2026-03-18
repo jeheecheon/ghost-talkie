@@ -24,11 +24,8 @@ export default function WalletProfileCard({
 
   const { signChatProof } = useSignChatProof();
 
-  const {
-    address: localAddress,
-    isPending,
-    withWalletConnection,
-  } = useWithWalletConnection();
+  const { isConnected, isPending, withWalletConnection } =
+    useWithWalletConnection();
   const { data: ensProfile } = useEnsProfile({ address: profileAddress });
 
   return (
@@ -37,9 +34,9 @@ export default function WalletProfileCard({
       <Button className="mt-3" disabled={isPending} onClick={handleStartChat}>
         {isPending
           ? "Connecting..."
-          : localAddress
+          : isConnected
             ? "Start Chat"
-            : "Connect Wallet & Start Chat"}
+            : "Connect Wallet"}
       </Button>
 
       <CopyableText

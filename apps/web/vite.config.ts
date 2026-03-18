@@ -12,6 +12,9 @@ export default defineConfig({
     "process.env.ENABLED_FEATURES": JSON.stringify(
       process.env.ENABLED_FEATURES ?? "",
     ),
+    "process.env.REOWN_PROJECT_ID": JSON.stringify(
+      process.env.REOWN_PROJECT_ID ?? "",
+    ),
   },
   resolve: {
     alias: {

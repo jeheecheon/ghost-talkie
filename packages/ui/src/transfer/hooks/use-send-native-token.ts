@@ -1,8 +1,12 @@
 import { toast } from "sonner";
 import { parseEther, type Address } from "viem";
-import { useConnection, useSendTransaction, useSwitchChain } from "wagmi";
+import {
+  useConfig,
+  useConnection,
+  useSendTransaction,
+  useSwitchChain,
+} from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
-import { config } from "@workspace/ui/wallet/configs/wagmi";
 import type { Chain, Hash } from "viem";
 import { useState } from "react";
 
@@ -20,6 +24,7 @@ type UseSendNativeTokenReturn = {
 export default function useSendNativeToken(): UseSendNativeTokenReturn {
   const [isLoading, setIsLoading] = useState(false);
 
+  const wagmiConfig = useConfig();
   const { chainId: currentChainId } = useConnection();
   const { mutateAsync: sendTransaction } = useSendTransaction();
   const { mutateAsync: switchChain } = useSwitchChain();
@@ -63,7 +68,7 @@ export default function useSendNativeToken(): UseSendNativeTokenReturn {
         .unwrap();
 
       const receipt = await toast
-        .promise(waitForTransactionReceipt(config, { hash }), {
+        .promise(waitForTransactionReceipt(wagmiConfig, { hash }), {
           loading: "Waiting for receipt...",
           success: "Transaction confirmed",
           error: "Transaction failed",

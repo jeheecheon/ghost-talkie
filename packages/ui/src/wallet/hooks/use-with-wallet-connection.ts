@@ -1,12 +1,11 @@
-import { useConnection, useConnect, useConnectors } from "wagmi";
+import { useConnection } from "wagmi";
 import type { Address } from "viem";
 import { useMutation } from "@tanstack/react-query";
-import { ensure } from "@workspace/lib/assert";
+import { useAppKit } from "@reown/appkit/react";
 
 export default function useWithWalletConnection() {
   const { address, isConnected } = useConnection();
-  const { mutateAsync: connect } = useConnect();
-  const connectors = useConnectors();
+  const { open } = useAppKit();
 
   const {
     isError,
@@ -16,14 +15,7 @@ export default function useWithWalletConnection() {
   } = useMutation({
     mutationFn: async (action: (address: Address) => Promise<void>) => {
       if (!isConnected || !address) {
-        const accounts = await connect({
-          connector: ensure(connectors[0], "No wallet connector available"),
-        });
-        const address = ensure(
-          accounts.accounts[0],
-          "No account returned after connection",
-        );
-        await action(address);
+        await open();
         return;
       }
 
@@ -35,6 +27,7 @@ export default function useWithWalletConnection() {
     isError,
     isPending,
     isSuccess,
+    isConnected,
     address,
     withWalletConnection,
   };

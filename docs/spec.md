@@ -171,7 +171,7 @@ Package-oriented monorepo. See [Monorepo Architecture](./monorepo-architecture.m
 | P2P               | Trystero (Nostr strategy) | Serverless WebRTC signaling + P2P data        |
 | Profile Comments  | Nostr protocol (nostr-tools) | Publish/query comments on public relays    |
 | Wallet Connection | wagmi + viem              | Wallet connect, sign, verify, send tx         |
-| Wallet UI         | MetaMask SDK              | Wallet connect (Reown planned but not yet integrated) |
+| Wallet UI         | Reown AppKit              | Multi-wallet modal (MetaMask, WalletConnect, 600+ wallets) |
 | Deploy            | Vercel / GitHub Pages     | Static hosting                                |
 
 ---
