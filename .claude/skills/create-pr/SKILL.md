@@ -14,9 +14,10 @@ Create a PR for the current branch using the project template.
 
 ## Steps
 
-1. Run `git log develop..HEAD --oneline` and `git diff develop...HEAD --stat` to understand all changes
-2. Check remote tracking: push if needed (`git push -u origin <branch>`)
-3. Draft PR body following the template:
+1. If on `develop` or `main`, create a feature branch: `git checkout -b feature/<short-kebab-description>`
+2. Run `git log develop..HEAD --oneline` and `git diff develop...HEAD --stat` to understand all changes
+3. Push branch: `git push -u origin <branch>`
+4. Draft PR body following the template:
 
 ```
 # WHY
@@ -28,7 +29,7 @@ Create a PR for the current branch using the project template.
 Closes #<issue-number>
 ```
 
-4. Create PR:
+5. Create PR:
 
 ```bash
 gh pr create --title "<type>: <summary>" --body "<body>" --base develop
