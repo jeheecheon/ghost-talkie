@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { type Address } from "viem";
 import type { Nullable } from "@workspace/types/misc";
 import type { ChatMessage, ChatProof } from "@workspace/domain/p2p/types";
@@ -29,103 +30,144 @@ const initialState: ChatWidgetState = {
   isOpen: false,
 };
 
-export const useChatWidgetStore = create<ChatWidgetStore>((set, get) => ({
-  ...initialState,
+type PersistedState = {
+  rooms: [Address, { roomAddress: Address; chatProof: ChatProof }][];
+  activeRoomAddress: Nullable<Address>;
+};
 
-  requestRoom: (address, proof) => {
-    const { rooms } = get();
+export const useChatWidgetStore = create<ChatWidgetStore>()(
+  persist(
+    (set, get) => ({
+      ...initialState,
 
-    const next = new Map(rooms);
-    next.set(address, {
-      roomAddress: address,
-      chatProof: proof,
-      requestingPeerCount: 0,
-      lastMessage: null,
-      unreadCount: 0,
-    });
-    set({ rooms: next, activeRoomAddress: address, isOpen: true });
-  },
+      requestRoom: (address, proof) => {
+        const { rooms } = get();
 
-  openRoom: (address) => {
-    const { rooms } = get();
-    const room = rooms.get(address);
-    if (!room) {
-      return;
-    }
+        const next = new Map(rooms);
+        next.set(address, {
+          roomAddress: address,
+          chatProof: proof,
+          requestingPeerCount: 0,
+          lastMessage: null,
+          unreadCount: 0,
+        });
+        set({ rooms: next, activeRoomAddress: address, isOpen: true });
+      },
 
-    const next = new Map(rooms);
-    next.set(address, { ...room, unreadCount: 0 });
-    set({ rooms: next, activeRoomAddress: address, isOpen: true });
-  },
+      openRoom: (address) => {
+        const { rooms } = get();
+        const room = rooms.get(address);
+        if (!room) {
+          return;
+        }
 
-  resumeChat: () => {
-    const { activeRoomAddress, rooms } = get();
-    if (!activeRoomAddress) {
-      return;
-    }
+        const next = new Map(rooms);
+        next.set(address, { ...room, unreadCount: 0 });
+        set({ rooms: next, activeRoomAddress: address, isOpen: true });
+      },
 
-    const room = rooms.get(activeRoomAddress);
-    if (!room) {
-      return;
-    }
+      resumeChat: () => {
+        const { activeRoomAddress, rooms } = get();
+        if (!activeRoomAddress) {
+          return;
+        }
 
-    const next = new Map(rooms);
-    next.set(activeRoomAddress, { ...room, unreadCount: 0 });
-    set({ rooms: next, isOpen: true });
-  },
+        const room = rooms.get(activeRoomAddress);
+        if (!room) {
+          return;
+        }
 
-  minimize: () => {
-    set({ isOpen: false });
-  },
+        const next = new Map(rooms);
+        next.set(activeRoomAddress, { ...room, unreadCount: 0 });
+        set({ rooms: next, isOpen: true });
+      },
 
-  leaveRoom: (address) => {
-    const { rooms, activeRoomAddress } = get();
+      minimize: () => {
+        set({ isOpen: false });
+      },
 
-    const next = new Map(rooms);
-    next.delete(address);
+      leaveRoom: (address) => {
+        const { rooms, activeRoomAddress } = get();
 
-    const updates: Partial<ChatWidgetState> = { rooms: next };
-    if (activeRoomAddress === address) {
-      updates.activeRoomAddress = null;
-      updates.isOpen = false;
-    }
-    set(updates);
-  },
+        const next = new Map(rooms);
+        next.delete(address);
 
-  incrementUnread: (address) => {
-    set((state) => {
-      const room = state.rooms.get(address);
-      if (!room) {
-        return state;
-      }
+        const updates: Partial<ChatWidgetState> = { rooms: next };
+        if (activeRoomAddress === address) {
+          updates.activeRoomAddress = null;
+          updates.isOpen = false;
+        }
+        set(updates);
+      },
 
-      const next = new Map(state.rooms);
-      next.set(address, { ...room, unreadCount: room.unreadCount + 1 });
-      return { rooms: next };
-    });
-  },
+      incrementUnread: (address) => {
+        set((state) => {
+          const room = state.rooms.get(address);
+          if (!room) {
+            return state;
+          }
 
-  setRequestingPeerCount: (address, count) => {
-    const { rooms } = get();
-    const room = rooms.get(address);
-    if (!room) {
-      return;
-    }
+          const next = new Map(state.rooms);
+          next.set(address, { ...room, unreadCount: room.unreadCount + 1 });
+          return { rooms: next };
+        });
+      },
 
-    const next = new Map(rooms);
-    next.set(address, { ...room, requestingPeerCount: count });
-    set({ rooms: next });
-  },
+      setRequestingPeerCount: (address, count) => {
+        const { rooms } = get();
+        const room = rooms.get(address);
+        if (!room) {
+          return;
+        }
 
-  setLastMessage: (address, message) => {
-    const { rooms } = get();
-    const room = rooms.get(address);
-    if (!room) {
-      return;
-    }
+        const next = new Map(rooms);
+        next.set(address, { ...room, requestingPeerCount: count });
+        set({ rooms: next });
+      },
 
-    const next = new Map(rooms);
-    next.set(address, { ...room, lastMessage: message });
-    set({ rooms: next });
-  },
-}));
+      setLastMessage: (address, message) => {
+        const { rooms } = get();
+        const room = rooms.get(address);
+        if (!room) {
+          return;
+        }
+
+        const next = new Map(rooms);
+        next.set(address, { ...room, lastMessage: message });
+        set({ rooms: next });
+      },
+    }),
+    {
+      name: "ghosttalkie-chat-widget",
+      partialize: (state): PersistedState => ({
+        rooms: [...state.rooms.entries()].map(([address, entry]) => [
+          address,
+          { roomAddress: entry.roomAddress, chatProof: entry.chatProof },
+        ]),
+        activeRoomAddress: state.activeRoomAddress,
+      }),
+      merge: (persisted, current) => {
+        if (!persisted) {
+          return current;
+        }
+
+        const stored = persisted as PersistedState;
+        const rooms = new Map(current.rooms);
+        for (const [address, entry] of stored.rooms) {
+          rooms.set(address, {
+            ...entry,
+            unreadCount: 0,
+            requestingPeerCount: 0,
+            lastMessage: null,
+          });
+        }
+
+        return {
+          ...current,
+          rooms,
+          activeRoomAddress: stored.activeRoomAddress,
+        };
+      },
+    },
+  ),
+);
