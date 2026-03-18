@@ -27,7 +27,14 @@ export default function AddressSearchForm({
   });
 
   return (
-    <form className={cn("space-y-2", className)} onSubmit={handleSubmit}>
+    <form className={cn("space-y-1", className)} onSubmit={handleSubmit}>
+      <EnsStatusMessage
+        className="min-h-5"
+        status={status}
+        query={query}
+        ensAddress={ensAddress}
+        ensName={ensName}
+      />
       <div className="flex gap-x-2">
         <div className="relative flex-1">
           <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
@@ -56,13 +63,6 @@ export default function AddressSearchForm({
           {isLoading ? <Loader2 className="size-4 animate-spin" /> : "Search"}
         </Button>
       </div>
-
-      <EnsStatusMessage
-        status={status}
-        query={query}
-        ensAddress={ensAddress}
-        ensName={ensName}
-      />
     </form>
   );
 
