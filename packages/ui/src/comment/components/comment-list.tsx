@@ -1,20 +1,23 @@
 import { isAddressEqual, type Address } from "viem";
 import { AlertCircle, MessageCircleOff } from "lucide-react";
+import type { Comment } from "@workspace/domain/nostr/types";
 import { shortenAddress } from "@workspace/lib/address";
 import { formatRelativeTime } from "@workspace/lib/time";
 import { cn } from "@workspace/lib/cn";
 import { Skeleton } from "@workspace/ui/primitives/skeleton";
 import { Button } from "@workspace/ui/primitives/button";
-import useProfileComments from "@workspace/ui/comment/hooks/use-profile-comments";
 
 type CommentListProps = {
   className?: string;
-  address: Address;
+  profileAddress: Address;
+  comments: Comment[];
 };
 
-export default function CommentList({ className, address }: CommentListProps) {
-  const { data: comments } = useProfileComments(address);
-
+export default function CommentList({
+  className,
+  profileAddress,
+  comments,
+}: CommentListProps) {
   return (
     <div className={cn(className)}>
       {comments.length === 0 ? (
@@ -23,7 +26,7 @@ export default function CommentList({ className, address }: CommentListProps) {
         <ul className="space-y-3">
           {comments.map((comment) => {
             const isOwner =
-              isAddressEqual(comment.walletAddress, address) &&
+              isAddressEqual(comment.walletAddress, profileAddress) &&
               comment.isVerified;
 
             return (

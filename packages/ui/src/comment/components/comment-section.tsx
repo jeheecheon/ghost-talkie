@@ -6,6 +6,7 @@ import CommentList, {
   CommentListFallback,
   CommentListSkeleton,
 } from "@workspace/ui/comment/components/comment-list";
+import useProfileComments from "@workspace/ui/comment/hooks/use-profile-comments";
 import { cn } from "@workspace/lib/cn";
 
 type CommentSectionProps = {
@@ -25,9 +26,15 @@ export default function CommentSection({
 
       <ErrorBoundary fallback={<CommentListFallback />}>
         <Suspense fallback={<CommentListSkeleton />}>
-          <CommentList address={address} />
+          <SuspendedCommentList address={address} />
         </Suspense>
       </ErrorBoundary>
     </section>
   );
+}
+
+function SuspendedCommentList({ address }: { address: Address }) {
+  const { data: comments } = useProfileComments(address);
+
+  return <CommentList profileAddress={address} comments={comments} />;
 }
