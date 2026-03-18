@@ -140,9 +140,10 @@ function EnsStatusMessage({
       )}
 
       {status === "address-not-found" && ensAddress && (
-        <p className="text-destructive text-sm">
-          {`No ENS name found for ${shortenAddress(ensAddress)}`}
-        </p>
+        <div className="flex items-center gap-x-2 text-sm">
+          <span className="text-foreground">{shortenAddress(ensAddress)}</span>
+          <span className="text-muted-foreground">· ENS not registered</span>
+        </div>
       )}
     </div>
   );
