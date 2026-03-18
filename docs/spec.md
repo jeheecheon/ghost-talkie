@@ -36,9 +36,6 @@ Multi-peer private communication (up to 5 participants) initiated from the Walle
 
 ```
 Connect wallet → navigate to own profile (/{walletAddress})
-  → Sign Nostr identity messages (two MetaMask popups: key derivation + proof)
-    → Ethereum identity established
-    → Nostr identity auto-derived from wallet signature
   → Click "Start Chat" on profile page
   → Sign chat proof message (one MetaMask popup)
   → Chat widget opens as overlay on profile page
@@ -54,7 +51,6 @@ Connect wallet → navigate to own profile (/{walletAddress})
 ```
 Visit profile: ghosttalkie.com/{walletAddress}
   → Connect own wallet
-  → Sign Nostr identity messages (two MetaMask popups: key derivation + proof)
   → Click "Chat" button on profile page
   → Sign chat proof message (one MetaMask popup)
   → Chat widget opens as overlay on profile page
@@ -91,7 +87,7 @@ Users manage only their Ethereum wallet. Signatures are split by purpose.
 
 ### Nostr Identity (for profile comments)
 
-Two MetaMask signatures to establish Nostr identity:
+Two MetaMask signatures to establish Nostr identity, triggered on first comment post:
 
 - **Signature 1** — Key derivation (never published): `sha256(signature)` → Nostr private key → Nostr public key
 - **Signature 2** — Proof of ownership (published on relay): stored in Nostr event tags
@@ -100,6 +96,7 @@ Key properties:
 - Same wallet always produces same Nostr identity
 - Key derivation signature is NEVER published — only proof-sig is public
 - User never sees or manages Nostr keys
+- Nostr identity is independent from chat — only required for posting comments
 
 ### Chat Proof (for private chat)
 
@@ -150,7 +147,7 @@ Two-layer signing ensures comment authenticity and Owner badge.
 
 - **Layer 1**: Nostr signature — proves the Nostr key authored the event
 - **Layer 2**: Wallet proof-sig in tags — proves the wallet owns the Nostr key
-- If wallet matches profile owner → Owner badge
+- **Owner badge**: UI compares comment's wallet address against profile owner's address; badge shown on match
 - proof-sig is safe to publish (different from key derivation signature; Nostr private key stays secret)
 
 ---
@@ -165,7 +162,7 @@ Package-oriented monorepo. See [Monorepo Architecture](./monorepo-architecture.m
 
 | Layer             | Technology                | Purpose                                       |
 | ----------------- | ------------------------- | --------------------------------------------- |
-| Framework         | Vite + React              | UI + routing (CSR, static)                    |
+| Framework         | React Router v7 (Vite, CSR) | File-system routing, static SPA             |
 | Styling           | Tailwind CSS v4           | Styling                                       |
 | UI Components     | shadcn/ui                 | Accessible, customizable component primitives |
 | P2P               | Trystero (Nostr strategy) | Serverless WebRTC signaling + P2P data        |
@@ -192,9 +189,8 @@ Using **Nostr** — zero setup, 8KB bundle, uses public relays. Import from `try
 
 | URL Pattern                              | Action                     |
 | ---------------------------------------- | -------------------------- |
-| `ghosttalkie.com/`                       | Landing page               |
+| `ghosttalkie.com/`                       | Wallet search (ENS lookup, history, bookmarks) |
 | `ghosttalkie.com/{walletAddress}`        | Wallet profile page (chat widget overlays here) |
-| `ghosttalkie.com/search`                 | Wallet search (ENS lookup, history, bookmarks) |
 
 ### Actions (Data Channels)
 
@@ -234,10 +230,12 @@ Threat: Man-in-the-middle
 2. OPEN        → Profile owner opens room "inbox-{walletAddress}" via chat widget
 3. CONNECT     → Visitor clicks "Chat" on profile → Trystero joins room
 4. VERIFY      → Exchange chat proofs over WebRTC (automatic, 5-min expiry)
-5. REQUEST     → Visitor sends chat request
-6. APPROVE     → Owner accepts or rejects
+                  → Failed verification → PeerStatus.Failed
+5. REQUEST     → Visitor sends chat request → PeerStatus.Requesting
+                  → Owner sees visitor as PeerStatus.Pending
+6. APPROVE     → Owner accepts (→ PeerStatus.Chatting) or rejects (→ PeerStatus.Rejected)
 7. CHAT        → Text, voice (up to 5 peers, mesh topology)
-8. DISCONNECT  → Either peer closes tab → connection ends
+8. DISCONNECT  → Either peer closes tab → PeerStatus.Disconnected
 ```
 
 ---
