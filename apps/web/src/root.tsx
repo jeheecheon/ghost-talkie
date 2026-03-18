@@ -24,7 +24,7 @@ export default function Root() {
   );
 
   function handleLogoClick() {
-    navigate("/search");
+    navigate("/");
   }
 
   function handleNavigate(path: string) {
