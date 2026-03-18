@@ -112,7 +112,7 @@ One MetaMask signature to enter a chat room. Separate from Nostr identity.
 
 ---
 
-## On-chain Profile (Trust Signal)
+## On-chain Profile (Trust Signal) — Not Yet Implemented
 
 When a visitor enters a wallet room, the owner's on-chain data is displayed as a trust profile.
 
@@ -127,6 +127,8 @@ When a visitor enters a wallet room, the owner's on-chain data is displayed as a
 ```
 
 Data is read-only, fetched from public blockchain APIs (Etherscan, Alchemy, etc.). No backend required.
+
+> **Status:** Not yet implemented. No on-chain data API integration exists.
 
 ---
 
@@ -155,48 +157,7 @@ Two-layer signing ensures comment authenticity and Owner badge.
 
 ## Architecture
 
-```
-┌──────────────────────────────────────────────────────┐
-│                     Client                            │
-│               (Static Frontend)                       │
-│                                                       │
-│  ┌──────────┐  ┌──────────┐  ┌───────────────┐       │
-│  │ Trystero  │  │  wagmi   │  │  Reown        │      │
-│  │ (P2P)    │  │  + viem  │  │  (Wallet UI)  │      │
-│  └────┬─────┘  └────┬─────┘  └───────────────┘       │
-│       │              │                                │
-│       │    ┌─────────┴─────────┐  ┌──────────────┐   │
-│       │    │  Wallet Actions   │  │ Nostr Client │   │
-│       │    │  - Sign messages  │  │ - Comments   │   │
-│       │    │  - Verify sigs    │  │ - Key derive │   │
-│       │    └───────────────────┘  └──────┬───────┘   │
-│       │                                  │            │
-│  ┌────┴──────────────────────────────────┴────────┐   │
-│  │              Communication Layer                │  │
-│  │                                                 │  │
-│  │  Real-time:  Trystero WebRTC (both online)     │  │
-│  │  Async:      Nostr relay events (comments)      │  │
-│  └─────────────────────────────────────────────────┘  │
-└──────────────────┬────────────────────────────────────┘
-                   │
-          ┌────────┴────────┐
-          │                 │
-   Trystero Signaling   Nostr Events
-   (peer discovery)     (profile comments)
-          │                 │
-          └────────┬────────┘
-                   ▼
-        ┌─────────────────────┐
-        │   Public Nostr      │
-        │   Relays (free)     │
-        │   - relay.damus.io  │
-        │   - nos.lol         │
-        └─────────────────────┘
-                   │
-                   ▼
-            P2P Connection
-         (Direct WebRTC between peers)
-```
+Package-oriented monorepo. See [Monorepo Architecture](./monorepo-architecture.md) for full details.
 
 ---
 
@@ -210,8 +171,7 @@ Two-layer signing ensures comment authenticity and Owner badge.
 | P2P               | Trystero (Nostr strategy) | Serverless WebRTC signaling + P2P data        |
 | Profile Comments  | Nostr protocol (nostr-tools) | Publish/query comments on public relays    |
 | Wallet Connection | wagmi + viem              | Wallet connect, sign, verify, send tx         |
-| Wallet UI         | Reown (TBD)               | Wallet connect modal                          |
-| On-chain Data     | Etherscan / Alchemy API   | Wallet profile, trust signals                 |
+| Wallet UI         | MetaMask SDK              | Wallet connect (Reown planned but not yet integrated) |
 | Deploy            | Vercel / GitHub Pages     | Static hosting                                |
 
 ---
@@ -234,6 +194,7 @@ Using **Nostr** — zero setup, 8KB bundle, uses public relays. Import from `try
 | ---------------------------------------- | -------------------------- |
 | `ghosttalkie.com/`                       | Landing page               |
 | `ghosttalkie.com/{walletAddress}`        | Wallet profile page (chat widget overlays here) |
+| `ghosttalkie.com/search`                 | Wallet search (ENS lookup, history, bookmarks) |
 
 ### Actions (Data Channels)
 
@@ -292,6 +253,7 @@ Native token balances are displayed per chain on the wallet profile page. Suppor
 | Base      | Base     | Base Sepolia     |
 | Optimism  | Optimism | Optimism Sepolia |
 | Polygon   | Polygon  | Polygon Amoy     |
+| CROSS     | CROSS Mainnet (612055) | CROSS Testnet (612044) |
 
 Testnet chains are toggled via feature flag. Balances are fetched using public RPC endpoints configured per chain.
 
@@ -319,7 +281,7 @@ Profile owners can send native tokens to any address directly from their wallet 
 | Profile comments (Nostr relays) | $0                                 |
 | P2P data transfer               | $0 (users' own bandwidth)          |
 | STUN servers (Google public)    | $0                                 |
-| On-chain data (Etherscan free)  | $0                                 |
+| On-chain data (planned)         | $0                                 |
 | **Total**                       | **$0**                             |
 
 ---
@@ -331,7 +293,7 @@ Profile owners can send native tokens to any address directly from their wallet 
 | Real-time chat needs both online  | Owner offline → profile comments only (no voice)                |
 | Comment persistence               | Depends on Nostr relay retention policy (days to months)        |
 | Wallet required for all features  | Non-crypto users cannot participate                             |
-| On-chain profile accuracy         | Only as good as public API data; no off-chain reputation        |
+| On-chain profile not implemented  | Wallet age, tx count, top tokens, NFTs not yet built            |
 | Voice chat peer limit             | Mesh topology limits practical use to ~5 peers                  |
 
 ---
