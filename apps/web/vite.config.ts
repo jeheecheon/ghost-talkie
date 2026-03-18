@@ -15,6 +15,9 @@ export default defineConfig({
     "process.env.REOWN_PROJECT_ID": JSON.stringify(
       process.env.REOWN_PROJECT_ID ?? "",
     ),
+    "process.env.NOTIFICATION_SOUND_URL": JSON.stringify(
+      process.env.NOTIFICATION_SOUND_URL ?? "/sounds/ghost-cute.wav",
+    ),
   },
   resolve: {
     alias: {
