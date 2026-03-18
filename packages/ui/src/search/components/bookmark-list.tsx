@@ -20,9 +20,7 @@ export default function BookmarkList({
   onRemove,
 }: BookmarkListProps) {
   return (
-    <section className={cn("space-y-3", className)}>
-      <h2 className="text-sm font-semibold">Bookmarks</h2>
-
+    <div className={cn(className)}>
       {bookmarks.length === 0 ? (
         <p className="text-muted-foreground text-sm">
           Star a search to save it here
@@ -39,7 +37,7 @@ export default function BookmarkList({
           ))}
         </ul>
       )}
-    </section>
+    </div>
   );
 }
 

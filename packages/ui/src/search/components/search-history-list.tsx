@@ -27,17 +27,15 @@ export default function SearchHistoryList({
   onClearAll,
 }: SearchHistoryListProps) {
   return (
-    <section className={cn("space-y-3", className)}>
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold">Recent Searches</h2>
-
-        {history.length > 0 && (
+    <div className={cn("space-y-3", className)}>
+      {history.length > 0 && (
+        <div className="flex justify-end">
           <Button variant="ghost" size="xs" onClick={onClearAll}>
             <Trash2 className="size-3" />
             Clear All
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
       {history.length === 0 ? (
         <p className="text-muted-foreground text-sm">
@@ -57,7 +55,7 @@ export default function SearchHistoryList({
           ))}
         </ul>
       )}
-    </section>
+    </div>
   );
 }
 
