@@ -8,6 +8,7 @@ import ChatRoomConnecting from "@workspace/ui/chat/components/chat-room-connecti
 import ChatRoomVisitorRequesting from "@workspace/ui/chat/components/chat-room-visitor-requesting";
 import ChatRoomOwnerLeft from "@workspace/ui/chat/components/chat-room-owner-left";
 import usePrivateChatRoom from "@workspace/ui/chat/hooks/use-private-chat-room";
+import useNotificationSound from "@workspace/ui/chat/hooks/use-notification-sound";
 import useViewStatus from "@workspace/ui/chat/hooks/use-view-status";
 import { useChatWidgetStore } from "@workspace/ui/chat/store/chat-widget";
 import { cn } from "@workspace/lib/cn";
@@ -56,6 +57,9 @@ export default function ChatRoomView({
   useLockBodyScroll(layout === "mobile" && isOpen);
 
   const viewportHeight = useVisualViewportHeight(layout === "mobile");
+  const { playNotification } = useNotificationSound({
+    url: process.env.NOTIFICATION_SOUND_URL!,
+  });
 
   const { roomState, respond, sendMessage, toggleMic, disableMic } =
     usePrivateChatRoom({
@@ -63,6 +67,11 @@ export default function ChatRoomView({
       audioEnabled: isOpen,
       onMessage: (message: ChatMessage) => {
         setLastMessage(roomAddress, message);
+
+        if (message.sender !== chatProof.signerAddress) {
+          playNotification();
+        }
+
         if (isOpen) {
           return;
         }
