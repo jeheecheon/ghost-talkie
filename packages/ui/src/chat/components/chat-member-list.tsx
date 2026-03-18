@@ -4,52 +4,36 @@ import EnsAvatar from "@workspace/ui/wallet/components/address-avatar";
 import useEnsProfile from "@workspace/ui/wallet/hooks/use-ens-profile";
 import useVoiceActivity from "@workspace/ui/chat/hooks/use-voice-activity";
 import { cn } from "@workspace/lib/cn";
-import {
-  PeerRole,
-  PeerStatus,
-  type PrivateChatRoomState,
-} from "@workspace/domain/p2p/types";
-import { filterPeersByStatus } from "@workspace/domain/p2p/chat";
+import { PeerRole } from "@workspace/domain/p2p/types";
+import type { ChatMember } from "@workspace/domain/p2p/types";
 import type { Nullable } from "@workspace/types/misc";
 import type { Address } from "viem";
 
 type ChatMemberListProps = {
   className?: string;
-  roomState: PrivateChatRoomState;
+  members: ChatMember[];
 };
 
 export default function ChatMemberList({
   className,
-  roomState,
+  members,
 }: ChatMemberListProps) {
-  const activePeers = filterPeersByStatus(
-    roomState.remotePeers,
-    PeerStatus.Chatting,
-    PeerStatus.Pending,
-  );
-
   return (
-    <aside
+    <ul
       className={cn("bg-background space-y-3.5 overflow-hidden p-3", className)}
     >
-      <ChatMemberRow
-        address={roomState.localPeer.chatProof.signerAddress}
-        role={roomState.localPeer.role}
-        isMicOn={roomState.localPeer.isMicOn}
-        stream={roomState.localPeer.stream}
-        isSelf
-      />
-      {activePeers.map((peer) => (
-        <ChatMemberRow
-          key={peer.peerId}
-          address={peer.chatProof?.signerAddress ?? null}
-          role={peer.role}
-          isMicOn={peer.isMicOn}
-          stream={peer.stream}
-          isSelf={false}
-        />
+      {members.map((member) => (
+        <li key={member.id}>
+          <ChatMemberRow
+            address={member.address}
+            role={member.role}
+            isMicOn={member.isMicOn}
+            stream={member.stream}
+            isSelf={member.isSelf}
+          />
+        </li>
       ))}
-    </aside>
+    </ul>
   );
 }
 

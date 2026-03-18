@@ -18,22 +18,21 @@ export default function CommentForm({ className, address }: CommentFormProps) {
   const { mutateAsync: publishComment } = usePublishComment(address);
 
   return (
-    <form
-      className={cn("flex flex-col gap-y-2", className)}
-      onSubmit={handleSubmit}
-    >
+    <form className={cn("relative", className)} onSubmit={handleSubmit}>
       <Textarea
+        id="comment-textarea"
+        className="pr-16 pb-2"
         placeholder="Leave a comment..."
-        rows={3}
+        rows={1}
         maxLength={500}
         aria-label="Comment"
         value={content}
         onChange={handleTextareaChange}
       />
       <Button
-        className="self-end"
+        className="absolute right-2 bottom-1.5"
         type="submit"
-        size="sm"
+        size="xs"
         disabled={isPending || !content.trim()}
       >
         {isPending ? "Posting..." : "Post"}
@@ -42,7 +41,7 @@ export default function CommentForm({ className, address }: CommentFormProps) {
   );
 
   function handleTextareaChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    setContent(e.target.value.trim());
+    setContent(e.target.value);
   }
 
   function handleSubmit(e: React.SubmitEvent) {

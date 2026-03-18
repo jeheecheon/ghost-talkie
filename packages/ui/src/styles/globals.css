@@ -17,6 +17,10 @@
     @apply bg-background text-foreground;
   }
 
+  hr {
+    @apply border-border;
+  }
+
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     @apply cursor-pointer;
