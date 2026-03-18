@@ -5,17 +5,8 @@ type Theme = "light" | "dark";
 
 const STORAGE_KEY = "theme";
 
-function getSystemTheme(): Theme {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
-}
-
 export default function useTheme() {
-  const [theme, setTheme] = useStorageState<Theme>(
-    STORAGE_KEY,
-    getSystemTheme(),
-  );
+  const [theme, setTheme] = useStorageState<Theme>(STORAGE_KEY, "dark");
 
   useEffect(() => {
     function applyTheme(theme: Theme) {
