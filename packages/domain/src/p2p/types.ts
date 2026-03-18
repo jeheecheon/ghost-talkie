@@ -80,3 +80,12 @@ export type PrivateChatRoomState = {
   messages: readonly ChatMessage[];
   remotePeers: RemotePeer[];
 };
+
+export type ChatMember = {
+  id: string;
+  address: Nullable<Address>;
+  role: PeerRole;
+  isMicOn: boolean;
+  stream: Nullable<MediaStream>;
+  isSelf: boolean;
+};

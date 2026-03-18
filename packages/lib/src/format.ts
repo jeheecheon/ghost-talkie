@@ -7,5 +7,7 @@ export function formatTokenBalance(value: number): string {
     return "< 0.0001";
   }
 
-  return value.toFixed(4);
+  return new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 4,
+  }).format(value);
 }

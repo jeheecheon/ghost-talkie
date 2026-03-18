@@ -14,6 +14,7 @@ import type { Maybe, Nullable } from "@workspace/types/misc";
 type UsePrivateChatRoomArgs = {
   chatProof: Maybe<ChatProof>;
   enabled?: boolean;
+  audioEnabled?: boolean;
   onMessage?: (message: ChatMessage) => void;
   onRemotePeersChange?: (remotePeers: RemotePeer[], isOwner: boolean) => void;
 };
@@ -23,11 +24,13 @@ type UsePrivateChatRoomResult = {
   sendMessage: (text: string) => Promise<void>;
   respond: (peerId: string, accepted: boolean) => Promise<void>;
   toggleMic: () => Promise<void>;
+  disableMic: () => Promise<void>;
 };
 
 export default function usePrivateChatRoom({
   chatProof,
   enabled = true,
+  audioEnabled = true,
   onMessage,
   onRemotePeersChange,
 }: UsePrivateChatRoomArgs): UsePrivateChatRoomResult {
@@ -49,7 +52,11 @@ export default function usePrivateChatRoom({
     return roomRef.current?.toggleMic();
   }, []);
 
-  useRemoteAudio(roomState?.remotePeers ?? []);
+  const disableMic = useCallback(async () => {
+    return roomRef.current?.disableMic();
+  }, []);
+
+  useRemoteAudio(roomState?.remotePeers ?? [], audioEnabled);
 
   useEffect(() => {
     if (!chatProof || !enabled) {
@@ -94,5 +101,5 @@ export default function usePrivateChatRoom({
     onRemotePeersChange?.(roomState.remotePeers, isOwner);
   }, [prevRoomState, roomState, onRemotePeersChange]);
 
-  return { roomState, sendMessage, respond, toggleMic };
+  return { roomState, sendMessage, respond, toggleMic, disableMic };
 }

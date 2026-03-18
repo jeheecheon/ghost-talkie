@@ -339,6 +339,8 @@ export class PrivateChatRoom {
         return;
       }
 
+      this._evictStalePeers(peerId, senderRole);
+
       if (
         this.localPeer.role === PeerRole.Visitor &&
         senderRole === PeerRole.Owner
@@ -462,6 +464,26 @@ export class PrivateChatRoom {
     const peers = new Map(this._remotePeers);
     peers.set(peerId, newPeer);
     this.remotePeers = peers;
+  }
+
+  private _evictStalePeers(currentPeerId: string, role: PeerRole): void {
+    let removed = false;
+    const peers = new Map(this._remotePeers);
+
+    for (const [id, peer] of peers) {
+      if (
+        id !== currentPeerId &&
+        peer.role === role &&
+        peer.status === PeerStatus.Disconnected
+      ) {
+        peers.delete(id);
+        removed = true;
+      }
+    }
+
+    if (removed) {
+      this.remotePeers = peers;
+    }
   }
 
   private _hasPeerWith(...statuses: PeerStatus[]): boolean {

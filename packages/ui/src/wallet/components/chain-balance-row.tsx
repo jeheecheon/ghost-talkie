@@ -6,6 +6,7 @@ import { cn } from "@workspace/lib/cn";
 type ChainBalanceRowProps = {
   className?: string;
   chainId: number;
+  chainName: string;
   currencyName: string;
   currencySymbol: string;
   balance: number;
@@ -17,6 +18,7 @@ type ChainBalanceRowProps = {
 export default function ChainBalanceRow({
   className,
   chainId,
+  chainName,
   currencyName,
   currencySymbol,
   balance,
@@ -25,17 +27,25 @@ export default function ChainBalanceRow({
   onTransfer,
 }: ChainBalanceRowProps) {
   return (
-    <div className={cn("flex h-10 items-center gap-x-3", className)}>
+    <div className={cn("flex h-12 items-center gap-x-3", className)}>
       <ChainIcon chainId={chainId} />
 
-      <span className="flex-1 text-sm font-medium">{currencyName}</span>
+      <div className="flex-1">
+        <span className="text-sm font-medium">{currencyName}</span>
+        <p className="text-muted-foreground text-xs">{chainName}</p>
+      </div>
 
       <span className="text-muted-foreground text-sm">
         {isLoading ? "—" : `${formatTokenBalance(balance)} ${currencySymbol}`}
       </span>
 
       {showTransfer && (
-        <Button variant="outline" size="xs" onClick={onTransfer}>
+        <Button
+          variant="outline"
+          size="xs"
+          disabled={isLoading || balance === 0}
+          onClick={onTransfer}
+        >
           Transfer
         </Button>
       )}

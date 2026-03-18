@@ -1,0 +1,63 @@
+import { useState } from "react";
+import { useConnection } from "wagmi";
+import { useAppKit } from "@reown/appkit/react";
+import { Button } from "@workspace/ui/primitives/button";
+import { shortenAddress } from "@workspace/lib/address";
+import useEnsProfile from "@workspace/ui/wallet/hooks/use-ens-profile";
+import WalletConnectionDialog from "@workspace/ui/wallet/components/wallet-connection-dialog";
+
+type WalletChipProps = {
+  className?: string;
+  onNavigate: (path: string) => void;
+};
+
+export default function WalletChip({ className, onNavigate }: WalletChipProps) {
+  const [isDialogOpen, setIsDrawerOpen] = useState(false);
+
+  const { address, isConnected } = useConnection();
+  const { open } = useAppKit();
+  const { data: ensProfile } = useEnsProfile({ address });
+
+  const displayName =
+    ensProfile?.ensName ?? (address ? shortenAddress(address) : "");
+
+  return (
+    <div className={className}>
+      {isConnected && address ? (
+        <>
+          <Button
+            className="text-sm"
+            variant="ghost"
+            size="sm"
+            onClick={handleOpenDialog}
+          >
+            {displayName}
+          </Button>
+          <WalletConnectionDialog
+            address={address}
+            ensProfile={ensProfile}
+            isOpen={isDialogOpen}
+            onClose={handleCloseDialog}
+            onNavigate={onNavigate}
+          />
+        </>
+      ) : (
+        <Button size="sm" onClick={handleConnect}>
+          Connect
+        </Button>
+      )}
+    </div>
+  );
+
+  function handleOpenDialog() {
+    setIsDrawerOpen(true);
+  }
+
+  function handleCloseDialog() {
+    setIsDrawerOpen(false);
+  }
+
+  function handleConnect() {
+    void open();
+  }
+}

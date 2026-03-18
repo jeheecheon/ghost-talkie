@@ -1,8 +1,7 @@
-import { Outlet } from "react-router";
 import { Layout } from "@/layout";
 import ErrorBoundary from "@/error-boundary";
 import RootProviders from "@/providers/root-providers";
-import ChatWidget from "@workspace/ui/chat/components/chat-widget";
+import RootLayout from "@/components/root-layout";
 import "@/globals.css";
 
 export { Layout, ErrorBoundary };
@@ -10,8 +9,7 @@ export { Layout, ErrorBoundary };
 export default function Root() {
   return (
     <RootProviders>
-      <Outlet />
-      <ChatWidget />
+      <RootLayout />
     </RootProviders>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import ChatJoinRequest from "@workspace/ui/chat/components/chat-join-request";
 import ChatMemberList from "@workspace/ui/chat/components/chat-member-list";
+import { buildChatMembers } from "@workspace/domain/p2p/chat";
 import ChatBubble from "@workspace/ui/chat/components/chat-bubble";
 import ChatComposer from "@workspace/ui/chat/components/chat-composer";
 import GhostIcon from "@workspace/ui/icons/ghost-icon";
@@ -42,6 +43,7 @@ export default function ChatRoomContent({
     roomState.remotePeers,
     PeerStatus.Requesting,
   );
+  const chatMembers = buildChatMembers(roomState);
 
   return (
     <section className={cn("bg-accent flex", className)}>
@@ -49,7 +51,7 @@ export default function ChatRoomContent({
         <div className="relative z-10 w-12">
           <ChatMemberList
             className="border-border absolute inset-y-0 w-12 border-r transition-[width] hover:w-48"
-            roomState={roomState}
+            members={chatMembers}
           />
         </div>
       )}

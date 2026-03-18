@@ -1,9 +1,8 @@
 import { useShallow } from "zustand/react/shallow";
+import useKey from "react-use/lib/useKey";
 import { useChatWidgetStore } from "@workspace/ui/chat/store/chat-widget";
 import ChatRoomView from "@workspace/ui/chat/components/chat-room-view";
 import ChatFAB from "@workspace/ui/chat/components/chat-fab";
-import ResponsiveConfirmDialog from "@workspace/ui/primitives/responsive-confirm-dialog";
-import { shortenAddress } from "@workspace/lib/address";
 import { cn } from "@workspace/lib/cn";
 
 type ChatWidgetProps = {
@@ -11,55 +10,28 @@ type ChatWidgetProps = {
 };
 
 export default function ChatWidget({ className }: ChatWidgetProps) {
-  const {
-    roomAddress,
-    chatProof,
-    pendingRoomAddress,
-    confirmRoomSwitch,
-    cancelRoomSwitch,
-  } = useChatWidgetStore(
+  const { rooms, activeRoomAddress, isOpen, minimize } = useChatWidgetStore(
     useShallow((s) => ({
-      roomAddress: s.roomAddress,
-      chatProof: s.chatProof,
-      pendingRoomAddress: s.pendingRoomAddress,
-      confirmRoomSwitch: s.confirmRoomSwitch,
-      cancelRoomSwitch: s.cancelRoomSwitch,
+      rooms: s.rooms,
+      activeRoomAddress: s.activeRoomAddress,
+      isOpen: s.isOpen,
+      minimize: s.minimize,
     })),
   );
 
-  const hasActiveRoom = roomAddress && chatProof;
+  useKey("Escape", minimize, {}, [isOpen, minimize]);
 
   return (
     <div className={cn(className)}>
-      {hasActiveRoom && (
-        <>
-          <ChatRoomView roomAddress={roomAddress} chatProof={chatProof} />
-          <ChatFAB />
-
-          {pendingRoomAddress && (
-            <ResponsiveConfirmDialog
-              isOpen={!!pendingRoomAddress}
-              title="Switch Chat?"
-              description={
-                <>
-                  You have an active chat with{" "}
-                  <span className="text-foreground font-medium">
-                    {shortenAddress(roomAddress)}
-                  </span>
-                  . Start a new chat with{" "}
-                  <span className="text-foreground font-medium">
-                    {shortenAddress(pendingRoomAddress)}
-                  </span>
-                  ?
-                </>
-              }
-              confirmLabel="Switch"
-              onConfirm={confirmRoomSwitch}
-              onClose={cancelRoomSwitch}
-            />
-          )}
-        </>
-      )}
+      {[...rooms.values()].map((room) => (
+        <ChatRoomView
+          key={room.roomAddress}
+          roomAddress={room.roomAddress}
+          chatProof={room.chatProof}
+          isOpen={isOpen && room.roomAddress === activeRoomAddress}
+        />
+      ))}
+      <ChatFAB />
     </div>
   );
 }

@@ -10,6 +10,8 @@
   "dependencies": {
     "@headlessui/react": "^2.2.9",
     "@metamask/jazzicon": "^2.0.0",
+    "@reown/appkit": "^1.8.19",
+    "@reown/appkit-adapter-wagmi": "^1.8.19",
     "@tanstack/react-query": "^5.90.21",
     "@workspace/domain": "workspace:*",
     "@workspace/lib": "workspace:*",
@@ -20,6 +22,7 @@
     "radix-ui": "^1.4.3",
     "react-use": "^17.6.0",
     "sonner": "^2.0.7",
+    "synced-storage": "^1.1.3",
     "vaul": "^1.1.2",
     "viem": "^2.46.1",
     "wagmi": "^3.4.4",
@@ -48,6 +51,7 @@
     "./wallet/constants/*": "./src/wallet/constants/*.ts",
     "./wallet/hooks/*": "./src/wallet/hooks/*.ts",
     "./wallet/types": "./src/wallet/types.ts",
+    "./chat/types": "./src/chat/types.ts",
     "./chat/store/*": "./src/chat/store/*.ts",
     "./chat/components/*": "./src/chat/components/*.tsx",
     "./chat/hooks/*": "./src/chat/hooks/*.ts",
@@ -56,6 +60,10 @@
     "./transfer/components/*": "./src/transfer/components/*.tsx",
     "./transfer/hooks/*": "./src/transfer/hooks/*.ts",
     "./hooks/*": "./src/hooks/*.ts",
-    "./globals.css": "./src/styles/globals.css"
+    "./search/types": "./src/search/types.ts",
+    "./search/components/*": "./src/search/components/*.tsx",
+    "./search/hooks/*": "./src/search/hooks/*.ts",
+    "./globals.css": "./src/styles/globals.css",
+    "./navigation/components/*": "./src/navigation/components/*.tsx"
   }
 }

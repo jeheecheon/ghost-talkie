@@ -1,9 +1,10 @@
 import type { PropsWithChildren } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
+import { SyncedStorageProvider } from "synced-storage/react";
 import Toaster from "@workspace/ui/primitives/toaster";
 import { NostrConfigProvider } from "@workspace/ui/comment/context";
-import { config } from "@workspace/ui/wallet/configs/wagmi";
+import { wagmiAdapter } from "@workspace/ui/wallet/configs/appkit";
 import { env } from "@/configs/env";
 
 const queryClient = new QueryClient();
@@ -15,12 +16,14 @@ const nostrConfig = {
 
 export default function RootProviders({ children }: PropsWithChildren) {
   return (
-    <WagmiProvider config={config}>
+    <WagmiProvider config={wagmiAdapter.wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <NostrConfigProvider value={nostrConfig}>
-          {children}
-          <Toaster />
-        </NostrConfigProvider>
+        <SyncedStorageProvider>
+          <NostrConfigProvider value={nostrConfig}>
+            {children}
+            <Toaster />
+          </NostrConfigProvider>
+        </SyncedStorageProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );
