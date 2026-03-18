@@ -5,12 +5,9 @@ import {
   DialogTitle,
 } from "@workspace/ui/primitives/dialog";
 import { cn } from "@workspace/lib/cn";
-import {
-  PeerStatus,
-  type PrivateChatRoomState,
-} from "@workspace/domain/p2p/types";
-import { filterPeersByStatus } from "@workspace/domain/p2p/chat";
+import type { PrivateChatRoomState } from "@workspace/domain/p2p/types";
 import ChatMemberList from "@workspace/ui/chat/components/chat-member-list";
+import { buildChatMembers } from "@workspace/domain/p2p/chat";
 
 type ChatMemberModalProps = {
   className?: string;
@@ -25,11 +22,7 @@ export default function ChatMemberModal({
   roomState,
   onClose,
 }: ChatMemberModalProps) {
-  const activePeers = filterPeersByStatus(
-    roomState.remotePeers,
-    PeerStatus.Chatting,
-    PeerStatus.Pending,
-  );
+  const chatMembers = buildChatMembers(roomState);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -38,9 +31,9 @@ export default function ChatMemberModal({
         onEscapeKeyDown={(e) => e.stopPropagation()}
       >
         <DialogHeader>
-          <DialogTitle>Participants ({activePeers.length + 1})</DialogTitle>
+          <DialogTitle>Participants ({chatMembers.length})</DialogTitle>
         </DialogHeader>
-        <ChatMemberList roomState={roomState} />
+        <ChatMemberList members={chatMembers} />
       </DialogContent>
     </Dialog>
   );
