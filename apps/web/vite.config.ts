@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export default defineConfig({
-  base: "/ghost-talkie/",
+  base: "/ghost-talkie",
   plugins: [tailwindcss(), reactRouter()],
   define: {
     "process.env.ENABLED_FEATURES": JSON.stringify(
