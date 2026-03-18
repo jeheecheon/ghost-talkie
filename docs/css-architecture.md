@@ -170,3 +170,17 @@ To change the primary color from gray to blue:
 ```
 
 `palette.css` and `globals.css` remain untouched.
+
+---
+
+## Z-Index Layers
+
+Fixed/floating elements use Tailwind's `z-{n}` scale in increments of 10.
+
+| z-index | Layer            |
+| ------- | ---------------- |
+| `z-10`  | Sticky content   |
+| `z-20`  | Fixed navigation |
+| `z-30`  | Overlay          |
+| `z-40`  | Floating widget  |
+| `z-50`  | Modal            |

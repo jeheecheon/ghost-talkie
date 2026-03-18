@@ -10,17 +10,21 @@ type ChatFABProps = {
 };
 
 export default function ChatFAB({ className }: ChatFABProps) {
-  const { isOpen, unreadCount, requestingPeerCount, expand } =
-    useChatWidgetStore(
-      useShallow((s) => ({
-        isOpen: s.isOpen,
-        unreadCount: s.unreadCount,
-        requestingPeerCount: s.requestingPeerCount,
-        expand: s.expand,
-      })),
-    );
+  const { isOpen, activeRoomAddress, rooms, resumeChat } = useChatWidgetStore(
+    useShallow((s) => ({
+      isOpen: s.isOpen,
+      activeRoomAddress: s.activeRoomAddress,
+      rooms: s.rooms,
+      resumeChat: s.resumeChat,
+    })),
+  );
 
-  const badgeCount = unreadCount + requestingPeerCount;
+  const activeRoom = activeRoomAddress
+    ? rooms.get(activeRoomAddress)
+    : undefined;
+  const badgeCount = activeRoom
+    ? activeRoom.unreadCount + activeRoom.requestingPeerCount
+    : 0;
   const badgeLabel = badgeCount > 99 ? "99+" : badgeCount;
 
   return (
@@ -28,12 +32,12 @@ export default function ChatFAB({ className }: ChatFABProps) {
       <Transition
         className="fixed right-4 bottom-4 z-40 origin-bottom-right duration-100 ease-out data-closed:scale-50 data-closed:opacity-0"
         as="div"
-        show={!isOpen}
+        show={!isOpen && !!activeRoom}
       >
         <Button
           className={cn("relative rounded-full shadow-lg", className)}
           size="icon-lg"
-          onClick={expand}
+          onClick={resumeChat}
         >
           <MessageSquareMore className="size-5" />
           {badgeCount > 0 && (

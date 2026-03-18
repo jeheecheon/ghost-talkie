@@ -3,7 +3,7 @@ import EnsAvatar from "@workspace/ui/wallet/components/address-avatar";
 import { shortenAddress } from "@workspace/lib/address";
 import { cn } from "@workspace/lib/cn";
 import CopyableText from "@workspace/ui/primitives/copyable-text";
-import { isAddressEqual, type Address } from "viem";
+import { type Address } from "viem";
 import { useChatWidgetStore } from "@workspace/ui/chat/store/chat-widget";
 import useSignChatProof from "@workspace/ui/chat/hooks/use-sign-chat-proof";
 import useEnsProfile from "@workspace/ui/wallet/hooks/use-ens-profile";
@@ -18,8 +18,7 @@ export default function WalletProfileCard({
   className,
   address: profileAddress,
 }: WalletProfileCardProps) {
-  const roomAddress = useChatWidgetStore((s) => s.roomAddress);
-  const chatProof = useChatWidgetStore((s) => s.chatProof);
+  const rooms = useChatWidgetStore((s) => s.rooms);
   const requestRoom = useChatWidgetStore((s) => s.requestRoom);
 
   const { signChatProof } = useSignChatProof();
@@ -53,12 +52,9 @@ export default function WalletProfileCard({
 
   async function handleStartChat() {
     withWalletConnection(async (localAddress) => {
-      const hasActiveRoom = roomAddress && chatProof;
-      const isRoomEqual =
-        roomAddress && isAddressEqual(profileAddress, roomAddress);
-
-      if (hasActiveRoom && isRoomEqual) {
-        requestRoom(roomAddress, chatProof);
+      const existingRoom = rooms.get(profileAddress);
+      if (existingRoom) {
+        requestRoom(profileAddress, existingRoom.chatProof);
         return;
       }
 
