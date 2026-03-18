@@ -4,6 +4,12 @@ A fully serverless P2P chat application where your Ethereum wallet is your ident
 
 **[Live Demo](https://jeheecheon.github.io/ghost-talkie)**
 
+<p align="center">
+  <img src=".github/assets/example-profile.png" alt="Wallet Profile" width="280" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src=".github/assets/example-chat.png" alt="P2P Chat" width="280" />
+</p>
+
 ## Why
 
 Most chat apps require accounts, servers, and infrastructure that costs money to run. GhostTalkie explores a different approach: what if a real-time chat application could run at **zero infrastructure cost** while still providing cryptographic identity verification?
