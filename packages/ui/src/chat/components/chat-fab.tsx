@@ -30,7 +30,7 @@ export default function ChatFAB({ className }: ChatFABProps) {
   return (
     <Portal>
       <Transition
-        className="fixed right-4 bottom-4 z-40 origin-bottom-right duration-100 ease-out data-closed:scale-50 data-closed:opacity-0"
+        className="fixed right-4 bottom-24 z-40 origin-bottom-right duration-100 ease-out data-closed:scale-50 data-closed:opacity-0"
         as="div"
         show={!isOpen && !!activeRoom}
       >

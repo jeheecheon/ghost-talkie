@@ -15,7 +15,10 @@ export default function RootErrorBoundary() {
   const { code, title, description } = getErrorDetails(error);
 
   return (
-    <LayoutContainer className="flex min-h-dvh flex-col items-center justify-center gap-y-10">
+    <LayoutContainer
+      className="flex min-h-dvh flex-col items-center justify-center gap-y-10"
+      clearance={false}
+    >
       <section className="text-center">
         <p className="text-muted-foreground/20 text-[10rem] leading-none font-black tracking-tighter">
           {code}

@@ -105,7 +105,11 @@ export default function ChatRoomView({
         show={isOpen}
         as="div"
       >
-        <LayoutContainer className="flex h-full min-h-0 flex-col px-0">
+        <LayoutContainer
+          className="flex h-full min-h-0 flex-col"
+          clearance={false}
+          gutters={false}
+        >
           <ChatViewHeader
             roomAddress={roomAddress}
             viewStatus={viewStatus}

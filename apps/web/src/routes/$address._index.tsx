@@ -22,7 +22,7 @@ export default function WalletProfileRoute({
   const { address: profileAddress } = loaderData;
 
   return (
-    <LayoutContainer className="space-y-10 pt-20 pb-10">
+    <LayoutContainer className="space-y-10">
       <WalletProfileCard address={profileAddress} />
       <hr />
       <ChainBalanceSection
