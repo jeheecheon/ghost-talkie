@@ -1,73 +1,104 @@
-# React + TypeScript + Vite
+# GhostTalkie
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A fully serverless P2P chat application where your Ethereum wallet is your identity. No backend, no database — just static files, WebRTC, and public Nostr relays.
 
-Currently, two official plugins are available:
+**[Live Demo](https://jeheecheon.github.io/ghost-talkie)**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Why
 
-## React Compiler
+Most chat apps require accounts, servers, and infrastructure that costs money to run. GhostTalkie explores a different approach: what if a real-time chat application could run at **zero infrastructure cost** while still providing cryptographic identity verification?
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+By combining WebRTC for direct peer-to-peer communication, Nostr relays for signaling and async comments, and Ethereum wallet signatures for authentication, GhostTalkie achieves this with no custom backend at all.
 
-## Expanding the ESLint configuration
+## Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **P2P Real-time Chat** — Text and voice communication directly between peers via WebRTC (up to 5 participants, mesh topology)
+- **Wallet-based Identity** — No signup. Connect your Ethereum wallet, and your address becomes your identity
+- **Cryptographic Verification** — Each peer signs a proof message; signatures are exchanged and verified on connect. Impersonation is impossible
+- **Profile Comments via Nostr** — When a user is offline, visitors can leave comments stored on public Nostr relays
+- **Multi-chain Token Balances** — View native token balances across Ethereum, Arbitrum, Base, Optimism, Polygon, and CROSS networks
+- **Native Token Transfer** — Send tokens directly from a wallet profile page with automatic chain switching
+- **Browser Extension** — WXT + React extension that injects chat buttons next to wallet addresses on external sites
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Architecture
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+ghosttalkie/
+├── apps/
+│   ├── web/                  # React Router v7 SPA (main web app)
+│   └── extension/            # Browser extension (WXT + React)
+├── packages/
+│   ├── domain/               # Core business logic
+│   │   ├── p2p/              #   WebRTC chat rooms, proof exchange
+│   │   └── nostr/            #   Nostr identity, comments
+│   ├── ui/                   # Shared React components and hooks
+│   ├── lib/                  # Shared utilities
+│   ├── types/                # Shared TypeScript types
+│   ├── eslint-config/        # Shared ESLint configuration
+│   └── tsconfig/             # Shared TypeScript configuration
+└── turbo.json
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The monorepo separates **domain logic** (P2P, Nostr) from **UI components**, allowing the web app and browser extension to share the same core without duplication.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Tech Decisions
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+| Decision | Why |
+|---|---|
+| **Trystero (Nostr strategy)** for P2P | Zero-config WebRTC signaling over public Nostr relays — no signaling server needed, 8KB bundle |
+| **Wallet signatures** for auth | Eliminates the entire auth backend. Cryptographic proof is stronger than email/password |
+| **Nostr protocol** for comments | Free, censorship-resistant storage on public relays. No database to maintain |
+| **Monorepo with domain package** | P2P and Nostr logic is framework-agnostic, reusable across web app and browser extension |
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | React Router v7 (Vite, CSR) |
+| Styling | Tailwind CSS v4 + shadcn/ui |
+| P2P | Trystero (WebRTC via Nostr relays) |
+| Wallet | wagmi + viem + Reown AppKit |
+| State | Zustand (persisted via localStorage) |
+| Data Fetching | TanStack React Query |
+| Build | Turborepo + pnpm workspaces |
+| Deploy | GitHub Pages |
+
+## How It Works
+
 ```
+Owner                                          Visitor
+  │                                               │
+  ├─ Connect wallet                                │
+  ├─ Open chat room on /{address}                  │
+  │   └─ Sign chat proof (1 signature)             │
+  │                                               ├─ Visit /{ownerAddress}
+  │                                               ├─ Connect wallet
+  │                                               ├─ Click "Chat"
+  │                                               │   └─ Sign chat proof (1 signature)
+  │◄──────── WebRTC connection established ───────►│
+  │◄──────── Exchange & verify proofs ────────────►│
+  │                                               │
+  ├─ See visitor's verified address                ├─ Waiting for approval
+  ├─ Accept or Reject                              │
+  │                                               │
+  │◄════════ Encrypted P2P chat (text/voice) ═════►│
+```
+
+## Cost
+
+| Component | Cost |
+|---|---|
+| Hosting (GitHub Pages) | $0 |
+| Signaling (public Nostr relays) | $0 |
+| Comments storage (Nostr relays) | $0 |
+| P2P data transfer | $0 |
+| **Total** | **$0** |
+
+## Getting Started
+
+```bash
+pnpm install
+pnpm dev
+```
+
+Requires Node.js >= 20 and pnpm.
