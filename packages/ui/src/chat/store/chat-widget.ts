@@ -1,93 +1,131 @@
 import { create } from "zustand";
-import type { Address } from "viem";
+import { type Address } from "viem";
 import type { Nullable } from "@workspace/types/misc";
-import type { ChatProof } from "@workspace/domain/p2p/types";
-import { isAddressEqual } from "viem/utils";
+import type { ChatMessage, ChatProof } from "@workspace/domain/p2p/types";
+import type { ChatRoomEntry } from "@workspace/ui/chat/types";
 
 type ChatWidgetState = {
+  rooms: Map<Address, ChatRoomEntry>;
+  activeRoomAddress: Nullable<Address>;
   isOpen: boolean;
-  roomAddress: Nullable<Address>;
-  chatProof: Nullable<ChatProof>;
-  pendingRoomAddress: Nullable<Address>;
-  pendingChatProof: Nullable<ChatProof>;
-  unreadCount: number;
-  requestingPeerCount: number;
 };
 
 type ChatWidgetActions = {
-  expand: () => void;
   requestRoom: (address: Address, proof: ChatProof) => void;
-  confirmRoomSwitch: () => void;
-  cancelRoomSwitch: () => void;
+  openRoom: (address: Address) => void;
+  resumeChat: () => void;
   minimize: () => void;
-  leaveRoom: () => void;
-  incrementUnread: () => void;
-  setRequestingPeerCount: (count: number) => void;
+  leaveRoom: (address: Address) => void;
+  incrementUnread: (address: Address) => void;
+  setRequestingPeerCount: (address: Address, count: number) => void;
+  setLastMessage: (address: Address, message: ChatMessage) => void;
 };
 
 type ChatWidgetStore = ChatWidgetState & ChatWidgetActions;
 
 const initialState: ChatWidgetState = {
+  rooms: new Map(),
+  activeRoomAddress: null,
   isOpen: false,
-  roomAddress: null,
-  chatProof: null,
-  pendingRoomAddress: null,
-  pendingChatProof: null,
-  unreadCount: 0,
-  requestingPeerCount: 0,
 };
 
 export const useChatWidgetStore = create<ChatWidgetStore>((set, get) => ({
   ...initialState,
 
-  expand: () => {
-    set({ isOpen: true, unreadCount: 0 });
-  },
-
   requestRoom: (address, proof) => {
-    const { roomAddress } = get();
-    if (roomAddress && !isAddressEqual(roomAddress, address)) {
-      set({ pendingRoomAddress: address, pendingChatProof: proof });
-      return;
-    }
+    const { rooms } = get();
 
-    set({ isOpen: true, roomAddress: address, chatProof: proof });
-  },
-
-  confirmRoomSwitch: () => {
-    const { pendingRoomAddress, pendingChatProof } = get();
-    if (!pendingRoomAddress || !pendingChatProof) {
-      return;
-    }
-
-    set({
-      isOpen: true,
-      roomAddress: pendingRoomAddress,
-      chatProof: pendingChatProof,
-      pendingRoomAddress: null,
-      pendingChatProof: null,
-      unreadCount: 0,
+    const next = new Map(rooms);
+    next.set(address, {
+      roomAddress: address,
+      chatProof: proof,
       requestingPeerCount: 0,
+      lastMessage: null,
+      unreadCount: 0,
     });
+    set({ rooms: next, activeRoomAddress: address, isOpen: true });
   },
 
-  cancelRoomSwitch: () => {
-    set({ pendingRoomAddress: null, pendingChatProof: null });
+  openRoom: (address) => {
+    const { rooms } = get();
+    const room = rooms.get(address);
+    if (!room) {
+      return;
+    }
+
+    const next = new Map(rooms);
+    next.set(address, { ...room, unreadCount: 0 });
+    set({ rooms: next, activeRoomAddress: address, isOpen: true });
+  },
+
+  resumeChat: () => {
+    const { activeRoomAddress, rooms } = get();
+    if (!activeRoomAddress) {
+      return;
+    }
+
+    const room = rooms.get(activeRoomAddress);
+    if (!room) {
+      return;
+    }
+
+    const next = new Map(rooms);
+    next.set(activeRoomAddress, { ...room, unreadCount: 0 });
+    set({ rooms: next, isOpen: true });
   },
 
   minimize: () => {
     set({ isOpen: false });
   },
 
-  leaveRoom: () => {
-    set(initialState);
+  leaveRoom: (address) => {
+    const { rooms, activeRoomAddress } = get();
+
+    const next = new Map(rooms);
+    next.delete(address);
+
+    const updates: Partial<ChatWidgetState> = { rooms: next };
+    if (activeRoomAddress === address) {
+      updates.activeRoomAddress = null;
+      updates.isOpen = false;
+    }
+    set(updates);
   },
 
-  incrementUnread: () => {
-    set((state) => ({ unreadCount: state.unreadCount + 1 }));
+  incrementUnread: (address) => {
+    set((state) => {
+      const room = state.rooms.get(address);
+      if (!room) {
+        return state;
+      }
+
+      const next = new Map(state.rooms);
+      next.set(address, { ...room, unreadCount: room.unreadCount + 1 });
+      return { rooms: next };
+    });
   },
 
-  setRequestingPeerCount: (count) => {
-    set({ requestingPeerCount: count });
+  setRequestingPeerCount: (address, count) => {
+    const { rooms } = get();
+    const room = rooms.get(address);
+    if (!room) {
+      return;
+    }
+
+    const next = new Map(rooms);
+    next.set(address, { ...room, requestingPeerCount: count });
+    set({ rooms: next });
+  },
+
+  setLastMessage: (address, message) => {
+    const { rooms } = get();
+    const room = rooms.get(address);
+    if (!room) {
+      return;
+    }
+
+    const next = new Map(rooms);
+    next.set(address, { ...room, lastMessage: message });
+    set({ rooms: next });
   },
 }));

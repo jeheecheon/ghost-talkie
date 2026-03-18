@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
+import type { Address } from "viem";
 import ChatViewHeader from "@workspace/ui/chat/components/chat-view-header";
 import ChatRoomContent from "@workspace/ui/chat/components/chat-room-content";
 import ChatRoomOwnerWaiting from "@workspace/ui/chat/components/chat-room-owner-waiting";
@@ -9,12 +11,14 @@ import usePrivateChatRoom from "@workspace/ui/chat/hooks/use-private-chat-room";
 import useViewStatus from "@workspace/ui/chat/hooks/use-view-status";
 import { useChatWidgetStore } from "@workspace/ui/chat/store/chat-widget";
 import { cn } from "@workspace/lib/cn";
-import { PeerStatus, type ChatProof } from "@workspace/domain/p2p/types";
+import {
+  PeerStatus,
+  type ChatMessage,
+  type ChatProof,
+} from "@workspace/domain/p2p/types";
 import { filterPeersByStatus } from "@workspace/domain/p2p/chat";
-import type { Address } from "viem";
 import LayoutContainer from "@workspace/ui/primitives/layout-container";
 import { Portal, Transition } from "@headlessui/react";
-import useKey from "react-use/lib/useKey";
 import useLockBodyScroll from "react-use/lib/useLockBodyScroll";
 import useLayoutMode from "@workspace/ui/hooks/use-layout-mode";
 import useVisualViewportHeight from "@workspace/ui/hooks/use-visual-viewport-height";
@@ -23,63 +27,74 @@ type ChatRoomViewProps = {
   className?: string;
   roomAddress: Address;
   chatProof: ChatProof;
+  isOpen: boolean;
 };
 
 export default function ChatRoomView({
   className,
   roomAddress,
   chatProof,
+  isOpen,
 }: ChatRoomViewProps) {
   const layout = useLayoutMode();
   const {
-    isOpen,
     minimize,
     leaveRoom,
     incrementUnread,
     setRequestingPeerCount,
+    setLastMessage,
   } = useChatWidgetStore(
     useShallow((s) => ({
-      isOpen: s.isOpen,
       minimize: s.minimize,
       leaveRoom: s.leaveRoom,
       incrementUnread: s.incrementUnread,
       setRequestingPeerCount: s.setRequestingPeerCount,
+      setLastMessage: s.setLastMessage,
     })),
   );
 
-  useKey("Escape", minimize);
   useLockBodyScroll(layout === "mobile" && isOpen);
 
   const viewportHeight = useVisualViewportHeight(layout === "mobile");
 
-  const { roomState, respond, sendMessage, toggleMic } = usePrivateChatRoom({
-    chatProof,
-    onMessage: () => {
-      if (isOpen) {
-        return;
-      }
+  const { roomState, respond, sendMessage, toggleMic, disableMic } =
+    usePrivateChatRoom({
+      chatProof,
+      audioEnabled: isOpen,
+      onMessage: (message: ChatMessage) => {
+        setLastMessage(roomAddress, message);
+        if (isOpen) {
+          return;
+        }
 
-      incrementUnread();
-    },
-    onRemotePeersChange: (remotePeers, isOwner) => {
-      if (!isOwner) {
-        return;
-      }
+        incrementUnread(roomAddress);
+      },
+      onRemotePeersChange: (remotePeers, isOwner) => {
+        if (!isOwner) {
+          return;
+        }
 
-      const requestingPeers = filterPeersByStatus(
-        remotePeers,
-        PeerStatus.Requesting,
-      );
-      setRequestingPeerCount(requestingPeers.length);
-    },
-  });
+        const requestingPeers = filterPeersByStatus(
+          remotePeers,
+          PeerStatus.Requesting,
+        );
+        setRequestingPeerCount(roomAddress, requestingPeers.length);
+      },
+    });
+
+  useEffect(() => {
+    if (!isOpen) {
+      disableMic();
+    }
+  }, [isOpen, disableMic]);
+
   const viewStatus = useViewStatus(roomState);
 
   return (
     <Portal>
       <Transition
         className={cn(
-          "bg-muted z-40 transition ease-out data-closed:opacity-0",
+          "z-40 transition ease-out data-closed:opacity-0",
           layout === "mobile" &&
             "fixed top-0 left-0 w-full duration-200 data-closed:translate-x-2",
           layout === "desktop" &&
@@ -96,7 +111,7 @@ export default function ChatRoomView({
             viewStatus={viewStatus}
             roomState={roomState}
             onMinimize={minimize}
-            onLeave={leaveRoom}
+            onLeave={handleLeave}
           />
 
           {viewStatus === "connecting" || !roomState ? (
@@ -111,7 +126,7 @@ export default function ChatRoomView({
             <ChatRoomVisitorRequesting
               className="min-h-0 flex-1"
               roomState={roomState}
-              onLeave={leaveRoom}
+              onLeave={handleLeave}
             />
           ) : viewStatus === "owner-left" ? (
             <ChatRoomOwnerLeft
@@ -132,4 +147,8 @@ export default function ChatRoomView({
       </Transition>
     </Portal>
   );
+
+  function handleLeave() {
+    leaveRoom(roomAddress);
+  }
 }
