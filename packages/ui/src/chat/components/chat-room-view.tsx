@@ -82,13 +82,13 @@ export default function ChatRoomView({
       },
     });
 
+  const viewStatus = useViewStatus(roomState);
+
   useEffect(() => {
     if (!isOpen) {
       disableMic();
     }
   }, [isOpen, disableMic]);
-
-  const viewStatus = useViewStatus(roomState);
 
   return (
     <Portal>
