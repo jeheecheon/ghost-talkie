@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useConnection, useConnect, useConnectors } from "wagmi";
+import { useConnection } from "wagmi";
+import { useAppKit } from "@reown/appkit/react";
 import { Button } from "@workspace/ui/primitives/button";
 import { shortenAddress } from "@workspace/lib/address";
 import useEnsProfile from "@workspace/ui/wallet/hooks/use-ens-profile";
-import { ensure } from "@workspace/lib/assert";
 import WalletConnectionDialog from "@workspace/ui/header/components/wallet-connection-dialog";
 
 type WalletChipProps = {
@@ -15,8 +15,7 @@ export default function WalletChip({ className, onNavigate }: WalletChipProps) {
   const [isDialogOpen, setIsDrawerOpen] = useState(false);
 
   const { address, isConnected } = useConnection();
-  const { mutate: connect } = useConnect();
-  const connectors = useConnectors();
+  const { open } = useAppKit();
   const { data: ensProfile } = useEnsProfile({ address });
 
   const displayName =
@@ -59,7 +58,6 @@ export default function WalletChip({ className, onNavigate }: WalletChipProps) {
   }
 
   function handleConnect() {
-    const connector = ensure(connectors[0], "No connector available");
-    connect({ connector });
+    void open();
   }
 }
