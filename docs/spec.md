@@ -145,16 +145,28 @@ Both parties verify each other via chat proofs exchanged over WebRTC.
 
 Two-layer signing ensures comment authenticity and Owner badge.
 
-- **Layer 1**: Nostr signature — proves the Nostr key authored the event
-- **Layer 2**: Wallet proof-sig in tags — proves the wallet owns the Nostr key
+- **Layer 1**: Nostr signature — proves the Nostr key authored the event (kind `1` text note)
+- **Layer 2**: Wallet proof-sig in event tags — `"w"` tag stores wallet address, `"ws"` tag stores proof signature
+- **Topic tag**: `"t"` tag with value `"{topicPrefix}:{walletAddress}"` scopes comments to a profile
 - **Owner badge**: UI compares comment's wallet address against profile owner's address; badge shown on match
 - proof-sig is safe to publish (different from key derivation signature; Nostr private key stays secret)
+- Default relays: `wss://relay.damus.io`, `wss://nos.lol` (configurable via `VITE_RELAYS` env var)
+- Comment query limit: 50 per profile
 
 ---
 
 ## Architecture
 
-Package-oriented monorepo. See [Monorepo Architecture](./monorepo-architecture.md) for full details.
+Package-oriented monorepo with a browser extension app. See [Monorepo Architecture](./monorepo-architecture.md) for full details.
+
+| App / Package       | Description                                              |
+| ------------------- | -------------------------------------------------------- |
+| `apps/web`          | React Router v7 SPA (main web app)                       |
+| `apps/extension`    | Browser extension (WXT + React, injecting chat buttons)  |
+| `packages/domain`   | P2P (Trystero) and Nostr business logic                  |
+| `packages/ui`       | Shared React components and hooks                        |
+| `packages/lib`      | Shared utilities                                         |
+| `packages/types`    | Shared TypeScript types                                  |
 
 ---
 
@@ -169,7 +181,10 @@ Package-oriented monorepo. See [Monorepo Architecture](./monorepo-architecture.m
 | Profile Comments  | Nostr protocol (nostr-tools) | Publish/query comments on public relays    |
 | Wallet Connection | wagmi + viem              | Wallet connect, sign, verify, send tx         |
 | Wallet UI         | Reown AppKit              | Multi-wallet modal (MetaMask, WalletConnect, 600+ wallets) |
-| Deploy            | Vercel / GitHub Pages     | Static hosting                                |
+| State Management  | Zustand                   | Chat widget store, persisted via localStorage |
+| Data Fetching     | TanStack React Query      | Async state and cache management              |
+| Toasts            | Sonner                    | Toast notifications                           |
+| Deploy            | GitHub Pages              | Static hosting (basename `/ghost-talkie`)     |
 
 ---
 
@@ -191,6 +206,7 @@ Using **Nostr** — zero setup, 8KB bundle, uses public relays. Import from `try
 | ---------------------------------------- | -------------------------- |
 | `ghosttalkie.com/`                       | Wallet search (ENS lookup, history, bookmarks) |
 | `ghosttalkie.com/{walletAddress}`        | Wallet profile page (chat widget overlays here) |
+| `ghosttalkie.com/chat`                   | Chat room list and management (standalone page) |
 
 ### Actions (Data Channels)
 
@@ -229,7 +245,7 @@ Threat: Man-in-the-middle
 1. SIGN        → User signs chat proof (owner or visitor role)
 2. OPEN        → Profile owner opens room "inbox-{walletAddress}" via chat widget
 3. CONNECT     → Visitor clicks "Chat" on profile → Trystero joins room
-4. VERIFY      → Exchange chat proofs over WebRTC (automatic, 5-min expiry)
+4. VERIFY      → PeerStatus.Verifying — exchange chat proofs over WebRTC (automatic, 5-min expiry)
                   → Failed verification → PeerStatus.Failed
 5. REQUEST     → Visitor sends chat request → PeerStatus.Requesting
                   → Owner sees visitor as PeerStatus.Pending
@@ -274,7 +290,7 @@ Profile owners can send native tokens to any address directly from their wallet 
 
 | Component                       | Cost                               |
 | ------------------------------- | ---------------------------------- |
-| Hosting (Vercel static)         | $0                                 |
+| Hosting (GitHub Pages)          | $0                                 |
 | Signaling (public Nostr relays) | $0                                 |
 | Profile comments (Nostr relays) | $0                                 |
 | P2P data transfer               | $0 (users' own bandwidth)          |
@@ -293,6 +309,7 @@ Profile owners can send native tokens to any address directly from their wallet 
 | Wallet required for all features  | Non-crypto users cannot participate                             |
 | On-chain profile not implemented  | Wallet age, tx count, top tokens, NFTs not yet built            |
 | Voice chat peer limit             | Mesh topology limits practical use to ~5 peers                  |
+| EOA wallets only                  | Chat proof verification does not support ERC-1271 (smart contract wallets) |
 
 ---
 
@@ -300,5 +317,5 @@ Profile owners can send native tokens to any address directly from their wallet 
 
 - **File Sharing**: P2P file transfer via WebRTC data channel
 - **Mobile Wallet Support**: WalletConnect for mobile wallet apps
-- **Browser Extension**: Inject GhostTalkie button next to wallet addresses on NFT marketplaces (blur.io, OpenSea, etc.)
+- **Browser Extension**: Inject GhostTalkie button next to wallet addresses on NFT marketplaces (blur.io, OpenSea, etc.) — shell app exists at `apps/extension` (WXT + React)
 - **OTC Trade Room**: P2P negotiation with smart contract escrow
