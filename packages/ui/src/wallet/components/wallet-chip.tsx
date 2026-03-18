@@ -4,7 +4,7 @@ import { useAppKit } from "@reown/appkit/react";
 import { Button } from "@workspace/ui/primitives/button";
 import { shortenAddress } from "@workspace/lib/address";
 import useEnsProfile from "@workspace/ui/wallet/hooks/use-ens-profile";
-import WalletConnectionDialog from "@workspace/ui/header/components/wallet-connection-dialog";
+import WalletConnectionDialog from "@workspace/ui/wallet/components/wallet-connection-dialog";
 
 type WalletChipProps = {
   className?: string;

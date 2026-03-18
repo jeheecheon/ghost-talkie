@@ -6,7 +6,7 @@ export default function ChatRoute() {
   const navigate = useNavigate();
 
   return (
-    <LayoutContainer className="pt-20 pb-10">
+    <LayoutContainer>
       <ChatRoomSection onSearch={handleNavigateSearch} />
     </LayoutContainer>
   );

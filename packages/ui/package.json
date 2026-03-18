@@ -64,6 +64,6 @@
     "./search/components/*": "./src/search/components/*.tsx",
     "./search/hooks/*": "./src/search/hooks/*.ts",
     "./globals.css": "./src/styles/globals.css",
-    "./header/components/*": "./src/header/components/*.tsx"
+    "./navigation/components/*": "./src/navigation/components/*.tsx"
   }
 }

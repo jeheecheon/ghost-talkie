@@ -9,7 +9,7 @@ export default function HomeRoute() {
   const navigate = useNavigate();
 
   return (
-    <LayoutContainer className="space-y-8 pt-20 pb-10">
+    <LayoutContainer className="space-y-8">
       <SearchSection onSearch={handleNavigateToProfile} />
       <hr />
       <BookmarkSection onProfileOpen={handleNavigateToProfile} />
