@@ -37,6 +37,7 @@ export class PrivateChatRoom {
   private _messages: ChatMessage[] = [];
   private _remotePeers = new Map<string, RemotePeer>();
   private _pendingRequests = new Set<string>();
+  private _pendingAcceptances = new Set<string>();
   private _isMicEnabling = false;
   private _isDestroyed = false;
 
@@ -195,8 +196,18 @@ export class PrivateChatRoom {
     }
 
     const chattingPeers = this._getChattingPeers();
-    const targetIds = [peerId, ...chattingPeers.map((p) => p.peerId)];
-    await this._transmitResponse({ accepted, targetPeerId: peerId }, targetIds);
+    const chattingPeerIds = chattingPeers.map((p) => p.peerId);
+    const targetIds = [peerId, ...chattingPeerIds];
+
+    await this._transmitResponse(
+      {
+        accepted,
+        targetPeerId: peerId,
+        chattingPeerIds: accepted ? chattingPeerIds : undefined,
+      },
+      targetIds,
+    );
+
     this._upsertPeer(peerId, {
       status: accepted ? PeerStatus.Chatting : PeerStatus.Rejected,
     });
@@ -266,6 +277,8 @@ export class PrivateChatRoom {
 
     this._room.leave();
     this._remotePeers.clear();
+    this._pendingRequests.clear();
+    this._pendingAcceptances.clear();
     this._messages = [];
   }
 
@@ -278,10 +291,14 @@ export class PrivateChatRoom {
         return;
       }
 
-      this._upsertPeer(peerId, {
-        status: PeerStatus.Verifying,
-        role: PeerRole.Unknown,
-      });
+      const existing = this._remotePeers.get(peerId);
+      if (!existing || existing.status === PeerStatus.Disconnected) {
+        this._upsertPeer(peerId, {
+          status: PeerStatus.Verifying,
+          role: PeerRole.Unknown,
+        });
+      }
+
       await transmitProof(this.localPeer.chatProof, [peerId]);
     });
 
@@ -361,6 +378,10 @@ export class PrivateChatRoom {
         role: senderRole,
       });
 
+      if (this._pendingAcceptances.delete(peerId)) {
+        this._upsertPeer(peerId, { status: PeerStatus.Chatting });
+      }
+
       if (this._pendingRequests.delete(peerId)) {
         this._upsertPeer(peerId, { status: PeerStatus.Requesting });
       }
@@ -403,6 +424,19 @@ export class PrivateChatRoom {
               ? PeerStatus.Chatting
               : PeerStatus.Rejected,
           });
+        }
+
+        if (
+          this.localPeer.peerId === response.targetPeerId &&
+          response.chattingPeerIds
+        ) {
+          for (const id of response.chattingPeerIds) {
+            if (this._remotePeers.has(id)) {
+              this._upsertPeer(id, { status: PeerStatus.Chatting });
+            } else {
+              this._pendingAcceptances.add(id);
+            }
+          }
         }
 
         if (this.localPeer.peerId === response.targetPeerId) {
