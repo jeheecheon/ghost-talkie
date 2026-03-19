@@ -1,6 +1,5 @@
 import { type ActionSender, type Room, joinRoom, selfId } from "trystero/nostr";
 import type { Address } from "viem";
-import { safelyGetAsync } from "@workspace/lib/safely";
 import type {
   ChatMessage,
   ChatMessagePayload,
@@ -26,6 +25,7 @@ import {
   determineChatRole,
   filterPeersByStatus,
 } from "@workspace/domain/p2p/chat";
+import { safelyGetAsync } from "@workspace/lib/safely";
 
 type PrivateChatRoomJoinArgs = {
   roomAddress: Address;
@@ -36,6 +36,7 @@ type PrivateChatRoomJoinArgs = {
 export class PrivateChatRoom {
   private _messages: ChatMessage[] = [];
   private _remotePeers = new Map<string, RemotePeer>();
+  private _pendingRequests = new Set<string>();
   private _isMicEnabling = false;
   private _isDestroyed = false;
 
@@ -326,7 +327,7 @@ export class PrivateChatRoom {
     transmitRequest: ActionSender<ChatRequestPayload>;
   }): void {
     actions.onProof(async (chatProof, peerId) => {
-      if (this._isDestroyed || !this._remotePeers.has(peerId)) {
+      if (this._isDestroyed) {
         return;
       }
 
@@ -359,11 +360,21 @@ export class PrivateChatRoom {
         chatProof,
         role: senderRole,
       });
+
+      if (this._pendingRequests.delete(peerId)) {
+        this._upsertPeer(peerId, { status: PeerStatus.Requesting });
+      }
     });
 
     if (this.localPeer.role === PeerRole.Owner) {
       actions.onRequest((_request, peerId) => {
-        if (this._isDestroyed || !this._remotePeers.has(peerId)) {
+        if (this._isDestroyed) {
+          return;
+        }
+
+        const peer = this._remotePeers.get(peerId);
+        if (!peer?.chatProof) {
+          this._pendingRequests.add(peerId);
           return;
         }
 
