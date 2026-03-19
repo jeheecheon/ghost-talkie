@@ -1,7 +1,7 @@
 import { Link, isRouteErrorResponse, useRouteError } from "react-router";
 import { Button } from "@workspace/ui/primitives/button";
 import LayoutContainer from "@workspace/ui/primitives/layout-container";
-import { env } from "@/configs/env";
+import { ENV } from "@/configs/env";
 
 type ErrorDetails = {
   code: number;
@@ -30,7 +30,7 @@ export default function RootErrorBoundary() {
         </Link>
       </section>
 
-      {!env.isProduction && error instanceof Error && (
+      {!ENV.IS_PRODUCTION && error instanceof Error && (
         <pre className="bg-muted text-muted-foreground w-full max-w-lg overflow-auto rounded-lg p-4 text-xs">
           {error.stack}
         </pre>

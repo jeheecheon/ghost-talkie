@@ -5,13 +5,13 @@ import { SyncedStorageProvider } from "synced-storage/react";
 import Toaster from "@workspace/ui/primitives/toaster";
 import { NostrConfigProvider } from "@workspace/ui/comment/context";
 import { wagmiAdapter } from "@workspace/ui/wallet/configs/appkit";
-import { env } from "@/configs/env";
+import { ENV } from "@/configs/env";
 
 const queryClient = new QueryClient();
 
 const nostrConfig = {
-  relays: env.nostrRelays,
-  topicPrefix: env.nostrTopicPrefix,
+  relays: ENV.NOSTR_RELAYS,
+  topicPrefix: ENV.NOSTR_TOPIC_PREFIX,
 };
 
 export default function RootProviders({ children }: PropsWithChildren) {
