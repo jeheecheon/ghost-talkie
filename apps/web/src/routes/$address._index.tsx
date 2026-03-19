@@ -25,10 +25,7 @@ export default function WalletProfileRoute({
     <LayoutContainer className="space-y-10">
       <WalletProfileCard address={profileAddress} />
       <hr />
-      <ChainBalanceSection
-        className="mt-6 w-full"
-        profileAddress={profileAddress}
-      />
+      <ChainBalanceSection profileAddress={profileAddress} />
       <hr />
       <CommentSection address={profileAddress} />
     </LayoutContainer>
