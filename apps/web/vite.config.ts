@@ -11,7 +11,7 @@ if (!process.env.REOWN_PROJECT_ID) {
 }
 
 export default defineConfig({
-  base: process.env.BASE_URL || "/",
+  base: process.env.BASE_PATH || "/",
   plugins: [tailwindcss(), reactRouter()],
   define: {
     "process.env.ENABLED_FEATURES": JSON.stringify(
