@@ -10,12 +10,11 @@ export default function useTheme() {
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
-    document.documentElement.style.colorScheme = theme;
+    const bg = getComputedStyle(document.body).backgroundColor;
 
-    const themeColor = theme === "dark" ? "#030712" : "#f9fafb";
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute("content", themeColor);
+      ?.setAttribute("content", bg);
   }, [theme]);
 
   const toggleTheme = useCallback(() => {
