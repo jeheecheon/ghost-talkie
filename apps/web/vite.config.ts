@@ -14,6 +14,7 @@ export default defineConfig({
   base: process.env.BASE_PATH || "/",
   plugins: [tailwindcss(), reactRouter()],
   define: {
+    "process.env.BASE_PATH": JSON.stringify(process.env.BASE_PATH),
     "process.env.ENABLED_FEATURES": JSON.stringify(
       process.env.ENABLED_FEATURES,
     ),
