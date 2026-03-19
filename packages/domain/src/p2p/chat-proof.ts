@@ -1,10 +1,37 @@
-import { verifyMessage, type Address } from "viem";
+import { createPublicClient, http, type Address, type Hex } from "viem";
+import { SUPPORTED_CHAINS } from "@workspace/domain/chains";
 import type { ChatProof } from "@workspace/domain/p2p/types";
 
-const MAX_PROOF_AGE_MS = 5 * 60 * 1000;
+const chainClients = SUPPORTED_CHAINS.map((chain) =>
+  createPublicClient({
+    chain,
+    transport: http(),
+  }),
+);
 
-function isProofFresh(timestamp: number): boolean {
-  return Date.now() - timestamp <= MAX_PROOF_AGE_MS;
+async function verifySignature(
+  address: Address,
+  message: string,
+  signature: Hex,
+): Promise<boolean> {
+  try {
+    await Promise.any(
+      chainClients.map(async (client) => {
+        const valid = await client.verifyMessage({
+          address,
+          message,
+          signature,
+        });
+        if (!valid) {
+          throw new Error("invalid");
+        }
+      }),
+    );
+
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function buildOwnerProofMessage(
@@ -36,36 +63,21 @@ export function buildVisitorProofMessage(
 }
 
 export async function verifyOwnerProof(proof: ChatProof): Promise<boolean> {
-  if (
-    proof.signerAddress !== proof.roomAddress ||
-    !isProofFresh(proof.timestamp)
-  ) {
+  if (proof.signerAddress !== proof.roomAddress) {
     return false;
   }
 
   const message = buildOwnerProofMessage(proof.roomAddress, proof.timestamp);
 
-  return verifyMessage({
-    address: proof.signerAddress,
-    message,
-    signature: proof.signature,
-  });
+  return verifySignature(proof.signerAddress, message, proof.signature);
 }
 
 export async function verifyVisitorProof(proof: ChatProof): Promise<boolean> {
-  if (!isProofFresh(proof.timestamp)) {
-    return false;
-  }
-
   const message = buildVisitorProofMessage(
     proof.signerAddress,
     proof.roomAddress,
     proof.timestamp,
   );
 
-  return verifyMessage({
-    address: proof.signerAddress,
-    message,
-    signature: proof.signature,
-  });
+  return verifySignature(proof.signerAddress, message, proof.signature);
 }
