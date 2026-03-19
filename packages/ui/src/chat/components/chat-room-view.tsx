@@ -22,7 +22,7 @@ import LayoutContainer from "@workspace/ui/primitives/layout-container";
 import { Portal, Transition } from "@headlessui/react";
 import useLockBodyScroll from "react-use/lib/useLockBodyScroll";
 import useLayoutMode from "@workspace/ui/hooks/use-layout-mode";
-import useVisualViewportHeight from "@workspace/ui/hooks/use-visual-viewport-height";
+import useVisualViewportRect from "@workspace/ui/hooks/use-visual-viewport-rect";
 import { ENV } from "@workspace/ui/configs/env";
 
 type ChatRoomViewProps = {
@@ -57,7 +57,7 @@ export default function ChatRoomView({
 
   useLockBodyScroll(layout === "mobile" && isOpen);
 
-  const viewportHeight = useVisualViewportHeight(layout === "mobile");
+  const viewportRect = useVisualViewportRect(layout === "mobile");
   const { playNotification } = useNotificationSound({
     url: ENV.NOTIFICATION_SOUND_URL,
   });
@@ -111,7 +111,11 @@ export default function ChatRoomView({
             "fixed right-4 bottom-4 h-[calc(100%-2rem)] max-h-140 w-[calc(100%-2rem)] max-w-90 origin-bottom-right overflow-hidden rounded-2xl border shadow-xl duration-100 data-closed:scale-95",
           className,
         )}
-        style={layout === "mobile" ? { height: viewportHeight } : undefined}
+        style={
+          layout === "mobile"
+            ? { height: viewportRect.height, top: viewportRect.top }
+            : undefined
+        }
         show={isOpen}
         as="div"
       >
