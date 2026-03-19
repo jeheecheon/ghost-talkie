@@ -1,3 +1,3 @@
 export default defineBackground(() => {
-  console.log("GhostTalkie background service worker started.");
+  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 });
