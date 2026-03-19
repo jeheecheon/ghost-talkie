@@ -2,7 +2,7 @@ import { createAppKit } from "@reown/appkit/react";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import type { AppKitNetwork } from "@reown/appkit/networks";
 import { ENV } from "@workspace/ui/configs/env";
-import { SUPPORTED_CHAINS } from "@workspace/ui/wallet/constants/chains";
+import { SUPPORTED_CHAINS } from "@workspace/domain/chains";
 
 const networks: [AppKitNetwork, ...AppKitNetwork[]] = [...SUPPORTED_CHAINS];
 
