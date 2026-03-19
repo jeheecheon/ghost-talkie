@@ -1,5 +1,6 @@
 import { cn } from "@workspace/lib/cn";
 import AddressSearchForm from "@workspace/ui/search/components/address-search-form";
+import useSearchHistory from "@workspace/ui/search/hooks/use-search-history";
 import type { Address } from "viem";
 
 type SearchSectionProps = {
@@ -11,6 +12,8 @@ export default function SearchSection({
   className,
   onSearch,
 }: SearchSectionProps) {
+  const { addEntry } = useSearchHistory();
+
   return (
     <section className={cn("space-y-4", className)}>
       <div className="space-y-1">
@@ -20,7 +23,12 @@ export default function SearchSection({
         </p>
       </div>
 
-      <AddressSearchForm onSearch={onSearch} />
+      <AddressSearchForm onSearch={handleSearch} />
     </section>
   );
+
+  function handleSearch(address: Address, ensName?: string) {
+    addEntry(address, ensName);
+    onSearch(address, ensName);
+  }
 }
