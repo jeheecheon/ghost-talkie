@@ -11,7 +11,7 @@ if (!process.env.REOWN_PROJECT_ID) {
 }
 
 export default defineConfig({
-  base: "/ghost-talkie/",
+  base: process.env.BASE_URL || "/",
   plugins: [tailwindcss(), reactRouter()],
   define: {
     "process.env.ENABLED_FEATURES": JSON.stringify(
