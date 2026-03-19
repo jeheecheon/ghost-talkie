@@ -18,10 +18,7 @@ import BaseIcon from "@workspace/ui/icons/base-icon";
 import OptimismIcon from "@workspace/ui/icons/optimism-icon";
 import PolygonIcon from "@workspace/ui/icons/polygon-icon";
 import CrossIcon from "@workspace/ui/icons/cross-icon";
-import {
-  crossMainnet,
-  crossTestnet,
-} from "@workspace/ui/wallet/constants/chains";
+import { crossMainnet, crossTestnet } from "@workspace/domain/chains";
 
 type ChainIconProps = {
   className?: string;

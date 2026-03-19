@@ -1,6 +1,5 @@
 import { type ActionSender, type Room, joinRoom, selfId } from "trystero/nostr";
 import type { Address } from "viem";
-import { safelyGetAsync } from "@workspace/lib/safely";
 import type {
   ChatMessage,
   ChatMessagePayload,
@@ -26,6 +25,7 @@ import {
   determineChatRole,
   filterPeersByStatus,
 } from "@workspace/domain/p2p/chat";
+import { safelyGetAsync } from "@workspace/lib/safely";
 
 type PrivateChatRoomJoinArgs = {
   roomAddress: Address;
@@ -36,6 +36,8 @@ type PrivateChatRoomJoinArgs = {
 export class PrivateChatRoom {
   private _messages: ChatMessage[] = [];
   private _remotePeers = new Map<string, RemotePeer>();
+  private _pendingRequests = new Set<string>();
+  private _pendingAcceptances = new Set<string>();
   private _isMicEnabling = false;
   private _isDestroyed = false;
 
@@ -194,8 +196,18 @@ export class PrivateChatRoom {
     }
 
     const chattingPeers = this._getChattingPeers();
-    const targetIds = [peerId, ...chattingPeers.map((p) => p.peerId)];
-    await this._transmitResponse({ accepted, targetPeerId: peerId }, targetIds);
+    const chattingPeerIds = chattingPeers.map((p) => p.peerId);
+    const targetIds = [peerId, ...chattingPeerIds];
+
+    await this._transmitResponse(
+      {
+        accepted,
+        targetPeerId: peerId,
+        chattingPeerIds: accepted ? chattingPeerIds : undefined,
+      },
+      targetIds,
+    );
+
     this._upsertPeer(peerId, {
       status: accepted ? PeerStatus.Chatting : PeerStatus.Rejected,
     });
@@ -265,6 +277,8 @@ export class PrivateChatRoom {
 
     this._room.leave();
     this._remotePeers.clear();
+    this._pendingRequests.clear();
+    this._pendingAcceptances.clear();
     this._messages = [];
   }
 
@@ -277,10 +291,14 @@ export class PrivateChatRoom {
         return;
       }
 
-      this._upsertPeer(peerId, {
-        status: PeerStatus.Verifying,
-        role: PeerRole.Unknown,
-      });
+      const existing = this._remotePeers.get(peerId);
+      if (!existing || existing.status === PeerStatus.Disconnected) {
+        this._upsertPeer(peerId, {
+          status: PeerStatus.Verifying,
+          role: PeerRole.Unknown,
+        });
+      }
+
       await transmitProof(this.localPeer.chatProof, [peerId]);
     });
 
@@ -326,7 +344,7 @@ export class PrivateChatRoom {
     transmitRequest: ActionSender<ChatRequestPayload>;
   }): void {
     actions.onProof(async (chatProof, peerId) => {
-      if (this._isDestroyed || !this._remotePeers.has(peerId)) {
+      if (this._isDestroyed) {
         return;
       }
 
@@ -359,11 +377,25 @@ export class PrivateChatRoom {
         chatProof,
         role: senderRole,
       });
+
+      if (this._pendingAcceptances.delete(peerId)) {
+        this._upsertPeer(peerId, { status: PeerStatus.Chatting });
+      }
+
+      if (this._pendingRequests.delete(peerId)) {
+        this._upsertPeer(peerId, { status: PeerStatus.Requesting });
+      }
     });
 
     if (this.localPeer.role === PeerRole.Owner) {
       actions.onRequest((_request, peerId) => {
-        if (this._isDestroyed || !this._remotePeers.has(peerId)) {
+        if (this._isDestroyed) {
+          return;
+        }
+
+        const peer = this._remotePeers.get(peerId);
+        if (!peer?.chatProof) {
+          this._pendingRequests.add(peerId);
           return;
         }
 
@@ -392,6 +424,19 @@ export class PrivateChatRoom {
               ? PeerStatus.Chatting
               : PeerStatus.Rejected,
           });
+        }
+
+        if (
+          this.localPeer.peerId === response.targetPeerId &&
+          response.chattingPeerIds
+        ) {
+          for (const id of response.chattingPeerIds) {
+            if (this._remotePeers.has(id)) {
+              this._upsertPeer(id, { status: PeerStatus.Chatting });
+            } else {
+              this._pendingAcceptances.add(id);
+            }
+          }
         }
 
         if (this.localPeer.peerId === response.targetPeerId) {

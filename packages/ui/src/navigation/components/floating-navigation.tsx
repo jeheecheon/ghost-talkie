@@ -20,7 +20,7 @@ export default function FloatingNavigation({
   return (
     <nav
       className={cn(
-        "border-border bg-muted fixed bottom-6 left-1/2 z-20 flex -translate-x-1/2 items-center gap-x-2 rounded-full border px-2 py-1 shadow-lg not-dark:shadow-xl dark:backdrop-blur-md",
+        "border-border bg-muted fixed bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-x-2 rounded-full border px-2 py-1 shadow-lg not-dark:shadow-xl dark:backdrop-blur-md",
         className,
       )}
       aria-label="Main navigation"

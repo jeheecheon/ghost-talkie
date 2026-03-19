@@ -20,7 +20,10 @@ export function Layout({ children }: PropsWithChildren) {
           rel="apple-touch-icon"
           href={`${import.meta.env.BASE_URL}apple-touch-icon.png`}
         />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"
+        />
         <meta name="theme-color" />
         <title>GhostTalkie</title>
         <Meta />

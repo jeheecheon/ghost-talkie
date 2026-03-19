@@ -38,6 +38,7 @@ export type ChatRequestPayload = Record<string, never>;
 export type ChatResponsePayload = {
   accepted: boolean;
   targetPeerId: string;
+  chattingPeerIds?: string[];
 };
 export type VoiceStatePayload = {
   isMicOn: boolean;

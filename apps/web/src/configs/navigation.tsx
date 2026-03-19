@@ -2,7 +2,7 @@ import { matchPath } from "react-router";
 import { MessageSquare, User } from "lucide-react";
 import GhostIcon from "@workspace/ui/icons/ghost-icon";
 import type { FloatingTabItem } from "@workspace/ui/navigation/components/floating-navigation";
-import { isAddress, isAddressEqual, type Address } from "viem";
+import type { Address } from "viem";
 
 type FloatingTabConfig = Omit<FloatingTabItem, "isActive" | "onClick"> & {
   pattern: string;
@@ -20,21 +20,7 @@ export const NAV_MENUS: FloatingTabConfig[] = [
     icon: <GhostIcon className="size-9" />,
     label: "Home",
     pattern: "/",
-    isActive: (path, localAddress) => {
-      if (matchPath("/", path)) {
-        return true;
-      }
-
-      const match = matchPath("/:address", path);
-      const addressParam = match?.params.address;
-      const isSearchRoute = addressParam && isAddress(addressParam);
-
-      if (isSearchRoute && localAddress) {
-        return !isAddressEqual(addressParam, localAddress);
-      }
-
-      return false;
-    },
+    isActive: (path) => !!matchPath("/", path),
   },
   {
     icon: <User className="size-6" />,
