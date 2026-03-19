@@ -11,7 +11,6 @@ import {
   polygonAmoy,
 } from "viem/chains";
 import { defineChain } from "viem";
-import { ENV } from "@workspace/ui/configs/env";
 
 export const crossMainnet = defineChain({
   id: 612055,
@@ -38,7 +37,7 @@ export const crossTestnet = defineChain({
   testnet: true,
 });
 
-const MAINNET_CHAINS = [
+export const MAINNET_CHAINS = [
   mainnet,
   arbitrum,
   base,
@@ -47,7 +46,7 @@ const MAINNET_CHAINS = [
   crossMainnet,
 ] as const;
 
-const TESTNET_CHAINS = [
+export const TESTNET_CHAINS = [
   sepolia,
   arbitrumSepolia,
   baseSepolia,
@@ -56,6 +55,8 @@ const TESTNET_CHAINS = [
   crossTestnet,
 ] as const;
 
-export const SUPPORTED_CHAINS = ENV.ENABLED_FEATURES.includes("testnet")
+export const SUPPORTED_CHAINS = (process.env.ENABLED_FEATURES ?? "")
+  .split(",")
+  .includes("testnet")
   ? TESTNET_CHAINS
   : MAINNET_CHAINS;

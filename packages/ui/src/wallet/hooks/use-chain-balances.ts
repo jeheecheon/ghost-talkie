@@ -7,7 +7,7 @@ import {
 } from "viem";
 import { useQueries } from "@tanstack/react-query";
 import { assert } from "@workspace/lib/assert";
-import { SUPPORTED_CHAINS } from "@workspace/ui/wallet/constants/chains";
+import { SUPPORTED_CHAINS } from "@workspace/domain/chains";
 
 const chainClients = SUPPORTED_CHAINS.map((chain) =>
   createPublicClient({

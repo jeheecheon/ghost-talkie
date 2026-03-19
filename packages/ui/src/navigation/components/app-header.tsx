@@ -18,7 +18,7 @@ export default function AppHeader({
   return (
     <header className={cn("bg-background", className)}>
       <LayoutContainer
-        className="dark:bg-floating border-border flex h-14 min-h-0 items-center justify-between border px-6 pl-7"
+        className="dark:bg-floating border-border flex h-14 min-h-0 items-center justify-between border-b px-6 pl-7"
         clearance={false}
         gutters={false}
       >

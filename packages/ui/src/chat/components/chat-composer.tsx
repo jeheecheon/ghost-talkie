@@ -1,4 +1,8 @@
-import type { KeyboardEvent as ReactKeyboardEvent, SubmitEvent } from "react";
+import type {
+  CSSProperties,
+  KeyboardEvent as ReactKeyboardEvent,
+  SubmitEvent,
+} from "react";
 import { useRef, useState } from "react";
 import { Mic, MicOff, SendHorizontal } from "lucide-react";
 import { Textarea } from "@workspace/ui/primitives/textarea";
@@ -7,6 +11,7 @@ import { cn } from "@workspace/lib/cn";
 
 type ChatComposerProps = {
   className?: string;
+  style?: CSSProperties;
   isMicOn: boolean;
   onSend: (text: string) => void;
   onToggleMic: () => void;
@@ -14,6 +19,7 @@ type ChatComposerProps = {
 
 export default function ChatComposer({
   className,
+  style,
   isMicOn,
   onSend,
   onToggleMic,
@@ -26,6 +32,7 @@ export default function ChatComposer({
     <form
       ref={formRef}
       className={cn("bg-background flex items-end border-t p-2", className)}
+      style={style}
       onSubmit={handleSubmit}
     >
       <Textarea

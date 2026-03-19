@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@workspace/ui/primitives/button";
 import ResponsiveConfirmDialog from "@workspace/ui/primitives/responsive-confirm-dialog";
 import ChatMemberModal from "@workspace/ui/chat/components/chat-member-modal";
+import CopyableText from "@workspace/ui/primitives/copyable-text";
 import { Menu, Minus, X } from "lucide-react";
 import { shortenAddress } from "@workspace/lib/address";
 import { cn } from "@workspace/lib/cn";
@@ -70,7 +71,15 @@ export default function ChatViewHeader({
                 : "bg-yellow-500",
           )}
         />
-        <h2 className="text-sm font-semibold">{shortenAddress(roomAddress)}</h2>
+        <CopyableText
+          className="hover:underline"
+          value={window.location.href}
+          toastMessage="Room link copied"
+        >
+          <h2 className="text-sm font-semibold">
+            {shortenAddress(roomAddress)}
+          </h2>
+        </CopyableText>
       </div>
 
       <div className="flex items-center gap-1">

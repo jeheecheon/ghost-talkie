@@ -3,8 +3,8 @@ import { useShallow } from "zustand/react/shallow";
 import type { Address } from "viem";
 import ChatViewHeader from "@workspace/ui/chat/components/chat-view-header";
 import ChatRoomContent from "@workspace/ui/chat/components/chat-room-content";
-import ChatRoomOwnerWaiting from "@workspace/ui/chat/components/chat-room-owner-waiting";
 import ChatRoomConnecting from "@workspace/ui/chat/components/chat-room-connecting";
+import ChatRoomOwnerWaiting from "@workspace/ui/chat/components/chat-room-owner-waiting";
 import ChatRoomVisitorRequesting from "@workspace/ui/chat/components/chat-room-visitor-requesting";
 import ChatRoomOwnerLeft from "@workspace/ui/chat/components/chat-room-owner-left";
 import usePrivateChatRoom from "@workspace/ui/chat/hooks/use-private-chat-room";
@@ -22,7 +22,6 @@ import LayoutContainer from "@workspace/ui/primitives/layout-container";
 import { Portal, Transition } from "@headlessui/react";
 import useLockBodyScroll from "react-use/lib/useLockBodyScroll";
 import useLayoutMode from "@workspace/ui/hooks/use-layout-mode";
-import useVisualViewportHeight from "@workspace/ui/hooks/use-visual-viewport-height";
 import { ENV } from "@workspace/ui/configs/env";
 
 type ChatRoomViewProps = {
@@ -57,7 +56,6 @@ export default function ChatRoomView({
 
   useLockBodyScroll(layout === "mobile" && isOpen);
 
-  const viewportHeight = useVisualViewportHeight(layout === "mobile");
   const { playNotification } = useNotificationSound({
     url: ENV.NOTIFICATION_SOUND_URL,
   });
@@ -106,12 +104,11 @@ export default function ChatRoomView({
         className={cn(
           "z-40 transition ease-out data-closed:opacity-0",
           layout === "mobile" &&
-            "fixed top-0 left-0 w-full duration-200 data-closed:translate-x-2",
+            "fixed inset-0 duration-200 data-closed:translate-x-2",
           layout === "desktop" &&
             "fixed right-4 bottom-4 h-[calc(100%-2rem)] max-h-140 w-[calc(100%-2rem)] max-w-90 origin-bottom-right overflow-hidden rounded-2xl border shadow-xl duration-100 data-closed:scale-95",
           className,
         )}
-        style={layout === "mobile" ? { height: viewportHeight } : undefined}
         show={isOpen}
         as="div"
       >
