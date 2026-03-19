@@ -23,6 +23,7 @@ import { Portal, Transition } from "@headlessui/react";
 import useLockBodyScroll from "react-use/lib/useLockBodyScroll";
 import useLayoutMode from "@workspace/ui/hooks/use-layout-mode";
 import useVisualViewportHeight from "@workspace/ui/hooks/use-visual-viewport-height";
+import { ENV } from "@workspace/ui/configs/env";
 
 type ChatRoomViewProps = {
   className?: string;
@@ -58,7 +59,7 @@ export default function ChatRoomView({
 
   const viewportHeight = useVisualViewportHeight(layout === "mobile");
   const { playNotification } = useNotificationSound({
-    url: process.env.NOTIFICATION_SOUND_URL!,
+    url: ENV.NOTIFICATION_SOUND_URL,
   });
 
   const { roomState, respond, sendMessage, toggleMic, disableMic } =
