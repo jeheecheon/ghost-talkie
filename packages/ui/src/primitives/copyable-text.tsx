@@ -19,12 +19,16 @@ export default function CopyableText({
 
   return (
     <button
-      className={cn("inline-flex cursor-pointer items-center gap-1", className)}
+      className={cn("inline-flex items-center gap-1", className)}
       type="button"
       onClick={handleCopy}
     >
-      {children}
-      {isCopied ? <Check className="size-3" /> : <Copy className="size-3" />}
+      <div className="truncate">{children}</div>
+      {isCopied ? (
+        <Check className="size-3 shrink-0" />
+      ) : (
+        <Copy className="size-3 shrink-0" />
+      )}
     </button>
   );
 

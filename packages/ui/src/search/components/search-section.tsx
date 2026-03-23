@@ -22,7 +22,6 @@ export default function SearchSection({
           Look up any wallet by address or ENS name
         </p>
       </div>
-
       <AddressSearchForm onSearch={handleSearch} />
     </section>
   );

@@ -1,5 +1,5 @@
 import { createPublicClient, http, type Address, type Hex } from "viem";
-import { SUPPORTED_CHAINS } from "@workspace/domain/chains";
+import { SUPPORTED_CHAINS } from "@workspace/domain/wallet/chains";
 import type { ChatProof } from "@workspace/domain/p2p/types";
 
 const chainClients = SUPPORTED_CHAINS.map((chain) =>

@@ -4,7 +4,9 @@ import { WagmiProvider } from "wagmi";
 import { SyncedStorageProvider } from "synced-storage/react";
 import Toaster from "@workspace/ui/primitives/toaster";
 import { NostrConfigProvider } from "@workspace/ui/comment/context";
-import { wagmiAdapter } from "@workspace/ui/wallet/configs/appkit";
+import { wagmiConfig } from "@workspace/ui/wallet/configs/wagmi";
+import InjectedWalletProvider from "@workspace/ui/wallet/context/injected-wallet-provider";
+import WalletSelectDialogProvider from "@workspace/ui/wallet/context/wallet-select-dialog-provider";
 import { ENV } from "@/configs/env";
 
 const queryClient = new QueryClient();
@@ -16,15 +18,19 @@ const nostrConfig = {
 
 export default function RootProviders({ children }: PropsWithChildren) {
   return (
-    <WagmiProvider config={wagmiAdapter.wagmiConfig}>
+    <SyncedStorageProvider>
       <QueryClientProvider client={queryClient}>
-        <SyncedStorageProvider>
+        <WagmiProvider config={wagmiConfig}>
           <NostrConfigProvider value={nostrConfig}>
-            {children}
-            <Toaster />
+            <InjectedWalletProvider>
+              <WalletSelectDialogProvider>
+                {children}
+                <Toaster />
+              </WalletSelectDialogProvider>
+            </InjectedWalletProvider>
           </NostrConfigProvider>
-        </SyncedStorageProvider>
+        </WagmiProvider>
       </QueryClientProvider>
-    </WagmiProvider>
+    </SyncedStorageProvider>
   );
 }
