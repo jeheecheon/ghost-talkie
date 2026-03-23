@@ -15,5 +15,6 @@ export const useNavigationStore = create<NavigationStore>((set) => ({
   view: "home",
   profileAddress: null,
   navigate: (view) => set({ view }),
-  navigateToProfile: (address) => set({ view: "profile", profileAddress: address }),
+  navigateToProfile: (address) =>
+    set({ view: "profile", profileAddress: address }),
 }));

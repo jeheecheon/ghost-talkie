@@ -11,7 +11,7 @@ export default defineConfig({
   manifest: {
     name: "GhostTalkie",
     description: "P2P chat with Web3 wallet identity",
-    permissions: ["activeTab", "storage"],
+    permissions: ["activeTab", "storage", "tabs"],
     icons: {
       "16": "icon-16.png",
       "32": "icon-32.png",
@@ -24,23 +24,17 @@ export default defineConfig({
     plugins: [tailwindcss() as any],
     define: {
       "process.env.ENABLED_FEATURES": JSON.stringify(
-        process.env.ENABLED_FEATURES ?? "",
-      ),
-      "process.env.REOWN_PROJECT_ID": JSON.stringify(
-        process.env.REOWN_PROJECT_ID ?? "",
+        process.env.ENABLED_FEATURES,
       ),
       "process.env.NOTIFICATION_SOUND_URL": JSON.stringify(
         process.env.NOTIFICATION_SOUND_URL ?? "/sounds/ghost-cute.wav",
       ),
-      "process.env.TOPIC_PREFIX": JSON.stringify(
-        process.env.TOPIC_PREFIX ?? "",
-      ),
-      "process.env.RELAYS": JSON.stringify(process.env.RELAYS ?? ""),
     },
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
       },
+      dedupe: ["wagmi", "@tanstack/react-query", "react", "react-dom", "viem"],
     },
   }),
 });
