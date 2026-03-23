@@ -1,4 +1,5 @@
 import { BridgeMessage } from "@/lib/wallet-provider-proxy";
+import { initProfileHandler } from "@/lib/profile-bridge";
 
 export default defineBackground(() => {
   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
@@ -8,4 +9,6 @@ export default defineBackground(() => {
       tabId: activeInfo.tabId,
     });
   });
+
+  initProfileHandler();
 });
