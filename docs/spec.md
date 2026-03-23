@@ -102,10 +102,9 @@ Key properties:
 
 One MetaMask signature to enter a chat room. Separate from Nostr identity.
 
-- **Owner proof**: Signs message identifying as room owner with room address + session timestamp
-- **Visitor proof**: Signs message identifying as visitor with visitor address + room address + session timestamp
-- Proofs are exchanged over WebRTC on peer connect and verified via `verifyMessage()`
-- Proofs expire after 5 minutes for freshness
+- **Owner proof**: Signs message identifying as room owner with room address
+- **Visitor proof**: Signs message identifying as visitor with visitor address + room address
+- Proofs are exchanged over WebRTC on peer connect and verified across all supported chains
 
 ---
 
@@ -136,9 +135,8 @@ Data is read-only, fetched from public blockchain APIs (Etherscan, Alchemy, etc.
 Both parties verify each other via chat proofs exchanged over WebRTC.
 
 - Each peer signs a role-specific chat proof message (owner or visitor) and sends it on connect
-- Recipient verifies the signature against the claimed wallet address via `verifyMessage()`
+- Recipient verifies the signature against the claimed wallet address across all supported chains
 - Both parties are cryptographically verified before chat begins
-- Proofs include session timestamp and expire after 5 minutes
 - Impersonation is impossible (private key required to produce valid signature)
 
 ### Profile Comments (Async)
@@ -162,7 +160,7 @@ Package-oriented monorepo with a browser extension app. See [Monorepo Architectu
 | App / Package       | Description                                              |
 | ------------------- | -------------------------------------------------------- |
 | `apps/web`          | React Router v7 SPA (main web app)                       |
-| `apps/extension`    | Browser extension (WXT + React, injecting chat buttons)  |
+| `apps/extension`    | Browser extension (WXT + React, sidepanel with full chat/profile/comments UI, marketplace button injection) |
 | `packages/domain`   | P2P (Trystero) and Nostr business logic                  |
 | `packages/ui`       | Shared React components and hooks                        |
 | `packages/lib`      | Shared utilities                                         |
@@ -245,7 +243,7 @@ Threat: Man-in-the-middle
 1. SIGN        → User signs chat proof (owner or visitor role)
 2. OPEN        → Profile owner opens room "inbox-{walletAddress}" via chat widget
 3. CONNECT     → Visitor clicks "Chat" on profile → Trystero joins room
-4. VERIFY      → PeerStatus.Verifying — exchange chat proofs over WebRTC (automatic, 5-min expiry)
+4. VERIFY      → PeerStatus.Verifying — exchange chat proofs over WebRTC (automatic)
                   → Failed verification → PeerStatus.Failed
 5. REQUEST     → Visitor sends chat request → PeerStatus.Requesting
                   → Owner sees visitor as PeerStatus.Pending
@@ -269,7 +267,7 @@ Native token balances are displayed per chain on the wallet profile page. Suppor
 | Polygon   | Polygon  | Polygon Amoy     |
 | CROSS     | CROSS Mainnet (612055) | CROSS Testnet (612044) |
 
-Testnet chains are toggled via feature flag. Balances are fetched using public RPC endpoints configured per chain.
+The app runs in either mainnet or testnet mode (not both simultaneously). `ENABLED_FEATURES=testnet` switches the active chain set to testnets. Chat proof verification and balance fetching only operate against the active chain set.
 
 ---
 
@@ -309,7 +307,27 @@ Profile owners can send native tokens to any address directly from their wallet 
 | Wallet required for all features  | Non-crypto users cannot participate                             |
 | On-chain profile not implemented  | Wallet age, tx count, top tokens, NFTs not yet built            |
 | Voice chat peer limit             | Mesh topology limits practical use to ~5 peers                  |
-| EOA wallets only                  | Chat proof verification does not support ERC-1271 (smart contract wallets) |
+| Nostr identity: EOA wallets only  | Nostr identity proof does not support ERC-1271 (smart contract wallets); chat proofs do |
+
+---
+
+## Browser Extension
+
+Injects a "Chat Anonymously" ghost button next to wallet addresses on NFT marketplaces. Clicking the button opens a sidepanel with the full GhostTalkie experience (wallet profile, chat, comments).
+
+### Supported Marketplaces
+
+| Site      | URL Pattern                  |
+| --------- | ---------------------------- |
+| OpenSea   | `https://*.opensea.io/*`     |
+| Blur      | `https://*.blur.io/*`        |
+| CrossNFT  | `https://*.crossnft.io/*`    |
+
+### How It Works
+
+Content scripts detect wallet addresses on marketplace pages and inject a ghost button next to each one. Clicking the button opens the extension sidepanel, which provides the full GhostTalkie experience — wallet profile, chat, and comments — without leaving the marketplace.
+
+The sidepanel connects to the user's wallet on the host page via an EIP-1193 proxy bridge, so no separate wallet connection is needed. Dynamic page content is handled via DOM observation to ensure buttons appear on newly loaded elements.
 
 ---
 
@@ -317,5 +335,4 @@ Profile owners can send native tokens to any address directly from their wallet 
 
 - **File Sharing**: P2P file transfer via WebRTC data channel
 - **Mobile Wallet Support**: WalletConnect for mobile wallet apps
-- **Browser Extension**: Inject GhostTalkie button next to wallet addresses on NFT marketplaces (blur.io, OpenSea, etc.) — shell app exists at `apps/extension` (WXT + React)
 - **OTC Trade Room**: P2P negotiation with smart contract escrow
