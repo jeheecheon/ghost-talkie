@@ -11,7 +11,7 @@ export default defineConfig({
   manifest: {
     name: "GhostTalkie",
     description: "P2P chat with Web3 wallet identity",
-    permissions: ["activeTab", "storage", "tabs"],
+    permissions: ["activeTab", "storage"],
     icons: {
       "16": "icon-16.png",
       "32": "icon-32.png",

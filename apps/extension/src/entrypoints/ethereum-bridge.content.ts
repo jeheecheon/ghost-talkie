@@ -24,10 +24,9 @@ function relayToMainWorld(
 }
 
 export default defineContentScript({
-  matches: ["http://*/*", "https://*/*"],
+  matches: ["https://*/*"],
   runAt: "document_start",
-
-  main() {
+  main: () => {
     chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       if (message.type === BridgeMessage.WalletDiscoveryRequest) {
         relayToMainWorld(

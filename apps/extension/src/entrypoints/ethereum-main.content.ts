@@ -10,11 +10,10 @@ import { BridgeMessage } from "@/lib/wallet-provider-proxy";
 const PROVIDER_DISCOVERY_TIMEOUT_MS = 300;
 
 export default defineContentScript({
-  matches: ["http://*/*", "https://*/*"],
+  matches: ["https://*/*"],
   world: "MAIN",
   runAt: "document_start",
-
-  main() {
+  main: () => {
     const providers = new Map<string, EIP6963ProviderDetail>();
     let selectedRdns: Nullable<string> = null;
     let unsubscribeEvents: Nullable<() => void> = null;
