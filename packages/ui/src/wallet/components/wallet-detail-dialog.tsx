@@ -6,6 +6,7 @@ import type { EnsProfile } from "@workspace/ui/wallet/types";
 import { Button } from "@workspace/ui/primitives/button";
 import CopyableText from "@workspace/ui/primitives/copyable-text";
 import ResponsiveDialog from "@workspace/ui/primitives/responsive-dialog";
+import { cn } from "@workspace/lib/cn";
 
 type WalletDetailDialogProps = {
   className?: string;
@@ -28,13 +29,13 @@ export default function WalletDetailDialog({
 
   return (
     <ResponsiveDialog
-      className={className}
+      className={cn("flex flex-col", className)}
       isOpen={isOpen}
       title="Connected Wallet"
       onClose={onClose}
     >
       <div className="space-y-4 px-4">
-        <div className="space-y-1">
+        <div className="flex flex-col space-y-1">
           {ensProfile?.ensName && (
             <p className="text-sm font-medium">{ensProfile.ensName}</p>
           )}
