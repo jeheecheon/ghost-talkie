@@ -32,39 +32,38 @@ const BUTTON_STYLES = `
   :host {
     display: inline-flex;
     vertical-align: middle;
-    padding: 6px;
+    padding: 4px;
   }
 
   .ghost-btn {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 4px 10px 4px 6px;
-    border-radius: 20px;
-    border: 1px solid #2d3748;
-    background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+    gap: 6px;
+    padding: 6px 12px 6px 8px;
+    border-radius: 28px;
+    border: 1px solid #d1d5db;
+    background: #fff;
     cursor: pointer;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-size: 12px;
     font-weight: 600;
-    color: #f3f4f6;
+    color: #1f2937;
     line-height: 1;
     white-space: nowrap;
     transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    outline: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
   }
 
   .ghost-btn:hover {
-    border-color: #4b5563;
-    background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    border-color: #9ca3af;
+    background: #f9fafb;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     transform: translateY(-1px);
   }
 
   .ghost-btn:active {
     transform: translateY(0);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
   }
 
   .ghost-btn:focus-visible {
@@ -73,13 +72,32 @@ const BUTTON_STYLES = `
   }
 
   .ghost-btn svg {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     flex-shrink: 0;
   }
 
   .ghost-btn span {
     letter-spacing: -0.01em;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .ghost-btn {
+      border-color: #2d3748;
+      background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+      color: #f3f4f6;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .ghost-btn:hover {
+      border-color: #4b5563;
+      background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .ghost-btn:active {
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
   }
 `;
 
@@ -91,9 +109,9 @@ export function createGhostButton(address: string): HTMLElement {
 
   shadow.innerHTML = `
     <style>${BUTTON_STYLES}</style>
-    <button class="ghost-btn" title="Chat on Ghost Talkie">
+    <button class="ghost-btn" type="button" title="Message this wallet owner directly using your Web3 identity">
       ${GHOST_SVG}
-      <span>Ghost Talkie</span>
+      <span>Chat Anonymously</span>
     </button>
   `;
 
