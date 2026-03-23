@@ -7,7 +7,7 @@ import { Button } from "@workspace/ui/primitives/button";
 import CopyableText from "@workspace/ui/primitives/copyable-text";
 import ResponsiveDialog from "@workspace/ui/primitives/responsive-dialog";
 
-type WalletConnectionDialogProps = {
+type WalletDetailDialogProps = {
   className?: string;
   isOpen: boolean;
   address: Address;
@@ -16,14 +16,14 @@ type WalletConnectionDialogProps = {
   onNavigate: (path: string) => void;
 };
 
-export default function WalletConnectionDialog({
+export default function WalletDetailDialog({
   className,
   isOpen,
   address,
   ensProfile,
   onClose,
   onNavigate,
-}: WalletConnectionDialogProps) {
+}: WalletDetailDialogProps) {
   const { mutate: disconnect } = useDisconnect();
 
   return (

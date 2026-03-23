@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useConnection } from "wagmi";
-import { useAppKit } from "@reown/appkit/react";
 import { Button } from "@workspace/ui/primitives/button";
 import { shortenAddress } from "@workspace/lib/address";
+import { useWalletSelectDialog } from "@workspace/ui/wallet/context/wallet-select-dialog-provider";
 import useEnsProfile from "@workspace/ui/wallet/hooks/use-ens-profile";
-import WalletConnectionDialog from "@workspace/ui/wallet/components/wallet-connection-dialog";
+import WalletDetailDialog from "@workspace/ui/wallet/components/wallet-detail-dialog";
 
 type WalletChipProps = {
   className?: string;
@@ -15,8 +15,8 @@ export default function WalletChip({ className, onNavigate }: WalletChipProps) {
   const [isDialogOpen, setIsDrawerOpen] = useState(false);
 
   const { address, isConnected } = useConnection();
-  const { open } = useAppKit();
   const { data: ensProfile } = useEnsProfile({ address });
+  const { open } = useWalletSelectDialog();
 
   const displayName =
     ensProfile?.ensName ?? (address ? shortenAddress(address) : "");
@@ -33,7 +33,7 @@ export default function WalletChip({ className, onNavigate }: WalletChipProps) {
           >
             {displayName}
           </Button>
-          <WalletConnectionDialog
+          <WalletDetailDialog
             address={address}
             ensProfile={ensProfile}
             isOpen={isDialogOpen}
@@ -42,7 +42,7 @@ export default function WalletChip({ className, onNavigate }: WalletChipProps) {
           />
         </>
       ) : (
-        <Button size="sm" onClick={handleConnect}>
+        <Button size="sm" onClick={open}>
           Connect
         </Button>
       )}
@@ -55,9 +55,5 @@ export default function WalletChip({ className, onNavigate }: WalletChipProps) {
 
   function handleCloseDialog() {
     setIsDrawerOpen(false);
-  }
-
-  function handleConnect() {
-    void open();
   }
 }
