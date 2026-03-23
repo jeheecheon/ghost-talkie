@@ -5,7 +5,7 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["build/**", "dist/**", ".output/**"],
-      "env": ["ENABLED_FEATURES", "NOTIFICATION_SOUND_URL"]
+      "env": ["BASE_PATH", "ENABLED_FEATURES", "NOTIFICATION_SOUND_URL"]
     },
     "dev": {
       "cache": false,

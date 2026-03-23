@@ -11,6 +11,7 @@ export default defineConfig({
   base: process.env.BASE_PATH || "/",
   plugins: [tailwindcss(), reactRouter(), markdown({ mode: [Mode.HTML] })],
   define: {
+    "process.env.BASE_PATH": JSON.stringify(process.env.BASE_PATH),
     "process.env.ENABLED_FEATURES": JSON.stringify(
       process.env.ENABLED_FEATURES,
     ),

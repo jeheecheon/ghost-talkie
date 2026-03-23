@@ -1,7 +1,7 @@
 import { cn } from "@workspace/lib/cn";
 import AddressSearchForm from "@workspace/ui/search/components/address-search-form";
-import type { Address } from "viem";
 import useSearchHistory from "@workspace/ui/search/hooks/use-search-history";
+import type { Address } from "viem";
 
 type SearchSectionProps = {
   className?: string;

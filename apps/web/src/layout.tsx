@@ -25,7 +25,6 @@ export function Layout({ children }: PropsWithChildren) {
           content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"
         />
         <meta name="theme-color" />
-        <title>GhostTalkie</title>
         <Meta />
         <Links />
       </head>

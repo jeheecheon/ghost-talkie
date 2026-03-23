@@ -1,5 +1,6 @@
 export const ENV = {
   IS_PRODUCTION: import.meta.env.PROD,
+  BASE_PATH: import.meta.env.BASE_URL,
   NOSTR_TOPIC_PREFIX: import.meta.env.VITE_TOPIC_PREFIX ?? "ghosttalkie",
   NOSTR_RELAYS: import.meta.env.VITE_RELAYS?.split(",") ?? [
     "wss://relay.damus.io",
