@@ -58,6 +58,17 @@ export default function WalletSelectDialog() {
           </ul>
         )}
       </div>
+      <p className="text-muted-foreground px-4 pb-1 text-center text-xs">
+        By connecting, you agree to our{" "}
+        <a
+          className="underline underline-offset-2"
+          href="https://jeheecheon.github.io/ghost-talkie/privacy-policy"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Privacy Policy
+        </a>
+      </p>
     </ResponsiveDialog>
   );
 
