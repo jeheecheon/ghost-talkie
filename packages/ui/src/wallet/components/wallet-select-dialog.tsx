@@ -6,6 +6,7 @@ import { cn } from "@workspace/lib/cn";
 import ResponsiveDialog from "@workspace/ui/primitives/responsive-dialog";
 import { useInjectedWallet } from "@workspace/ui/wallet/context/injected-wallet-provider";
 import { useWalletSelectDialog } from "@workspace/ui/wallet/context/wallet-select-dialog-provider";
+import { ENV } from "@workspace/ui/configs/env";
 
 export default function WalletSelectDialog() {
   const { discover, connect } = useInjectedWallet();
@@ -62,7 +63,7 @@ export default function WalletSelectDialog() {
         By connecting, you agree to our{" "}
         <a
           className="underline underline-offset-2"
-          href="https://jeheecheon.github.io/ghost-talkie/privacy-policy"
+          href={ENV.PRIVACY_POLICY_URL}
           target="_blank"
           rel="noopener noreferrer"
         >

@@ -29,6 +29,9 @@ export default defineConfig({
       "process.env.NOTIFICATION_SOUND_URL": JSON.stringify(
         process.env.NOTIFICATION_SOUND_URL ?? "/sounds/ghost-cute.wav",
       ),
+      "process.env.PRIVACY_POLICY_URL": JSON.stringify(
+        process.env.PRIVACY_POLICY_URL,
+      ),
     },
     resolve: {
       alias: {
