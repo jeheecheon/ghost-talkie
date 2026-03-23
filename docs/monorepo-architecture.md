@@ -81,8 +81,8 @@ Level 5     apps/web, apps/extension    ← Routing, layouts, app glue
 **Why this order matters:**
 
 - `domain` has no React dependency. It can run in Node, a worker thread, or any future runtime without modification.
-- `ui` imports from `domain` to connect business logic to React state. This is the only layer where React hooks wrap domain classes.
-- `apps/` import from `ui` and compose pages. They never import from `domain` directly — always through `ui` hooks.
+- `ui` imports from `domain` to connect business logic to React state. This is the primary layer where React hooks wrap domain classes.
+- `apps/` import from `ui` and compose pages. For domain classes that need React lifecycle management (subscriptions, cleanup), apps import through `ui` hooks. For stateless utilities and configuration (e.g., `EIP6963Discovery`, chain definitions), apps may import from `domain` directly.
 
 ---
 
@@ -397,8 +397,10 @@ import { useState } from "react"              // domain has no React dependency
 // packages/lib importing from domain
 import { ChatClient } from "../domain/..."    // lib is below domain
 
-// apps/ importing domain directly (bypass ui hooks)
+// apps/ importing stateful domain classes directly (bypass ui hooks)
 import { ChatClient } from "@workspace/domain/p2p/chat-client"  // use ui hooks instead
+// OK: stateless utilities and config from domain
+// import { EIP6963Discovery } from "@workspace/domain/wallet/eip6963"
 
 // Feature importing from another feature within packages/ui
 import { useWallet } from "../wallet/hooks/use-wallet"  // extract to shared if needed
