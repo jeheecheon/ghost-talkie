@@ -5,7 +5,12 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["build/**", "dist/**", ".output/**"],
-      "env": ["BASE_PATH", "REOWN_PROJECT_ID", "ENABLED_FEATURES", "NOTIFICATION_SOUND_URL"]
+      "env": [
+        "BASE_PATH",
+        "ENABLED_FEATURES",
+        "NOTIFICATION_SOUND_URL",
+        "PRIVACY_POLICY_URL"
+      ]
     },
     "dev": {
       "cache": false,

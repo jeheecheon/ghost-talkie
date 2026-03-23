@@ -34,7 +34,6 @@ jobs:
 
       - run: pnpm build
         env:
-          REOWN_PROJECT_ID: ${{ secrets.REOWN_PROJECT_ID }}
           BASE_PATH: ${{ secrets.BASE_PATH }}
 
       - run: cp apps/web/build/client/index.html apps/web/build/client/404.html
