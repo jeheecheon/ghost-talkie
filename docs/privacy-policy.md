@@ -17,15 +17,18 @@ The following data is stored locally using your browser's storage and never leav
 
 - **Bookmarks** — wallet addresses you have bookmarked
 - **Search history** — wallet addresses you have previously searched
+- **Chat session state** — active room info, unread message counts, and pending join requests (cleared when the session ends)
 - **Theme preference** — your selected display theme
 
 You can clear this data at any time through your browser settings or by uninstalling the extension.
 
 ## Peer-to-Peer Communication
 
-Chat messages are transmitted directly between peers via WebRTC. Messages are **ephemeral** — they exist only during the active session and are never stored on any server or device.
+Text and voice messages are transmitted directly between peers via WebRTC. Messages are **ephemeral** — they exist only in memory during the active session and are never persisted to disk or any server.
 
-WebRTC connections are established using Nostr relays for signaling only. The relays facilitate the initial connection but do not have access to the content of your messages.
+Voice chat requires microphone access. Permission is requested only when you choose to enable voice chat. Audio is streamed directly to the other peer via WebRTC and is not recorded or stored.
+
+WebRTC connections are established using Nostr relays for signaling only. The relays relay connection metadata (SDP offers/answers, ICE candidates) but do not have access to the content of your messages.
 
 ## Profile Comments
 
@@ -43,13 +46,14 @@ GhostTalkie connects to your Ethereum wallet through browser-injected providers 
 
 - Your **wallet address** is used as your identity within the app
 - **Signatures** are requested for identity verification (chat proof, Nostr key derivation)
+- **Native token transfers** can be initiated from a wallet profile page — the extension constructs a standard transaction request and forwards it to your wallet software for signing and broadcasting. GhostTalkie does not process, intermediate, or store any transaction data
 - **No private keys** are accessed, stored, or transmitted by GhostTalkie
 
 ## Third-Party Services
 
 | Service                                | Purpose                            | Data Shared                    |
 | -------------------------------------- | ---------------------------------- | ------------------------------ |
-| Nostr relays (relay.damus.io, nos.lol) | WebRTC signaling, profile comments | Public keys, signed comments   |
+| Nostr relays (relay.damus.io, nos.lol) | WebRTC signaling, profile comments | Public keys, signed comments, signaling metadata (SDP, ICE candidates) |
 | Reown (WalletConnect)                  | Wallet connection                  | Wallet address, chain ID       |
 | Blockchain RPC providers               | Balance and transaction queries    | Wallet addresses queried       |
 | Google STUN servers                    | WebRTC connectivity                | IP addresses (standard WebRTC) |
