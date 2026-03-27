@@ -2,7 +2,7 @@
 
 Serverless P2P chat where your Ethereum wallet is your identity. No backend, no database, no accounts — just WebRTC for direct peer connections, Nostr relays (decentralized public message brokers) for connection setup, and cryptographic signatures for identity.
 
-**[Live Demo](https://jeheecheon.github.io/ghost-talkie)** · Chrome Extension (Coming Soon)
+**[Live Demo](https://jeheecheon.github.io/ghost-talkie)** · [Chrome Extension](https://chromewebstore.google.com/detail/ghosttalkie/dknaccmogkaphhocjfcommlbfcnejalc)
 
 <p align="center">
   <img src=".github/assets/example-profile.png" alt="Wallet Profile" width="280" />
