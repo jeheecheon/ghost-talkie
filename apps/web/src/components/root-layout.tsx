@@ -22,7 +22,9 @@ export default function RootLayout({ className }: RootLayoutProps) {
         onLogoClick={handleLogoClick}
         onNavigate={handleNavigate}
       />
-      <Outlet />
+      <main>
+        <Outlet />
+      </main>
       <FloatingNavigation
         tabs={NAV_MENUS.map((tab) => ({
           ...tab,

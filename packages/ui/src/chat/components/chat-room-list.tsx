@@ -51,7 +51,6 @@ function ChatRoomItem({ room, onSelect }: ChatRoomItemProps) {
   return (
     <li
       className="bg-muted hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-3 transition-colors"
-      role="button"
       tabIndex={0}
       onClick={handleSelect}
       onKeyDown={handleKeyDown}

@@ -49,6 +49,7 @@ export default function AddressSearchForm({
             type="button"
             variant="ghost"
             size="icon-xs"
+            aria-label={hasInput ? "Clear search" : "Paste from clipboard"}
             onClick={hasInput ? () => setQuery("") : handlePaste}
           >
             {hasInput ? (

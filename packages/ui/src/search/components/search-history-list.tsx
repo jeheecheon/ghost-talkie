@@ -77,7 +77,6 @@ function SearchHistoryItem({
   return (
     <li
       className="hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
-      role="button"
       tabIndex={0}
       onClick={handleSelect}
       onKeyDown={handleKeyDown}
@@ -104,6 +103,7 @@ function SearchHistoryItem({
         className="shrink-0"
         variant="ghost"
         size="icon-xs"
+        aria-label={bookmarked ? "Remove bookmark" : "Add bookmark"}
         onClick={handleToggleBookmark}
       >
         {bookmarked ? (
@@ -117,6 +117,7 @@ function SearchHistoryItem({
         className="shrink-0"
         variant="ghost"
         size="icon-xs"
+        aria-label="Remove from history"
         onClick={handleRemove}
       >
         <X className="size-3.5" />

@@ -34,6 +34,7 @@ export default function FloatingNavigation({
               ? "bg-floating text-foreground px-5"
               : "text-muted-foreground hover:text-foreground px-4",
           )}
+          aria-label={tab.label}
           onClick={tab.onClick}
         >
           <div className="shrink-0">{tab.icon}</div>

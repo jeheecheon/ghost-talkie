@@ -51,7 +51,6 @@ function BookmarkItem({ entry, onSelect, onRemove }: BookmarkItemProps) {
   return (
     <li
       className="border-border hover:bg-accent flex cursor-pointer items-center gap-2 rounded-full border py-1.5 pr-2 pl-3 transition-colors"
-      role="button"
       tabIndex={0}
       onClick={handleSelect}
       onKeyDown={handleKeyDown}
@@ -62,7 +61,12 @@ function BookmarkItem({ entry, onSelect, onRemove }: BookmarkItemProps) {
         {entry.ensName ?? shortenAddress(entry.address)}
       </span>
 
-      <Button variant="ghost" size="icon-xs" onClick={handleRemove}>
+      <Button
+        variant="ghost"
+        size="icon-xs"
+        aria-label={`Remove ${entry.ensName ?? shortenAddress(entry.address)}`}
+        onClick={handleRemove}
+      >
         <X className="size-3" />
       </Button>
     </li>
